@@ -55,7 +55,7 @@ export default function Footer() {
                 <span>Email</span>
               </a>
               <a 
-                href="https://linkedin.com/in/henryjamesphillips" 
+                href="https://www.linkedin.com/in/henryjphillips/" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="flex items-center space-x-3 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"

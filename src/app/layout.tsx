@@ -89,7 +89,7 @@ export default function RootLayout({
             image: "https://henryp.me/headshot.jpg",
             email: "henry@henryp.me",
             sameAs: [
-              "https://linkedin.com/in/henryjamesphillips",
+              "https://www.linkedin.com/in/henryjphillips/",
               "https://github.com/uprightsleepy"
             ],
             worksFor: {
