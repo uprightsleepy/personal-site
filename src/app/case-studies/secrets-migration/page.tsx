@@ -101,7 +101,7 @@ export default function SecretsMigration() {
                 </li>
                 <li className="flex items-start space-x-3">
                   <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-2"></span>
-                  <span><strong>User Knowledge Gap:</strong> Many users didn't know what their secrets were used for</span>
+                  <span><strong>User Knowledge Gap:</strong> Many users didn&apos;t know what their secrets were used for</span>
                 </li>
                 <li className="flex items-start space-x-3">
                   <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-2"></span>
@@ -279,7 +279,7 @@ export default function SecretsMigration() {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Challenge: User Knowledge Gap</h4>
                   <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">
-                    <strong>Issue:</strong> Many users didn't know what their secrets were used for or how to migrate their code.
+                    <strong>Issue:</strong> Many users didn&apos;t know what their secrets were used for or how to migrate their code.
                   </p>
                   <p className="text-gray-700 dark:text-gray-300 text-sm">
                     <strong>Solution:</strong> Built user intake system with SQS queue for metadata collection, provided white glove support 

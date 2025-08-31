@@ -364,7 +364,7 @@ export default function About() {
                     <p className="text-gray-700 dark:text-gray-300 mt-2 text-sm">
                       This design background gives me a unique perspective on user experience and visual communication in software development. 
                       I approach problems with both aesthetic sensibility and technical rigor, understanding that great software is as much 
-                      about the user's journey as it is about the underlying architecture.
+                      about the user&apos;s journey as it is about the underlying architecture.
                     </p>
                   </div>
                 </div>
