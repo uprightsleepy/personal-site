@@ -1,88 +1,139 @@
+interface PersonData {
+  name: string
+  jobTitle: string
+  description: string
+  url: string
+  image: string
+  email: string
+  sameAs: string[]
+  worksFor?: {
+    name: string
+    url: string
+  }
+  alumniOf?: Array<{
+    name: string
+    url: string
+  }>
+  skills: string[]
+}
+
+interface ArticleData {
+  title: string
+  description: string
+  image: string
+  url: string
+  datePublished: string
+  dateModified: string
+  author: {
+    name: string
+    url: string
+  }
+  publisher: {
+    name: string
+    logo: string
+  }
+}
+
+interface WebsiteData {
+  name: string
+  description: string
+  url: string
+  author: {
+    name: string
+  }
+}
+
 interface StructuredDataProps {
   type: 'person' | 'article' | 'website'
-  data: any
+  data: PersonData | ArticleData | WebsiteData
 }
 
 export default function StructuredData({ type, data }: StructuredDataProps) {
   let structuredData = {}
 
   switch (type) {
-    case 'person':
+    case 'person': {
+      const personData = data as PersonData
       structuredData = {
         "@context": "https://schema.org",
         "@type": "Person",
-        "name": data.name,
-        "jobTitle": data.jobTitle,
-        "description": data.description,
-        "url": data.url,
-        "image": data.image,
-        "sameAs": data.sameAs,
-        "worksFor": {
+        "name": personData.name,
+        "jobTitle": personData.jobTitle,
+        "description": personData.description,
+        "url": personData.url,
+        "image": personData.image,
+        "sameAs": personData.sameAs,
+        "worksFor": personData.worksFor ? {
           "@type": "Organization",
-          "name": data.worksFor?.name,
-          "url": data.worksFor?.url
-        },
-        "alumniOf": data.alumniOf?.map((school: any) => ({
+          "name": personData.worksFor.name,
+          "url": personData.worksFor.url
+        } : undefined,
+        "alumniOf": personData.alumniOf?.map((school) => ({
           "@type": "EducationalOrganization",
           "name": school.name,
           "url": school.url
         })),
-        "knowsAbout": data.skills,
-        "email": data.email,
+        "knowsAbout": personData.skills,
+        "email": personData.email,
         "address": {
           "@type": "PostalAddress",
           "addressCountry": "US"
         }
       }
       break
+    }
     
-    case 'article':
+    case 'article': {
+      const articleData = data as ArticleData
       structuredData = {
         "@context": "https://schema.org",
         "@type": "Article",
-        "headline": data.title,
-        "description": data.description,
-        "image": data.image,
+        "headline": articleData.title,
+        "description": articleData.description,
+        "image": articleData.image,
         "author": {
           "@type": "Person",
-          "name": data.author.name,
-          "url": data.author.url
+          "name": articleData.author.name,
+          "url": articleData.author.url
         },
         "publisher": {
           "@type": "Organization",
-          "name": data.publisher.name,
+          "name": articleData.publisher.name,
           "logo": {
             "@type": "ImageObject",
-            "url": data.publisher.logo
+            "url": articleData.publisher.logo
           }
         },
-        "datePublished": data.datePublished,
-        "dateModified": data.dateModified,
+        "datePublished": articleData.datePublished,
+        "dateModified": articleData.dateModified,
         "mainEntityOfPage": {
           "@type": "WebPage",
-          "@id": data.url
+          "@id": articleData.url
         }
       }
       break
+    }
     
-    case 'website':
+    case 'website': {
+      const websiteData = data as WebsiteData
       structuredData = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": data.name,
-        "description": data.description,
-        "url": data.url,
+        "name": websiteData.name,
+        "description": websiteData.description,
+        "url": websiteData.url,
         "author": {
           "@type": "Person",
-          "name": data.author.name
+          "name": websiteData.author.name
         },
         "potentialAction": {
           "@type": "SearchAction",
-          "target": `${data.url}/search?q={search_term_string}`,
+          "target": `${websiteData.url}/search?q={search_term_string}`,
           "query-input": "required name=search_term_string"
         }
       }
       break
+    }
   }
 
   return (

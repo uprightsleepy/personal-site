@@ -108,23 +108,23 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/go.svg" alt="Go programming language logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/go.svg" alt="Go programming language logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Go</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/openjdk.svg" alt="Java programming language logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/openjdk.svg" alt="Java programming language logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Java</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/python.svg" alt="Python programming language logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/python.svg" alt="Python programming language logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Python</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/gnubash.svg" alt="Bash shell scripting logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/gnubash.svg" alt="Bash shell scripting logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Bash</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mysql.svg" alt="SQL database query language logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/mysql.svg" alt="SQL database query language logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">SQL</span>
                 </div>
               </div>
@@ -136,19 +136,19 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="Amazon Web Services (AWS) logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="Amazon Web Services (AWS) logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Amazon Web Services (AWS)</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googlecloud.svg" alt="Google Cloud Platform (GCP) logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/googlecloud.svg" alt="Google Cloud Platform (GCP) logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Google Cloud Platform (GCP)</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/awslambda.svg" alt="AWS Lambda serverless computing logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/awslambda.svg" alt="AWS Lambda serverless computing logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Lambda, ECS, RDS</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazoncloudwatch.svg" alt="Amazon CloudWatch monitoring logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazoncloudwatch.svg" alt="Amazon CloudWatch monitoring logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">CloudWatch</span>
                 </div>
               </div>
@@ -160,15 +160,15 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/terraform.svg" alt="Terraform infrastructure as code logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/terraform.svg" alt="Terraform infrastructure as code logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Terraform</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docker.svg" alt="Docker containerization platform logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/docker.svg" alt="Docker containerization platform logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Docker</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/vault.svg" alt="HashiCorp Vault secrets management logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/vault.svg" alt="HashiCorp Vault secrets management logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">HashiCorp Vault</span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -180,7 +180,7 @@ export default function About() {
                   <span className="text-gray-700 dark:text-gray-300">StrongDM</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazoniam.svg" alt="AWS Identity and Access Management (IAM) logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazoniam.svg" alt="AWS Identity and Access Management (IAM) logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">IAM</span>
                 </div>
               </div>
@@ -192,15 +192,15 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/gitlab.svg" alt="GitLab CI/CD platform logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/gitlab.svg" alt="GitLab CI/CD platform logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">GitLab CI/CD</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jenkins.svg" alt="Jenkins automation server logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/jenkins.svg" alt="Jenkins automation server logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Jenkins</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonsqs.svg" alt="Amazon Simple Queue Service (SQS) logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonsqs.svg" alt="Amazon Simple Queue Service (SQS) logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">SQS, Lambda</span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -222,11 +222,11 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/spring.svg" alt="Spring Framework logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/spring.svg" alt="Spring Framework logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Spring Batch</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/redis.svg" alt="Redis in-memory data store logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/redis.svg" alt="Redis in-memory data store logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">Redis</span>
                 </div>
                 <div className="flex items-center space-x-3">
@@ -244,7 +244,7 @@ export default function About() {
                   <span className="text-gray-700 dark:text-gray-300">Microservices</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/openapiinitiative.svg" alt="OpenAPI Specification logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/openapiinitiative.svg" alt="OpenAPI Specification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300">OpenAPI Specification</span>
                 </div>
               </div>
@@ -256,15 +256,15 @@ export default function About() {
               </h3>
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS certification logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Solutions Architect Professional</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Security Specialization</span>
                 </div>
                 <div className="flex items-center space-x-3">
-                  <img src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA Security+ certification logo" className="w-5 h-5 dark:invert" />
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA Security+ certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300 text-sm">CompTIA Security+</span>
                 </div>
                 <div className="flex items-center space-x-3">
