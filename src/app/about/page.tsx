@@ -2,13 +2,27 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 
 export const metadata: Metadata = {
-  title: 'About Henry Phillips - Software Engineer & Cloud Architect',
-  description: 'Learn about Henry Phillips, a software engineer specializing in cloud security, microservices architecture, and Fortune 100 enterprise systems. Experience with AWS, GCP, Go, Java, and Python.',
-  keywords: ['Henry Phillips', 'Software Engineer Bio', 'Cloud Security Consultant', 'ScaleSec', 'Northwestern Mutual', 'Enterprise Software'],
+  title: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
+  description: 'Learn about Henry Phillips, a Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. From graphic design to software engineering, helping organizations build secure, usable systems.',
+  keywords: ['Henry Phillips', 'Cloud Security Consultant', 'Software Engineer', 'ScaleSec', 'Secure Cloud Architecture', 'Design to Engineering'],
   openGraph: {
-    title: 'About Henry Phillips - Software Engineer & Cloud Architect',
-    description: 'Learn about Henry Phillips, a software engineer specializing in cloud security, microservices architecture, and Fortune 100 enterprise systems.',
+    title: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Learn about Henry Phillips, a Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. From graphic design to software engineering.',
     url: 'https://henryp.me/about',
+    images: [
+      {
+        url: '/og-about.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Learn about Henry Phillips, specializing in secure cloud architectures. From graphic design to software engineering.',
+    images: ['/og-about.jpg'],
   },
 }
 

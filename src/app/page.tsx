@@ -1,4 +1,29 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+  description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations of all sizes build better, more secure systems.',
+  openGraph: {
+    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations of all sizes build better, more secure systems.',
+    url: 'https://henryp.me',
+    images: [
+      {
+        url: '/og-home.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.',
+    images: ['/og-home.jpg'],
+  },
+}
 
 export default function Home() {
   return (

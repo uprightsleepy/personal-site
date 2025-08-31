@@ -2,13 +2,27 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Case Studies - Henry Phillips | Enterprise Software Engineering Solutions',
-  description: 'Real-world case studies showcasing enterprise-scale software engineering solutions, cloud migrations, and security implementations at Fortune 100 companies.',
-  keywords: ['Software Engineering Case Studies', 'Cloud Migration', 'Enterprise Security', 'HashiCorp Vault', 'AWS Secrets Manager', 'Fortune 100', 'System Architecture'],
+  title: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering Solutions',
+  description: 'Real-world case studies showcasing cloud security solutions, large-scale migrations, and secure system architectures across organizations of all sizes.',
+  keywords: ['Cloud Security Case Studies', 'Software Engineering', 'Cloud Migration', 'HashiCorp Vault', 'AWS Secrets Manager', 'System Architecture', 'Security Engineering'],
   openGraph: {
-    title: 'Case Studies - Henry Phillips | Enterprise Software Engineering Solutions',
-    description: 'Real-world case studies showcasing enterprise-scale software engineering solutions and cloud migrations.',
+    title: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering Solutions',
+    description: 'Real-world case studies showcasing cloud security solutions, large-scale migrations, and secure system architectures.',
     url: 'https://henryp.me/case-studies',
+    images: [
+      {
+        url: '/og-case-studies.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering Solutions',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering',
+    description: 'Real-world case studies showcasing cloud security solutions and secure system architectures.',
+    images: ['/og-case-studies.jpg'],
   },
 }
 
