@@ -3,12 +3,26 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager | Henry Phillips',
-  description: 'A detailed case study of migrating 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 financial services institution.',
-  keywords: ['HashiCorp Vault Migration', 'AWS Secrets Manager', 'Enterprise Security', 'Lambda Architecture', 'Financial Services', 'Secret Management'],
+  description: 'A detailed case study of migrating 68,000+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
+  keywords: ['HashiCorp Vault Migration', 'AWS Secrets Manager', 'Cloud Security', 'Lambda Architecture', 'Secret Management', 'Fault Tolerance'],
   openGraph: {
-    title: 'Secrets Migration Case Study: 62.8K+ Secrets Migrated',
-    description: 'How we architected and executed a large-scale secrets migration for a Fortune 100 financial services company.',
+    title: 'Secrets Migration Case Study: 68,000+ Secrets Migrated | Henry Phillips',
+    description: 'How we architected and executed a large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
     url: 'https://henryp.me/case-studies/secrets-migration',
+    images: [
+      {
+        url: '/api/og?title=Secrets Migration Case Study&subtitle=68,000+ Secrets Migrated&type=case-study',
+        width: 1200,
+        height: 630,
+        alt: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Secrets Migration Case Study: 68,000+ Secrets Migrated',
+    description: 'Large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
+    images: ['/api/og?title=Secrets Migration Case Study&subtitle=68,000+ Secrets Migrated&type=case-study'],
   },
 }
 

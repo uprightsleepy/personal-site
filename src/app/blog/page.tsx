@@ -3,12 +3,26 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Technical Writing by Henry Phillips - Cloud Security & Software Engineering',
-  description: 'Read technical articles by Henry Phillips on cloud security, AI infrastructure, microservices, and software engineering. Featured content from ScaleSec and personal insights.',
+  description: 'Read technical articles by Henry Phillips on cloud security, AI infrastructure, and software engineering. Practical insights from working with systems of all sizes.',
   keywords: ['Henry Phillips Blog', 'Technical Writing', 'Cloud Security Articles', 'AI Security', 'MCP Servers', 'Jules AI', 'Software Engineering Blog'],
   openGraph: {
-    title: 'Technical Writing by Henry Phillips',
-    description: 'Technical articles on cloud security, AI infrastructure, microservices, and software engineering.',
+    title: 'Technical Writing by Henry Phillips - Cloud Security & Software Engineering',
+    description: 'Technical articles on cloud security, AI infrastructure, and software engineering. Practical insights from working with systems of all sizes.',
     url: 'https://henryp.me/blog',
+    images: [
+      {
+        url: '/api/og?title=Technical Writing&subtitle=Cloud Security & Software Engineering Insights',
+        width: 1200,
+        height: 630,
+        alt: 'Technical Writing by Henry Phillips - Cloud Security & Software Engineering',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Technical Writing by Henry Phillips',
+    description: 'Technical articles on cloud security, AI infrastructure, and software engineering.',
+    images: ['/api/og?title=Technical Writing&subtitle=Cloud Security & Software Engineering Insights'],
   },
 }
 

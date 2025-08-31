@@ -1,13 +1,27 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Contact Henry Phillips - Software Engineer & Cloud Security Consultant',
-  description: 'Get in touch with Henry Phillips for software engineering consulting, cloud architecture projects, or technical discussions. Available for Fortune 100 enterprise consulting.',
-  keywords: ['Contact Henry Phillips', 'Software Engineering Consulting', 'Cloud Security Consultant', 'Enterprise Architecture', 'Technical Consulting'],
+  title: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
+  description: 'Get in touch with Henry Phillips for cloud security consulting, software engineering projects, or technical discussions. Available for organizations of all sizes.',
+  keywords: ['Contact Henry Phillips', 'Cloud Security Consultant', 'Software Engineering', 'Secure Architecture', 'Technical Consulting'],
   openGraph: {
-    title: 'Contact Henry Phillips - Software Engineer & Cloud Security Consultant',
-    description: 'Get in touch with Henry Phillips for software engineering consulting, cloud architecture projects, or technical discussions.',
+    title: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Get in touch with Henry Phillips for cloud security consulting, software engineering projects, or technical discussions.',
     url: 'https://henryp.me/contact',
+    images: [
+      {
+        url: '/api/og?title=Contact Henry Phillips&subtitle=Let\'s Build Secure Systems Together',
+        width: 1200,
+        height: 630,
+        alt: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Get in touch for cloud security consulting, software engineering projects, or technical discussions.',
+    images: ['/api/og?title=Contact Henry Phillips&subtitle=Let\'s Build Secure Systems Together'],
   },
 }
 

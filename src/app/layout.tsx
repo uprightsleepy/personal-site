@@ -11,10 +11,10 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: {
-    default: 'Henry Phillips - Software Engineer',
+    default: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
     template: '%s | Henry Phillips'
   },
-  description: 'Software Engineer specializing in cloud architecture, microservices, and security. Experience with Fortune 100 financial services, AWS, GCP, and enterprise systems.',
+  description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations of all sizes build better, more secure systems.',
   keywords: ['Software Engineer', 'Cloud Architecture', 'AWS', 'GCP', 'Microservices', 'Security', 'Go', 'Java', 'Python', 'Enterprise Software'],
   authors: [{ name: 'Henry Phillips' }],
   creator: 'Henry Phillips',
@@ -24,8 +24,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://henryp.me',
     siteName: 'Henry Phillips',
-    title: 'Henry Phillips - Software Engineer',
-    description: 'Software Engineer specializing in cloud architecture, microservices, and security. Experience with Fortune 100 financial services.',
+    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.',
     images: [
       {
         url: '/headshot.jpg',
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Henry Phillips - Software Engineer',
-    description: 'Software Engineer specializing in cloud architecture, microservices, and security.',
+    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures and helping organizations build secure systems.',
     images: ['/headshot.jpg'],
   },
   robots: {
@@ -73,8 +73,8 @@ export default function RootLayout({
         <StructuredData 
           type="website"
           data={{
-            name: "Henry Phillips - Software Engineer",
-            description: "Software Engineer specializing in cloud architecture, microservices, and security. Experience with Fortune 100 financial services.",
+            name: "Henry Phillips - Cloud Security Consultant & Software Engineer",
+            description: "Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.",
             url: "https://henryp.me",
             author: { name: "Henry Phillips" }
           }}
@@ -84,7 +84,7 @@ export default function RootLayout({
           data={{
             name: "Henry Phillips",
             jobTitle: "Cloud Security Consultant",
-            description: "Software Engineer specializing in cloud architecture, microservices, and security. Experience with Fortune 100 financial services.",
+            description: "Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.",
             url: "https://henryp.me",
             image: "https://henryp.me/headshot.jpg",
             email: "henry@henryp.me",
