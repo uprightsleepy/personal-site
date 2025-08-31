@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -25,7 +24,7 @@ export default function About() {
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-2">
               <p className="text-xl leading-relaxed text-gray-700 dark:text-gray-300 mb-6">
-                I'm a software engineer who specializes in building secure, scalable systems for enterprise environments. 
+                I&apos;m a software engineer who specializes in building secure, scalable systems for enterprise environments. 
                 My experience spans cloud architecture, microservices development, and security engineering, with a focus 
                 on Fortune 100 financial services organizations.
               </p>
@@ -288,7 +287,7 @@ export default function About() {
                   <span className="text-4xl">💻</span>
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Bachelor of Science in Software Development</h3>
-                    <p className="text-blue-600 dark:text-blue-400 font-medium">Western Governor's University</p>
+                    <p className="text-blue-600 dark:text-blue-400 font-medium">Western Governor&apos;s University</p>
                     <p className="text-gray-600 dark:text-gray-400">May 2020 – October 2022</p>
                   </div>
                 </div>
@@ -332,7 +331,7 @@ export default function About() {
           <div className="space-y-4 text-lg text-gray-700 dark:text-gray-300">
             <p>
               I believe great software engineering means building systems that are secure by design, perform well under load, 
-              and don't make other developers' lives miserable. Security isn't something you bolt on afterward—it's a 
+              and don&apos;t make other developers&apos; lives miserable. Security isn&apos;t something you bolt on afterward—it&apos;s a 
               fundamental part of good architecture.
             </p>
             <p>

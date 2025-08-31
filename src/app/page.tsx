@@ -19,7 +19,7 @@ export default function Home() {
             </p>
             <p>
               I focus on building systems that are secure by design, perform well under load, 
-              and don't make other developers' lives miserable.
+              and don&apos;t make other developers&apos; lives miserable.
             </p>
           </div>
         </div>
