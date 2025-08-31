@@ -94,9 +94,12 @@ export default function Contact() {
                   type="text"
                   id="name"
                   name="name"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors focus:outline-none"
                   placeholder="Your name"
+                  aria-describedby="name-help"
                 />
+                <span id="name-help" className="sr-only">Enter your full name</span>
               </div>
               
               <div>
@@ -107,9 +110,12 @@ export default function Contact() {
                   type="email"
                   id="email"
                   name="email"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors focus:outline-none"
                   placeholder="your.email@example.com"
+                  aria-describedby="email-help"
                 />
+                <span id="email-help" className="sr-only">Enter your email address for replies</span>
               </div>
               
               <div>
@@ -120,9 +126,12 @@ export default function Contact() {
                   type="text"
                   id="subject"
                   name="subject"
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors focus:outline-none"
                   placeholder="What's this about?"
+                  aria-describedby="subject-help"
                 />
+                <span id="subject-help" className="sr-only">Brief description of your inquiry</span>
               </div>
               
               <div>
@@ -133,17 +142,22 @@ export default function Contact() {
                   id="message"
                   name="message"
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors resize-vertical"
+                  required
+                  className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 transition-colors resize-vertical focus:outline-none"
                   placeholder="Your message..."
+                  aria-describedby="message-help"
                 />
+                <span id="message-help" className="sr-only">Detailed message about your inquiry</span>
               </div>
               
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl hover:scale-[1.02]"
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-xl transition-all duration-300 font-medium text-lg shadow-lg hover:shadow-xl hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
+                aria-describedby="submit-help"
               >
                 Send Message
               </button>
+              <span id="submit-help" className="sr-only">Submit your contact form</span>
             </form>
             
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">

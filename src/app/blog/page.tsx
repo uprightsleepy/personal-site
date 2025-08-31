@@ -77,7 +77,7 @@ export default function Blog() {
                       {article.platform === "ScaleSec" ? (
                         <Image 
                           src="/lock.png" 
-                          alt="ScaleSec" 
+                          alt="ScaleSec company logo" 
                           width={20}
                           height={20}
                           className="w-5 h-5"
