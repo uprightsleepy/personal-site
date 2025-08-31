@@ -26,8 +26,8 @@ export default function Contact() {
             
             <div className="space-y-6">
               <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                I'm always interested in discussing software engineering, cloud architecture, 
-                and security challenges. Whether you're looking for consulting, collaboration, 
+                I&apos;m always interested in discussing software engineering, cloud architecture, 
+                and security challenges. Whether you&apos;re looking for consulting, collaboration, 
                 or just want to chat about tech, feel free to reach out.
               </p>
               
@@ -147,20 +147,20 @@ export default function Contact() {
             </form>
             
             <p className="text-sm text-gray-600 dark:text-gray-400 mt-4">
-              Note: This form is for display purposes. To enable functionality, you'll need to add a form handler.
+              Note: This form is for display purposes. To enable functionality, you&apos;ll need to add a form handler.
             </p>
           </div>
         </div>
         
         {/* Additional Info */}
         <div className="mt-16 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-xl p-8 border border-gray-200 dark:border-gray-600">
-          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Let's Connect</h2>
+          <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Let&apos;s Connect</h2>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
               <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">🤝 Consulting & Collaboration</h3>
               <p className="text-gray-700 dark:text-gray-300">
                 Looking for help with cloud architecture, security implementations, or system design? 
-                I'm available for consulting projects and technical advisory roles.
+                I&apos;m available for consulting projects and technical advisory roles.
               </p>
             </div>
             <div>
