@@ -16,7 +16,7 @@ export default function Blog() {
   const articles = [
     {
       title: "Jules and the Rise of Agentic AI",
-      summary: "A hands-on evaluation of Google's Jules, an agentic AI that autonomously writes code, runs tests, and creates pull requests. Explores real-world testing scenarios including Go unit tests and CLI tool development, examining where AI excels and where human oversight remains critical.",
+      summary: "This hands-on evaluation examines Google's Jules, an agentic AI that autonomously writes code, runs tests, and creates pull requests. The article explores real-world testing scenarios including Go unit tests and CLI tool development, examining where AI excels and where human oversight remains critical.",
       platform: "ScaleSec",
       date: "2025",
       tags: ["Agentic AI", "Software Development", "Go", "Testing", "Automation"],
@@ -25,7 +25,7 @@ export default function Blog() {
     },
     {
       title: "MCP Servers: AI's New Attack Surface",
-      summary: "An exploration of Model Context Protocol servers and the security challenges they introduce as AI agents gain broader system access. Covers attack vectors, privilege escalation risks, and practical security frameworks for deployment.",
+      summary: "This article explores Model Context Protocol servers and the security challenges they introduce as AI agents gain broader system access. It covers attack vectors, privilege escalation risks, and practical security frameworks for deployment.",
       platform: "ScaleSec",
       date: "2025",
       tags: ["AI Security", "MCP", "Enterprise", "Attack Vectors"],
@@ -34,7 +34,7 @@ export default function Blog() {
     },
     {
       title: "Local Intelligence: Open-Weight Models for Enterprise",
-      summary: "How open-weight models enable organizations to run AI entirely within their own infrastructure, maintaining data sovereignty while leveraging advanced capabilities. Covers deployment strategies and compliance considerations.",
+      summary: "This article explains how open-weight models enable organizations to run AI entirely within their own infrastructure, maintaining data sovereignty while leveraging advanced capabilities. It covers deployment strategies and compliance considerations.",
       platform: "ScaleSec",
       date: "2025",
       tags: ["AI", "Privacy", "Compliance", "Infrastructure"],
@@ -46,7 +46,7 @@ export default function Blog() {
   return (
     <main className="container mx-auto px-4 py-12">
       <div className="max-w-4xl">
-        <h1 className="text-5xl font-bold mb-8 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold mb-8 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent leading-tight pb-2">
           Writing
         </h1>
         
@@ -77,7 +77,7 @@ export default function Blog() {
                       {article.platform === "ScaleSec" ? (
                         <Image 
                           src="/lock.png" 
-                          alt="ScaleSec" 
+                          alt="ScaleSec company logo" 
                           width={20}
                           height={20}
                           className="w-5 h-5"
@@ -95,8 +95,8 @@ export default function Blog() {
                   {article.summary}
                 </p>
                 
-                <div className="flex flex-wrap items-center justify-between">
-                  <div className="flex flex-wrap gap-2 mb-4 md:mb-0">
+                <div className="flex flex-col space-y-4">
+                  <div className="flex flex-wrap gap-2">
                     {article.tags.map((tag, tagIndex) => (
                       <span 
                         key={tagIndex}
@@ -107,15 +107,17 @@ export default function Blog() {
                     ))}
                   </div>
                   
-                  <a 
-                    href={article.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium hover:scale-105"
-                  >
-                    <span>Read Article</span>
-                    <span>→</span>
-                  </a>
+                  <div className="flex justify-end">
+                    <a 
+                      href={article.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium hover:scale-105"
+                    >
+                      <span>Read Article</span>
+                      <span>→</span>
+                    </a>
+                  </div>
                 </div>
               </article>
             ))}
