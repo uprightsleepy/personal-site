@@ -16,7 +16,7 @@ export default function About() {
   return (
     <main className="container mx-auto px-4 py-12">
       <div className="max-w-4xl">
-        <h1 className="text-5xl font-bold mb-8 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold mb-8 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent leading-tight pb-2">
           About Me
         </h1>
         
