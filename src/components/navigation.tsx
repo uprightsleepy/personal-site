@@ -37,6 +37,12 @@ export default function Navigation() {
               About
             </Link>
             <Link 
+              href="/case-studies" 
+              className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 rounded px-2 py-1"
+            >
+              Case Studies
+            </Link>
+            <Link 
               href="/blog" 
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 rounded px-2 py-1"
             >
@@ -92,6 +98,13 @@ export default function Navigation() {
               onClick={() => setIsMenuOpen(false)}
             >
               About
+            </Link>
+            <Link 
+              href="/case-studies" 
+              className="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 rounded px-2 py-2"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Case Studies
             </Link>
             <Link 
               href="/blog" 

@@ -53,7 +53,8 @@ export default function Blog() {
         <div className="mb-12">
           <p className="text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
             I write about software engineering, cloud security, and emerging technologies. 
-            My focus is on practical insights from working with enterprise systems and Fortune 100 environments.
+            My focus is on practical insights from working with systems of all sizes, 
+            from startup prototypes to enterprise-scale architectures.
           </p>
         </div>
 

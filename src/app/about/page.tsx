@@ -25,13 +25,13 @@ export default function About() {
           <div className="grid md:grid-cols-3 gap-8 items-start">
             <div className="md:col-span-2">
               <p className="text-xl leading-relaxed text-gray-700 dark:text-gray-300 mb-6">
-                I&apos;m a software engineer who specializes in building secure, scalable systems for enterprise environments. 
-                My experience spans cloud architecture, microservices development, and security engineering, with a focus 
-                on Fortune 100 financial services organizations.
+                I&apos;m a Cloud Security Consultant at ScaleSec specializing in secure cloud architectures and software engineering. 
+                I love helping organizations of all sizes build better, more secure systems.
               </p>
               <p className="text-xl leading-relaxed text-gray-700 dark:text-gray-300">
-                Currently, I work as a Cloud Security Consultant at ScaleSec, where I help organizations design and 
-                implement secure cloud architectures while maintaining my core focus on software engineering and system design.
+                What sets me apart is my unique journey from graphic design to software engineering. This design background 
+                deeply informs my approach to system architecture, helping me build solutions that are secure, scalable, 
+                and genuinely usable.
               </p>
             </div>
             
@@ -64,15 +64,30 @@ export default function About() {
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Cloud Security Consultant</h3>
                   <p className="text-lg text-blue-600 dark:text-blue-400 font-medium">ScaleSec</p>
                 </div>
-                <span className="text-gray-600 dark:text-gray-400 font-medium">April 2024 – Present</span>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">May 2025 – Present</span>
               </div>
               
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                <p>• Architected enterprise StrongDM access management solutions on Google Cloud Platform, designing secure cloud workflows</p>
-                <p>• Built scalable secrets migration architecture for Fortune 100 financial services, migrating 62.8k+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, ECS, and RDS</p>
-                <p>• Developed reusable blueprints and automation frameworks adopted by 78+ teams for standardized governance</p>
-                <p>• Integrated security solutions into CI/CD workflows using Jenkins for automated deployment practices</p>
-                <p>• Implemented CloudWatch logging and metrics for real-time observability and incident response</p>
+                <p>• Designed and implemented a secure, cloud-native CI/CD platform on GCP using Cloud Build, Deploy, and ArgoCD; enforced least-privilege access via custom IAM roles, improving release control for a Fortune 250 client</p>
+                <p>• Develop reusable IAM frameworks, secure serverless patterns (Lambda, API Gateway), and CI/CD pipelines using Terraform, reducing manual config errors and boosting deployment consistency</p>
+                <p>• Advise engineering leads and product stakeholders on threat modeling and cloud security, influencing architecture decisions and reducing exposure to identity-related risks</p>
+                <p>• Lead vulnerability remediation and secure workload migrations, improving client compliance scores and strengthening overall GCP security posture</p>
+              </div>
+            </div>
+
+            {/* Cloud Security Engineer */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Cloud Security Engineer</h3>
+                  <p className="text-lg text-blue-600 dark:text-blue-400 font-medium">ScaleSec</p>
+                </div>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">April 2024 – May 2025</span>
+              </div>
+              
+              <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                <p>• Migrated ~62,800 secrets from Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS, improving fault tolerance for a Fortune 100 client</p>
+                <p>• Collaborated with app teams to secure containerized apps, proactively remediating vulnerabilities and strengthening runtime defenses in AWS ECS and Lambda environments</p>
               </div>
             </div>
 
@@ -83,15 +98,43 @@ export default function About() {
                   <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Software Engineer</h3>
                   <p className="text-lg text-blue-600 dark:text-blue-400 font-medium">Northwestern Mutual</p>
                 </div>
-                <span className="text-gray-600 dark:text-gray-400 font-medium">June 2022 – April 2024</span>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">October 2022 – April 2024</span>
               </div>
               
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                <p>• Developed enterprise microservices serving critical business functions for thousands of users</p>
-                <p>• Built e-Signature integration reducing death claims processing time by 78% (36 to 8 days)</p>
-                <p>• Led security hardening initiative across 48 services, reducing critical vulnerabilities by 82%</p>
-                <p>• Refactored legacy batch processing into modular microservices using Spring Batch and Redis, reducing runtime by 63%</p>
-                <p>• Operated as Risk Engineer with enterprise GRC to identify and mitigate security vulnerabilities</p>
+                <p>• Delivered a secure eSignature product for life claims, reducing average beneficiary response time from 34 days to 2.5 days</p>
+                <p>• Developed and deployed secure microservices on AWS (DynamoDB, SQS, S3), improving data integrity and supporting faster claims processing</p>
+                <p>• Served as Risk Engineer in coordination with GRC, reducing threat exposure by identifying and mitigating vulnerabilities across cloud-based applications</p>
+              </div>
+            </div>
+
+            {/* Software Engineering Intern */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Software Engineering Intern</h3>
+                  <p className="text-lg text-blue-600 dark:text-blue-400 font-medium">Northwestern Mutual</p>
+                </div>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">June 2022 – October 2022</span>
+              </div>
+              
+              <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                <p>• Integrated Spring Batch, Redis, and micro-threading to cut report generation time by 60%; supported agile backend delivery with QA collaboration</p>
+              </div>
+            </div>
+
+            {/* Graphic Designer */}
+            <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-8 shadow-sm">
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h3 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">Graphic Designer</h3>
+                  <p className="text-lg text-blue-600 dark:text-blue-400 font-medium">Beaver Freight Inc.</p>
+                </div>
+                <span className="text-gray-600 dark:text-gray-400 font-medium">August 2021 – May 2022</span>
+              </div>
+              
+              <div className="space-y-3 text-gray-700 dark:text-gray-300">
+                <p>• Designed packaging, branding, and product photography while managing social media accounts (83% follower growth, 212% increased engagement)</p>
               </div>
             </div>
           </div>
@@ -261,11 +304,23 @@ export default function About() {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS" width={20} height={20} className="w-5 h-5 dark:invert" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Security Specialization</span>
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Security – Specialty</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA Security+ certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300 text-sm">CompTIA Security+</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA A+ certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">CompTIA A+</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 stroke-current dark:stroke-white stroke-2" viewBox="0 0 24 24" fill="none" role="img" aria-label="ITIL Foundation certification icon">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                    <line x1="8" y1="21" x2="16" y2="21"/>
+                    <line x1="12" y1="17" x2="12" y2="21"/>
+                  </svg>
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">ITIL Foundation</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <svg className="w-5 h-5 stroke-current dark:stroke-white stroke-2" viewBox="0 0 24 24" fill="none" role="img" aria-label="StrongDM Architect certification icon">
@@ -292,7 +347,7 @@ export default function About() {
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Bachelor of Science in Software Development</h3>
                     <p className="text-blue-600 dark:text-blue-400 font-medium">Western Governor&apos;s University</p>
-                    <p className="text-gray-600 dark:text-gray-400">May 2020 – October 2022</p>
+                    <p className="text-gray-600 dark:text-gray-400">2020 – 2022</p>
                   </div>
                 </div>
               </div>
@@ -305,9 +360,11 @@ export default function About() {
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Bachelor of Arts in Graphic Design</h3>
                     <p className="text-blue-600 dark:text-blue-400 font-medium">California State University, San Bernardino</p>
-                    <p className="text-gray-600 dark:text-gray-400">June 2017 – June 2019 • Magna Cum Laude</p>
+                    <p className="text-gray-600 dark:text-gray-400">2017 – 2019 • Magna Cum Laude</p>
                     <p className="text-gray-700 dark:text-gray-300 mt-2 text-sm">
-                      This design background gives me a unique perspective on user experience and visual communication in software development.
+                      This design background gives me a unique perspective on user experience and visual communication in software development. 
+                      I approach problems with both aesthetic sensibility and technical rigor, understanding that great software is as much 
+                      about the user's journey as it is about the underlying architecture.
                     </p>
                   </div>
                 </div>
@@ -321,7 +378,7 @@ export default function About() {
                   <div>
                     <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Associate of Arts in Fine Art</h3>
                     <p className="text-blue-600 dark:text-blue-400 font-medium">Victor Valley Community College</p>
-                    <p className="text-gray-600 dark:text-gray-400">June 2014 – June 2017</p>
+                    <p className="text-gray-600 dark:text-gray-400">2014 – 2017</p>
                   </div>
                 </div>
               </div>

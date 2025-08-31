@@ -9,16 +9,16 @@ export default function Home() {
           <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent leading-tight pb-2">
             Henry Phillips
           </h1>
-          <p className="text-3xl text-gray-700 dark:text-gray-300 mb-8 font-light">Software Engineer</p>
+          <p className="text-3xl text-gray-700 dark:text-gray-300 mb-8 font-light">Cloud Security Consultant & Software Engineer</p>
           
           <div className="space-y-6 text-lg leading-relaxed text-gray-600 dark:text-gray-400">
             <p>
-              I build software systems that scale. My background is in full-stack 
-              development, distributed systems, and cloud architecture, with 
-              extensive experience working with Fortune 100 financial services companies.
+              I specialize in secure cloud architectures and software engineering, helping organizations 
+              of all sizes build better systems. My unique journey from graphic design to software 
+              engineering brings both aesthetic sensibility and technical rigor to every solution.
             </p>
             <p>
-              I focus on building systems that are secure by design, perform well under load, 
+              I focus on building systems that are secure by design, genuinely usable, 
               and don&apos;t make other developers&apos; lives miserable.
             </p>
           </div>
@@ -53,11 +53,11 @@ export default function Home() {
               </div>
               <div className="flex items-start space-x-2">
                 <span className="w-2 h-2 bg-orange-500 rounded-full flex-shrink-0 mt-2"></span>
-                <p className="text-gray-600 dark:text-gray-300"><span className="font-medium text-gray-900 dark:text-gray-100">Background:</span> Fortune 100 Financial Services</p>
+                <p className="text-gray-600 dark:text-gray-300"><span className="font-medium text-gray-900 dark:text-gray-100">Background:</span> Design to Software Engineering</p>
               </div>
               <div className="flex items-start space-x-2">
                 <span className="w-2 h-2 bg-pink-500 rounded-full flex-shrink-0 mt-2"></span>
-                <p className="text-gray-600 dark:text-gray-300"><span className="font-medium text-gray-900 dark:text-gray-100">Focus:</span> Enterprise Architecture & Security</p>
+                <p className="text-gray-600 dark:text-gray-300"><span className="font-medium text-gray-900 dark:text-gray-100">Focus:</span> Secure, Usable Systems</p>
               </div>
             </div>
           </div>
