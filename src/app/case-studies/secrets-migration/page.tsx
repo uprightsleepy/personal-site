@@ -39,7 +39,7 @@ export default function SecretsMigration() {
           <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
             <span>📅 Duration: 12 months total (4 months core migration)</span>
             <span>📊 Scale: 62,800+ secrets</span>
-            <span>⏱️ 10 min read</span>
+            <span>⏱️ 8 min read</span>
           </div>
           
           <div className="flex flex-wrap gap-2">
