@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     url: 'https://henryp.me/case-studies/secrets-migration',
     images: [
       {
-        url: '/og-secrets-migration.jpg',
+        url: '/api/og?title=Secrets Migration Case Study&subtitle=68,000+ Secrets Migrated&type=case-study',
         width: 1200,
         height: 630,
         alt: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Secrets Migration Case Study: 68,000+ Secrets Migrated',
     description: 'Large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
-    images: ['/og-secrets-migration.jpg'],
+    images: ['/api/og?title=Secrets Migration Case Study&subtitle=68,000+ Secrets Migrated&type=case-study'],
   },
 }
 

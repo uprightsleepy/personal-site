@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     url: 'https://henryp.me/blog',
     images: [
       {
-        url: '/og-blog.jpg',
+        url: '/api/og?title=Technical Writing&subtitle=Cloud Security & Software Engineering Insights',
         width: 1200,
         height: 630,
         alt: 'Technical Writing by Henry Phillips - Cloud Security & Software Engineering',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Technical Writing by Henry Phillips',
     description: 'Technical articles on cloud security, AI infrastructure, and software engineering.',
-    images: ['/og-blog.jpg'],
+    images: ['/api/og?title=Technical Writing&subtitle=Cloud Security & Software Engineering Insights'],
   },
 }
 

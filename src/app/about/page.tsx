@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     url: 'https://henryp.me/about',
     images: [
       {
-        url: '/og-about.jpg',
+        url: '/api/og?title=About Henry Phillips&subtitle=From Design to Software Engineering',
         width: 1200,
         height: 630,
         alt: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'About Henry Phillips - Cloud Security Consultant & Software Engineer',
     description: 'Learn about Henry Phillips, specializing in secure cloud architectures. From graphic design to software engineering.',
-    images: ['/og-about.jpg'],
+    images: ['/api/og?title=About Henry Phillips&subtitle=From Design to Software Engineering'],
   },
 }
 

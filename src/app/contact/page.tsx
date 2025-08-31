@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     url: 'https://henryp.me/contact',
     images: [
       {
-        url: '/og-contact.jpg',
+        url: '/api/og?title=Contact Henry Phillips&subtitle=Let\'s Build Secure Systems Together',
         width: 1200,
         height: 630,
         alt: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Contact Henry Phillips - Cloud Security Consultant & Software Engineer',
     description: 'Get in touch for cloud security consulting, software engineering projects, or technical discussions.',
-    images: ['/og-contact.jpg'],
+    images: ['/api/og?title=Contact Henry Phillips&subtitle=Let\'s Build Secure Systems Together'],
   },
 }
 
