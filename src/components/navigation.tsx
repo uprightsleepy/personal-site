@@ -40,7 +40,7 @@ export default function Navigation() {
               href="/blog" 
               className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 rounded px-2 py-1"
             >
-              Blog
+              Writing
             </Link>
             <Link 
               href="/contact" 
@@ -98,7 +98,7 @@ export default function Navigation() {
               className="block hover:text-blue-600 dark:hover:text-blue-400 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 rounded px-2 py-2"
               onClick={() => setIsMenuOpen(false)}
             >
-              Blog
+              Writing
             </Link>
             <Link 
               href="/contact" 
