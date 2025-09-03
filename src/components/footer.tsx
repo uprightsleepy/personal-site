@@ -38,9 +38,6 @@ export default function Footer() {
               <Link href="/blog" className="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                 Writing
               </Link>
-              <Link href="/contact" className="block text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Contact
-              </Link>
             </div>
           </div>
           
