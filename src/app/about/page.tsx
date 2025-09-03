@@ -83,9 +83,9 @@ export default function About() {
               
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
                 <p>• Designed and implemented a secure, cloud-native CI/CD platform on GCP using Cloud Build, Deploy, and ArgoCD; enforced least-privilege access via custom IAM roles, improving release control for a Fortune 250 client</p>
+                <p>• Automated retrieval and normalization of AWS resource data to populate the FedRAMP Integrated Inventory Workbook for ConMon, streamlining compliance reporting and reducing manual effort for audit readiness</p>
                 <p>• Develop reusable IAM frameworks, secure serverless patterns (Lambda, API Gateway), and CI/CD pipelines using Terraform, reducing manual config errors and boosting deployment consistency</p>
                 <p>• Advise engineering leads and product stakeholders on threat modeling and cloud security, influencing architecture decisions and reducing exposure to identity-related risks</p>
-                <p>• Lead vulnerability remediation and secure workload migrations, improving client compliance scores and strengthening overall GCP security posture</p>
               </div>
             </div>
 
@@ -100,8 +100,8 @@ export default function About() {
               </div>
               
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                <p>• Migrated ~62,800 secrets from Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS, improving fault tolerance for a Fortune 100 client</p>
-                <p>• Collaborated with app teams to secure containerized apps, proactively remediating vulnerabilities and strengthening runtime defenses in AWS ECS and Lambda environments</p>
+                <p>• Designed and wrote the Lambda functions and supporting microservices (SQS, DLQ, ECS, ALB) that migrated approximately 62,800 secrets from HashiCorp Vault to AWS Secrets Manager, improving fault tolerance for a Fortune 100 client</p>
+                <p>• Contributed directly to application codebases owned by other teams to secure containerized apps, proactively remediating vulnerabilities and strengthening runtime defenses in AWS ECS and Lambda environments</p>
               </div>
             </div>
 
@@ -133,7 +133,8 @@ export default function About() {
               </div>
               
               <div className="space-y-3 text-gray-700 dark:text-gray-300">
-                <p>• Integrated Spring Batch, Redis, and micro-threading to cut report generation time by 60%; supported agile backend delivery with QA collaboration</p>
+                <p>• Revamped legacy batch application by integrating Spring Batch, Redis Cache, and micro-threading techniques, resulting in a significant reduction in processing time for intricate report-based batch tasks</p>
+                <p>• Engaged in sprint planning sessions, proactively addressing warranty and backlog feature updates in collaboration with the QA team to ensure software quality and reliability</p>
               </div>
             </div>
 
@@ -314,27 +315,15 @@ export default function About() {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Solutions Architect Professional</span>
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Solutions Architect Professional (SAP-C02)</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/amazonaws.svg" alt="AWS" width={20} height={20} className="w-5 h-5 dark:invert" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Security – Specialty</span>
+                  <span className="text-gray-700 dark:text-gray-300 text-sm">AWS Security – Specialty (SCS-C02)</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA Security+ certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
                   <span className="text-gray-700 dark:text-gray-300 text-sm">CompTIA Security+</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Image src="https://cdn.jsdelivr.net/npm/simple-icons@v11/icons/comptia.svg" alt="CompTIA A+ certification logo" width={20} height={20} className="w-5 h-5 dark:invert" />
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">CompTIA A+</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <svg className="w-5 h-5 stroke-current dark:stroke-white stroke-2" viewBox="0 0 24 24" fill="none" role="img" aria-label="ITIL Foundation certification icon">
-                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-                    <line x1="8" y1="21" x2="16" y2="21"/>
-                    <line x1="12" y1="17" x2="12" y2="21"/>
-                  </svg>
-                  <span className="text-gray-700 dark:text-gray-300 text-sm">ITIL Foundation</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <svg className="w-5 h-5 stroke-current dark:stroke-white stroke-2" viewBox="0 0 24 24" fill="none" role="img" aria-label="StrongDM Architect certification icon">
