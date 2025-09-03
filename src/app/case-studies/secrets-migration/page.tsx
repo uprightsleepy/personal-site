@@ -210,16 +210,19 @@ export default function SecretsMigration() {
               <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6 mb-6">
                 <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-3">📊 The 80/20 Rule in Action</h4>
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
-                  Our migration exemplified the <strong>Pareto Distribution</strong>: 85% of secrets followed standard patterns and 
-                  were migrated quickly, while 15% required custom solutions for complex scenarios like Active Directory 
-                  authentication and legacy system integrations.
+                  Our migration exemplified the <strong>Pareto Distribution</strong>: 80% of secrets followed standard patterns and 
+                  were migrated in 5 months, 15% required custom solutions for complex scenarios like Active Directory 
+                  authentication, and 5% needed white glove support for tricky migrations.
                 </p>
                 <div className="flex items-center space-x-4 text-sm">
                   <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1 rounded-full">
-                    85% Standard (4 months)
+                    80% Standard (5 months)
                   </span>
                   <span className="bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-3 py-1 rounded-full">
-                    15% Custom (8 months)
+                    15% Hard Cases (3 months)
+                  </span>
+                  <span className="bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 px-3 py-1 rounded-full">
+                    5% White Glove Support
                   </span>
                 </div>
               </div>
@@ -466,13 +469,6 @@ export default function SecretsMigration() {
             <span>Back to Case Studies</span>
           </Link>
           
-          <Link 
-            href="/contact"
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-lg transition-all duration-300 font-medium hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
-          >
-            <span>Discuss This Project</span>
-            <span>→</span>
-          </Link>
         </div>
       </div>
     </main>
