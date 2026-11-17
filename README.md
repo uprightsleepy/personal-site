@@ -46,6 +46,15 @@ typeface, Archivo, which is self-hosted from `@fontsource-variable/archivo`.
 There are no cards, gradients or second colors, so new sections should reuse
 the existing classes (`display`, `title`, `entry`, `lead`).
 
+Embellishments, all defined at the end of `globals.css`:
+
+- Work index rows flood with ink on hover or keyboard focus.
+- The word "Secrets" in the first index title loads redacted and the bar wipes
+  away once. It is skipped when the visitor asks for reduced motion.
+- The Blueprint theme has a faint drafting grid.
+- The footer has a drawing title block (`src/components/title-block.tsx`) with
+  the sheet number, the ink and the date of the last build.
+
 ## Deployment
 
 The site is a static export (`output: 'export'` in `next.config.ts`) served by

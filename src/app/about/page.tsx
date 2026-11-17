@@ -78,6 +78,7 @@ export default function About() {
               priority
             />
           </div>
+          <p className="caption">Fig. 1. Henry Phillips, printed in one ink.</p>
         </div>
       </section>
 

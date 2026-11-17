@@ -48,15 +48,25 @@ export default function Home() {
         </h2>
         <ul className="border-b border-rule">
           {work.map((item) => (
-            <li key={item.slug} className="border-t border-rule pb-8 pt-5 md:pb-10 md:pt-6">
+            <li key={item.slug} className="work-row border-t border-rule pb-8 pt-5 md:pb-10 md:pt-6">
               <h3 className="display">
                 <WorkLink item={item} className="nav-link">
-                  {item.display}
+                  {item.slug === 'secrets-migration' ? (
+                    <>
+                      {/* Loads redacted, then the bar wipes away (see globals.css) */}
+                      <span className="redact">Secrets</span> migration
+                    </>
+                  ) : (
+                    item.display
+                  )}
                 </WorkLink>
                 <span className="years">{item.years}</span>
               </h3>
               <div className="mt-5 grid gap-x-10 md:mt-6 md:grid-cols-12">
-                <p className="max-w-[58ch] md:col-span-6 md:col-start-7">{item.summary}</p>
+                <div className="max-w-[58ch] md:col-span-6 md:col-start-7">
+                  <p>{item.summary}</p>
+                  {item.link && <p className="mt-3 font-semibold underline">{item.link.label}</p>}
+                </div>
               </div>
             </li>
           ))}
