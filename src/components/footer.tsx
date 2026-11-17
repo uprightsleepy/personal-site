@@ -1,3 +1,5 @@
+import DimensionLine from '@/components/dimension-line'
+import { NorthArrow } from '@/components/drafting'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
 import { profile } from '@/lib/site'
@@ -13,21 +15,33 @@ export default function Footer() {
 
   return (
     <footer className="gutter pb-8 pt-28 md:pt-40">
-      <div className="flex flex-wrap items-end justify-between gap-x-12 gap-y-12">
-        <p className="title max-w-[14em]">
-          Find me on{' '}
-          <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-            LinkedIn
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>{' '}
-          and{' '}
-          <a href={profile.github} target="_blank" rel="noopener noreferrer">
-            GitHub
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
-          .
-        </p>
-        {/* A drafting stamp, kept out of the way of the sentence */}
+      <DimensionLine className="mb-16 md:mb-24" />
+      <p className="title max-w-[14em]">
+        Find me on{' '}
+        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+          LinkedIn
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>{' '}
+        and{' '}
+        <a href={profile.github} target="_blank" rel="noopener noreferrer">
+          GitHub
+          <span className="sr-only"> (opens in a new tab)</span>
+        </a>
+        .
+      </p>
+      {/* The margin of the drawing: notes, a north arrow and a stamp */}
+      <div className="mt-16 flex flex-wrap items-end justify-between gap-x-16 gap-y-12 md:mt-24">
+        <div>
+          <h2 className="section-heading mb-4">General notes</h2>
+          <ol className="notes">
+            <li>All dimensions are in pixels.</li>
+            <li>Do not scale from this drawing.</li>
+            <li>Verify all dimensions on site.</li>
+            <li>Built to code: Go, Python, Java and Terraform.</li>
+            <li>Drawn in one ink. Color by others.</li>
+          </ol>
+        </div>
+        <NorthArrow />
         <p className="stamp mb-3 ml-auto mr-2 md:mr-6">Not for construction</p>
       </div>
       <div className="mt-16 md:mt-24">

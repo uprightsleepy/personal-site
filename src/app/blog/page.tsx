@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
+import { Door } from '@/components/drafting'
 import { articles, profile } from '@/lib/site'
 
 const title = `Writing - ${profile.name}`
 const description =
-  'Articles by Henry Phillips on agentic AI, MCP server security and open-weight models, published with ScaleSec in 2025.'
+  'Articles by Henry Phillips on MCP server security and open-weight models, published with ScaleSec in 2025.'
 
 export const metadata: Metadata = {
   title: 'Writing',
@@ -13,7 +14,6 @@ export const metadata: Metadata = {
     'Technical Writing',
     'AI Security',
     'MCP Servers',
-    'Agentic AI',
     'Open-Weight Models',
   ],
   openGraph: {
@@ -43,7 +43,7 @@ export default function Blog() {
       <header className="pb-14 pt-10 md:pb-24 md:pt-20">
         <h1 className="title">Writing</h1>
         <p className="lead mt-8 max-w-[46ch] text-soft">
-          I write about AI tooling and its security. These three articles were published with
+          I write about AI tooling and its security. These two articles were published with
           ScaleSec in 2025.
         </p>
       </header>
@@ -60,6 +60,7 @@ export default function Blog() {
                   {article.title}
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
+                <Door />
               </h2>
               <p className="mt-3 text-soft">
                 {article.publisher}, {article.year}

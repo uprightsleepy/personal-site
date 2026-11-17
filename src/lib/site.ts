@@ -236,15 +236,6 @@ export type Article = {
 
 export const articles: Article[] = [
   {
-    title: 'Jules and the Rise of Agentic AI',
-    summary:
-      "A hands-on evaluation of Google's Jules, an agentic AI that writes code, runs tests and opens pull requests on its own. The tests include Go unit tests and a CLI tool.",
-    publisher: 'ScaleSec',
-    year: '2025',
-    tags: ['Agentic AI', 'Go', 'Testing', 'Automation'],
-    url: 'https://scalesec.com/blog/jules-agentic-ai',
-  },
-  {
     title: "MCP Servers: AI's New Attack Surface",
     summary:
       'Model Context Protocol servers and the security problems they introduce as AI agents gain broader system access. Covers attack vectors, privilege escalation risks and practical security frameworks for deployment.',

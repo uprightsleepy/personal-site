@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { Door, SheetRef } from '@/components/drafting'
+import RevisionCloud from '@/components/revision-cloud'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
@@ -65,7 +67,12 @@ export default function Home() {
               <div className="mt-5 grid gap-x-10 md:mt-6 md:grid-cols-12">
                 <div className="max-w-[58ch] md:col-span-6 md:col-start-7">
                   <p>{item.summary}</p>
-                  {item.link && <p className="mt-3 font-semibold underline">{item.link.label}</p>}
+                  {item.link && (
+                    <p className="mt-3 font-semibold">
+                      <span className="underline">{item.link.label}</span>
+                      {item.link.external ? <Door /> : <SheetRef path={item.link.href} />}
+                    </p>
+                  )}
                 </div>
               </div>
             </li>
@@ -75,7 +82,8 @@ export default function Home() {
 
       {/* Who and where */}
       <section className="grid gap-x-10 gap-y-12 py-24 md:grid-cols-12 md:py-36" aria-labelledby="now-heading">
-        <div className="md:col-span-6">
+        {/* The newest part of the drawing gets a revision cloud */}
+        <RevisionCloud className="md:col-span-6">
           <h2 id="now-heading" className="section-heading mb-5">
             Now
           </h2>
@@ -88,8 +96,9 @@ export default function Home() {
             and I started as a software engineer at Northwestern Mutual. I came to security through
             graphic design and software engineering.{' '}
             <Link href="/about">More about me</Link>
+            <SheetRef path="/about" />
           </p>
-        </div>
+        </RevisionCloud>
         <div className="md:col-span-6 md:col-start-7">
           <h2 className="section-heading mb-5">Certifications</h2>
           <ul className="space-y-2">
@@ -135,6 +144,7 @@ export default function Home() {
                   {article.title}
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
+                <Door />
               </p>
               <p className="md:col-span-4">{article.publisher}</p>
               <p className="tabular-nums text-soft md:col-span-2 md:text-right">{article.year}</p>
