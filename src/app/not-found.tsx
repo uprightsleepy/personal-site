@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
+import { SheetRef } from '@/components/drafting'
 
 export const metadata: Metadata = {
   title: 'Page not found',
@@ -15,7 +16,10 @@ export default function NotFound() {
       </p>
       <p className="mt-8">
         <Link href="/">Go to the home page</Link>
+        <SheetRef path="/" />
       </p>
+      {/* Withdrawn drawings are stamped void */}
+      <p className="stamp mt-14">Void</p>
     </div>
   )
 }

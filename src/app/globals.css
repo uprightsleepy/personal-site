@@ -333,7 +333,7 @@
 
   @media (min-width: 64rem) {
     .title-block {
-      grid-template-columns: 1.3fr 1.3fr 0.8fr 1.2fr 0.9fr 1.2fr;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
     }
   }
 
@@ -569,5 +569,206 @@ html.theme-wipe::view-transition-new(root) {
   }
   to {
     clip-path: inset(0);
+  }
+}
+
+/*
+  Third round: more of the drafter's kit. Reference bubbles, door symbols, a
+  north arrow, general notes, a dimension line, a graphic scale and a
+  revision cloud.
+*/
+@layer components {
+  /* Circled sheet number beside a link to another page. */
+  .sheet-ref {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7em;
+    height: 1.7em;
+    margin-left: 0.6em;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    vertical-align: 0.1em;
+  }
+
+  /* Door swing beside a link that leaves the site. */
+  .door {
+    display: inline-block;
+    width: 1.1em;
+    height: 0.8em;
+    margin-left: 0.45em;
+    vertical-align: -0.03em;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    overflow: visible;
+  }
+
+  .door .door-wall {
+    stroke-width: 3;
+  }
+
+  .entry .door {
+    width: 0.75em;
+    height: 0.55em;
+    stroke-width: 1;
+  }
+
+  .entry .door .door-wall {
+    stroke-width: 2.4;
+  }
+
+  /* North arrow, which is also the way back to the top. */
+  .north {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 0.9rem;
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+
+  .north svg {
+    width: 4.5rem;
+    height: 4.5rem;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linejoin: miter;
+    overflow: visible;
+    transition: transform 0.25s cubic-bezier(0.3, 0, 0.2, 1);
+  }
+
+  .north .north-fill {
+    fill: currentColor;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .north:hover svg,
+    .north:focus-visible svg {
+      transform: translateY(-0.35rem);
+    }
+  }
+
+  /* General notes, numbered the way they are on a drawing. */
+  .notes {
+    list-style: decimal;
+    padding-left: 1.4rem;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+
+  .notes li {
+    padding-left: 0.3rem;
+  }
+
+  .notes li + li {
+    margin-top: 0.3rem;
+  }
+
+  .notes li::marker {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+    Dimension line. The two <i> elements are the extension lines at each end,
+    each crossed by a drafter's tick. The label is filled in by
+    src/components/dimension-line.tsx.
+  */
+  .dim {
+    display: flex;
+    align-items: center;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .dim-line {
+    flex: 1;
+    height: 1.5px;
+    background: var(--ink);
+  }
+
+  .dim-label {
+    padding-inline: 0.9rem;
+    min-height: 1em;
+  }
+
+  .dim-label:empty {
+    padding: 0;
+  }
+
+  .dim i {
+    position: relative;
+    flex: none;
+    width: 1.5px;
+    height: 1.4rem;
+    background: var(--ink);
+  }
+
+  .dim i::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 1.5px;
+    height: 1rem;
+    background: var(--ink);
+    transform: translate(-50%, -50%) rotate(45deg);
+  }
+
+  /* Graphic scale in the title block: 100 pixels in four divisions. */
+  .scale-bar {
+    display: inline-flex;
+    width: 100px;
+    height: 0.5rem;
+    border: 1.5px solid var(--ink);
+    box-sizing: content-box;
+  }
+
+  .scale-bar span {
+    flex: 1;
+  }
+
+  .scale-bar span:nth-child(odd) {
+    background: var(--ink);
+  }
+
+  /* Revision cloud. The outline hangs outside the box it wraps. */
+  .rev-cloud {
+    position: relative;
+  }
+
+  .rev-cloud-outline {
+    position: absolute;
+    inset: -1.5rem -0.9rem;
+    pointer-events: none;
+  }
+
+  .rev-cloud-outline svg {
+    display: block;
+    overflow: visible;
+    fill: none;
+    stroke: var(--ink);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+
+  /* On phones there is no room to hang outside, so the text steps in. */
+  @media (max-width: 47.99rem) {
+    .rev-cloud {
+      padding-inline: 0.6rem;
+    }
+
+    .rev-cloud-outline {
+      inset: -1.25rem 0;
+    }
   }
 }

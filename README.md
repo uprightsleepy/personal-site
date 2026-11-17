@@ -62,7 +62,19 @@ Embellishments, all defined at the end of `globals.css`:
 - The portrait on the About page has crop marks.
 - Switching between Blueprint and Paper wipes the new sheet in. It is skipped
   for reduced motion and in browsers without view transitions.
-- Unknown addresses get a 404 page in the same design (`src/app/not-found.tsx`).
+- Unknown addresses get a 404 page in the same design (`src/app/not-found.tsx`),
+  stamped "Void".
+- Drafting symbols from `src/components/drafting.tsx`: a circled sheet number
+  beside links to other pages (numbers come from `src/lib/sheets.ts`), a door
+  swing beside links that leave the site, and a north arrow in the footer that
+  links back to the top.
+- The footer opens with a dimension line that measures its own width
+  (`src/components/dimension-line.tsx`) and carries a list of general notes.
+- The title block also names what checked the sheet (the CodeQL workflow) and
+  has a 100 pixel graphic scale.
+- The "Now" section on the home page sits in a revision cloud
+  (`src/components/revision-cloud.tsx`).
+- The case study is stamped "As built".
 
 ## Deployment
 

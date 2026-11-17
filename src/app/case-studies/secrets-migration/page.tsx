@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { SheetRef } from '@/components/drafting'
 
 export const metadata: Metadata = {
   title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
@@ -179,14 +180,17 @@ function Row({ term, children }: { term: string; children: React.ReactNode }) {
 export default function SecretsMigration() {
   return (
     <article className="gutter">
-      <header className="pb-14 pt-10 md:pb-20 md:pt-20">
+      <header className="relative pb-14 pt-10 md:pb-20 md:pt-20">
         <p className="mb-8">
           <Link href="/case-studies">Back to work</Link>
+          <SheetRef path="/case-studies" />
         </p>
         <h1 className="title max-w-[12em]">Large-scale secrets migration</h1>
         <p className="lead mt-8 max-w-[40ch] text-soft">
           HashiCorp Vault to AWS Secrets Manager for a Fortune 100 financial services institution
         </p>
+        {/* A finished job: drawings of completed work are stamped "as built" */}
+        <p className="stamp mt-10 lg:absolute lg:bottom-28 lg:right-[9%] lg:mt-0">As built</p>
         <dl className="mt-12 max-w-[68ch] border-b border-rule">
           <Row term="Duration">12 months total (4 months core migration)</Row>
           <Row term="Scale">62,800+ secrets</Row>
@@ -299,7 +303,7 @@ export default function SecretsMigration() {
           {results.map(([value, label]) => (
             <div
               key={label}
-              className="grid grid-cols-12 items-baseline gap-x-10 border-t border-rule py-3"
+              className="grid grid-cols-12 items-baseline gap-x-3 border-t border-rule py-3 md:gap-x-10"
             >
               <dt className="entry col-span-5 tabular-nums md:col-span-4">{value}</dt>
               <dd className="col-span-7 md:col-span-8">{label}</dd>
