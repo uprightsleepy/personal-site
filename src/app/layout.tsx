@@ -1,22 +1,22 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+// Archivo is self-hosted from the npm package, including its width axis.
+import '@fontsource-variable/archivo/wdth.css'
 import './globals.css'
 import Navigation from '../components/navigation'
 import Footer from '../components/footer'
 import { ThemeProvider } from '../components/theme-provider'
 import StructuredData from '../components/structured-data'
 import PlausibleProvider from 'next-plausible'
-
-const inter = Inter({ subsets: ['latin'] })
+import { profile } from '@/lib/site'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://henryp.me'),
   title: {
-    default: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
+    default: `${profile.name} - ${profile.shortRole}`,
     template: '%s | Henry Phillips'
   },
-  description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations of all sizes build better, more secure systems.',
-  keywords: ['Software Engineer', 'Cloud Architecture', 'AWS', 'GCP', 'Microservices', 'Security', 'Go', 'Java', 'Python', 'Enterprise Software'],
+  description: profile.description,
+  keywords: ['Cloud Security Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
   authors: [{ name: 'Henry Phillips' }],
   creator: 'Henry Phillips',
   publisher: 'Henry Phillips',
@@ -25,8 +25,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://henryp.me',
     siteName: 'Henry Phillips',
-    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
-    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.',
+    title: `${profile.name} - ${profile.shortRole}`,
+    description: profile.description,
     images: [
       {
         url: '/headshot.jpg',
@@ -38,8 +38,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
-    description: 'Cloud Security Consultant & Software Engineer specializing in secure cloud architectures and helping organizations build secure systems.',
+    title: `${profile.name} - ${profile.shortRole}`,
+    description: profile.description,
     images: ['/headshot.jpg'],
   },
   robots: {
@@ -70,13 +70,12 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <StructuredData 
           type="website"
           data={{
-            name: "Henry Phillips - Cloud Security Consultant & Software Engineer",
-            description: "Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.",
-            url: "https://henryp.me",
+            name: `${profile.name} - ${profile.shortRole}`,
+            description: profile.description,
+            url: profile.url,
             author: { name: "Henry Phillips" }
           }}
         />
@@ -84,22 +83,18 @@ export default function RootLayout({
           type="person"
           data={{
             name: "Henry Phillips",
-            jobTitle: "Cloud Security Consultant",
-            description: "Cloud Security Consultant & Software Engineer specializing in secure cloud architectures. Helping organizations build better, more secure systems.",
-            url: "https://henryp.me",
+            jobTitle: "Solutions Consultant",
+            description: profile.description,
+            url: profile.url,
             image: "https://henryp.me/headshot.jpg",
-            email: "henry@henryp.me",
-            sameAs: [
-              "https://www.linkedin.com/in/henryjphillips/",
-              "https://github.com/uprightsleepy"
-            ],
+            sameAs: [profile.linkedin, profile.github],
             worksFor: {
-              name: "ScaleSec",
-              url: "https://scalesec.com"
+              name: "Google",
+              url: "https://www.google.com"
             },
             alumniOf: [
               {
-                name: "Western Governor's University",
+                name: "Western Governors University",
                 url: "https://wgu.edu"
               },
               {
@@ -108,32 +103,34 @@ export default function RootLayout({
               }
             ],
             skills: [
-              "Go Programming",
-              "Java Development", 
-              "Python Programming",
-              "Cloud Architecture",
+              "Cloud Security",
+              "Application Security",
+              "DevSecOps",
+              "CI/CD Platform Engineering",
+              "Secrets Management",
+              "Identity and Access Management",
+              "Terraform",
               "AWS",
               "Google Cloud Platform",
-              "Microservices",
-              "Security Engineering",
-              "Terraform",
-              "Docker"
+              "Go",
+              "Python",
+              "Java"
             ]
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         <PlausibleProvider domain="henryp.me" enabled={process.env.NODE_ENV === 'production'}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
-            enableSystem
+            defaultTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
-            <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors flex flex-col">
-              <a 
+            <div className="sheet flex min-h-screen flex-col bg-paper text-ink">
+              <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
               >
                 Skip to main content
               </a>

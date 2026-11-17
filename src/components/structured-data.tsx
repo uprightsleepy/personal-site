@@ -4,7 +4,7 @@ interface PersonData {
   description: string
   url: string
   image: string
-  email: string
+  email?: string
   sameAs: string[]
   worksFor?: {
     name: string
@@ -125,11 +125,6 @@ export default function StructuredData({ type, data }: StructuredDataProps) {
         "author": {
           "@type": "Person",
           "name": websiteData.author.name
-        },
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": `${websiteData.url}/search?q={search_term_string}`,
-          "query-input": "required name=search_term_string"
         }
       }
       break
