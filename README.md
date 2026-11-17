@@ -39,21 +39,30 @@ pages follow. The secrets migration case study has its own page at
 
 ## Design
 
-The site prints in one ink: a single blue on white, with a "Blueprint" theme
-that swaps the two. The colors and type sizes are defined once in
-`src/app/globals.css`. Hierarchy comes from the size, weight and width of one
-typeface, Archivo, which is self-hosted from `@fontsource-variable/archivo`.
-There are no cards, gradients or second colors, so new sections should reuse
-the existing classes (`display`, `title`, `entry`, `lead`).
+The site prints in one ink. By default it is a blueprint: white on a single
+blue. The "Paper" theme swaps the two (next-themes calls Blueprint `dark` and
+Paper `light`; the `paper:` Tailwind variant targets Paper). The colors and
+type sizes are defined once in `src/app/globals.css`. Hierarchy comes from the
+size, weight and width of one typeface, Archivo, which is self-hosted from
+`@fontsource-variable/archivo`. There are no cards, gradients or second
+colors, so new sections should reuse the existing classes (`display`, `title`,
+`entry`, `lead`).
 
 Embellishments, all defined at the end of `globals.css`:
 
 - Work index rows flood with ink on hover or keyboard focus.
 - The word "Secrets" in the first index title loads redacted and the bar wipes
   away once. It is skipped when the visitor asks for reduced motion.
-- The Blueprint theme has a faint drafting grid.
+- The blueprint sheet has a faint drafting grid.
+- On wide screens the viewport has a drawing frame with zone references
+  (`src/components/sheet-frame.tsx`), and the zone under the mouse is marked.
 - The footer has a drawing title block (`src/components/title-block.tsx`) with
-  the sheet number, the ink and the date of the last build.
+  the sheet number, the ink, the commit the site was built from and the date
+  of the last build, plus a "Not for construction" stamp.
+- The portrait on the About page has crop marks.
+- Switching between Blueprint and Paper wipes the new sheet in. It is skipped
+  for reduced motion and in browsers without view transitions.
+- Unknown addresses get a 404 page in the same design (`src/app/not-found.tsx`).
 
 ## Deployment
 

@@ -11,6 +11,7 @@ export const profile = {
   url: 'https://henryp.me',
   linkedin: 'https://www.linkedin.com/in/henryjphillips/',
   github: 'https://github.com/uprightsleepy',
+  repo: 'https://github.com/uprightsleepy/personal-site',
 }
 
 export type WorkItem = {

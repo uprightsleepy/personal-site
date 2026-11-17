@@ -68,17 +68,24 @@ export default function About() {
           </div>
         </div>
         <div className="md:col-span-4 md:col-start-9">
-          <div className="one-ink aspect-[4/5] w-full max-w-sm overflow-hidden md:max-w-none">
-            <Image
-              src="/headshot.jpg"
-              alt="Portrait of Henry Phillips"
-              width={480}
-              height={600}
-              className="h-full w-full object-cover"
-              priority
-            />
+          {/* The four <i> elements are crop marks (see .crop in globals.css) */}
+          <div className="crop w-full max-w-sm md:max-w-none">
+            <div className="one-ink aspect-[4/5] overflow-hidden">
+              <Image
+                src="/headshot.jpg"
+                alt="Portrait of Henry Phillips"
+                width={480}
+                height={600}
+                className="h-full w-full object-cover"
+                priority
+              />
+            </div>
+            <i aria-hidden="true" />
+            <i aria-hidden="true" />
+            <i aria-hidden="true" />
+            <i aria-hidden="true" />
           </div>
-          <p className="caption">Fig. 1. Henry Phillips, printed in one ink.</p>
+          <p className="caption">Fig. 1. Henry Phillips, printed in one ink. Not to scale.</p>
         </div>
       </section>
 

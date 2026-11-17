@@ -1,9 +1,10 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 // Archivo is self-hosted from the npm package, including its width axis.
 import '@fontsource-variable/archivo/wdth.css'
 import './globals.css'
 import Navigation from '../components/navigation'
 import Footer from '../components/footer'
+import SheetFrame from '../components/sheet-frame'
 import { ThemeProvider } from '../components/theme-provider'
 import StructuredData from '../components/structured-data'
 import PlausibleProvider from 'next-plausible'
@@ -58,6 +59,11 @@ export const metadata: Metadata = {
     // google: 'your-google-verification-code',
     // yandex: 'your-yandex-verification-code',
   },
+}
+
+// Browser chrome matches the blueprint sheet.
+export const viewport: Viewport = {
+  themeColor: '#1b22d2',
 }
 
 export default function RootLayout({
@@ -123,7 +129,7 @@ export default function RootLayout({
         <PlausibleProvider domain="henryp.me" enabled={process.env.NODE_ENV === 'production'}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="light"
+            defaultTheme="dark"
             enableSystem={false}
             disableTransitionOnChange
           >
@@ -139,6 +145,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <SheetFrame />
             </div>
           </ThemeProvider>
         </PlausibleProvider>
