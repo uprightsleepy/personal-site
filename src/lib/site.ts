@@ -17,9 +17,12 @@ export type WorkItem = {
   slug: string
   kind: string
   period: string
+  // Compact years shown beside the display title, e.g. "2024–25"
+  years: string
+  // Short form of the title for large display type
+  display: string
   title: string
   summary: string
-  stat: { value: string; label: string }
   tags: string[]
   link?: { href: string; label: string; external: boolean }
 }
@@ -29,10 +32,11 @@ export const work: WorkItem[] = [
     slug: 'secrets-migration',
     kind: 'Case study',
     period: '2024 to 2025',
+    years: '2024–25',
+    display: 'Secrets migration',
     title: 'Secrets migration for a Fortune 100 firm',
     summary:
       'Designed and built the core Go Lambda that migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager. 85% of the migration was done in four months.',
-    stat: { value: '62,800+', label: 'secrets migrated' },
     tags: ['Go', 'AWS Lambda', 'AWS Secrets Manager', 'HashiCorp Vault'],
     link: {
       href: '/case-studies/secrets-migration',
@@ -44,20 +48,22 @@ export const work: WorkItem[] = [
     slug: 'cicd-platform',
     kind: 'Platform',
     period: '2025 to 2026',
+    years: '2025–26',
+    display: 'CI/CD platform',
     title: 'Multi-tenant CI/CD platform on GCP',
     summary:
       'Architected a CI/CD platform on Cloud Run with self-hosted SonarQube static analysis built in. Twelve teams adopted it voluntarily, and pipeline onboarding dropped from hours to minutes.',
-    stat: { value: '12', label: 'teams adopted it' },
     tags: ['GCP', 'Cloud Run', 'SonarQube'],
   },
   {
     slug: 'spawnpointed',
     kind: 'Project',
     period: '2026',
+    years: '2026',
+    display: 'Spawnpointed',
     title: 'Spawnpointed',
     summary:
       'A daily GeoGuessr-style game for video games. It is an edge-hosted React app with tiled map imagery, HMAC-signed play state, passkey and OAuth sign-in, and a Discord Activity integration. Delivery is secured with Gitleaks history scanning, zizmor workflow linting and a blocking npm audit gate.',
-    stat: { value: '5', label: 'rounds a day' },
     tags: ['React', 'Cloudflare Workers', 'D1', 'R2', 'GitHub Actions'],
     link: {
       href: 'https://spawnpointed.com',
@@ -69,10 +75,11 @@ export const work: WorkItem[] = [
     slug: 'badger-politics',
     kind: 'Project',
     period: '2026',
+    years: '2026',
+    display: 'Badger Politics',
     title: 'Badger Politics',
     summary:
       'An open-source Wisconsin transparency site. A Python pipeline loads bills, votes, campaign finance and elections into SQLite and publishes a static Astro site with a keyless JSON API. Releases use Terraform-managed GCP Workload Identity Federation and least-privilege service accounts.',
-    stat: { value: '$2', label: 'about what it costs to host each month' },
     tags: ['Python', 'Astro', 'SQLite', 'Terraform', 'GCP'],
     link: {
       href: 'https://badgerpolitics.org',

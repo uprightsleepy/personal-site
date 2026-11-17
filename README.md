@@ -37,6 +37,15 @@ file when the resume changes and the home, About, Case Studies and Writing
 pages follow. The secrets migration case study has its own page at
 `src/app/case-studies/secrets-migration/page.tsx`.
 
+## Design
+
+The site prints in one ink: a single blue on white, with a "Blueprint" theme
+that swaps the two. The colors and type sizes are defined once in
+`src/app/globals.css`. Hierarchy comes from the size, weight and width of one
+typeface, Archivo, which is self-hosted from `@fontsource-variable/archivo`.
+There are no cards, gradients or second colors, so new sections should reuse
+the existing classes (`display`, `title`, `entry`, `lead`).
+
 ## Deployment
 
 The site is a static export (`output: 'export'` in `next.config.ts`) served by

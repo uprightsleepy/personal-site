@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+// Archivo is self-hosted from the npm package, including its width axis.
+import '@fontsource-variable/archivo/wdth.css'
 import './globals.css'
 import Navigation from '../components/navigation'
 import Footer from '../components/footer'
@@ -7,8 +8,6 @@ import { ThemeProvider } from '../components/theme-provider'
 import StructuredData from '../components/structured-data'
 import PlausibleProvider from 'next-plausible'
 import { profile } from '@/lib/site'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://henryp.me'),
@@ -120,18 +119,18 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body>
         <PlausibleProvider domain="henryp.me" enabled={process.env.NODE_ENV === 'production'}>
           <ThemeProvider
             attribute="class"
-            defaultTheme="dark"
-            enableSystem
+            defaultTheme="light"
+            enableSystem={false}
             disableTransitionOnChange
           >
-            <div className="min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors flex flex-col">
-              <a 
+            <div className="flex min-h-screen flex-col bg-paper text-ink">
+              <a
                 href="#main-content"
-                className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-lg z-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
               >
                 Skip to main content
               </a>

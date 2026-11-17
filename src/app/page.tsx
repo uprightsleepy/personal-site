@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import WorkCard from '@/components/work-card'
-import { articles, certifications, experience, profile, skills, work } from '@/lib/site'
+import WorkLink from '@/components/work-link'
+import { articles, certifications, experience, profile, work } from '@/lib/site'
 
 const title = `${profile.name} - ${profile.shortRole}`
 
@@ -29,152 +29,109 @@ export const metadata: Metadata = {
   },
 }
 
-const sectionHeading = 'text-3xl font-bold text-gray-900 dark:text-gray-100'
-const sectionLink =
-  'rounded font-medium text-blue-600 hover:text-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-blue-400 dark:hover:text-blue-300 dark:focus:ring-offset-gray-900'
-
 export default function Home() {
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-5xl">
-        {/* Hero: name on the left, positioning statement on the right */}
-        <section className="mb-20 grid gap-8 md:grid-cols-5 md:items-end">
-          <div className="md:col-span-3">
-            <h1 className="bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text pb-2 text-6xl font-bold leading-tight text-transparent">
-              {profile.name}
-            </h1>
-            <p className="mt-4 text-2xl font-light text-gray-700 dark:text-gray-300 md:text-3xl">
-              {profile.role}
-            </p>
-          </div>
-          <div className="space-y-4 text-lg leading-relaxed text-gray-600 dark:text-gray-400 md:col-span-2">
-            <p>
-              I build security into how software gets delivered: CI/CD platforms, secrets
-              management, IAM and infrastructure as code on AWS and GCP. I write Go, Python, Java
-              and Terraform.
-            </p>
-            <p>I&apos;m currently a Solutions Consultant at Wiz, part of Google.</p>
-          </div>
-        </section>
+    <div className="gutter">
+      {/* Opening statement */}
+      <section className="max-w-[46ch] pb-14 pt-10 md:pb-24 md:pt-20">
+        <h1 className="lead">Henry Phillips is an application and cloud security engineer.</h1>
+        <p className="lead mt-[0.6em] text-soft">
+          I build security into how software gets delivered: CI/CD platforms, secrets management,
+          IAM and infrastructure as code on AWS and GCP.
+        </p>
+      </section>
 
-        {/* Selected work */}
-        <section className="mb-20" aria-labelledby="work-heading">
-          <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
-            <h2 id="work-heading" className={sectionHeading}>
-              Selected work
-            </h2>
-            <Link href="/case-studies" className={sectionLink}>
-              All work <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <div className="space-y-6">
-            {work.map((item) => (
-              <WorkCard key={item.slug} item={item} />
-            ))}
-          </div>
-        </section>
-
-        {/* Experience: one row per role */}
-        <section className="mb-20" aria-labelledby="experience-heading">
-          <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
-            <h2 id="experience-heading" className={sectionHeading}>
-              Experience
-            </h2>
-            <Link href="/about" className={sectionLink}>
-              Full background <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <ul className="border-t border-gray-200 dark:border-gray-700">
-            {experience.map((role) => (
-              <li
-                key={`${role.company}-${role.title}`}
-                className="grid gap-x-6 gap-y-1 border-b border-gray-200 py-5 dark:border-gray-700 md:grid-cols-12"
-              >
-                <p className="font-semibold text-gray-900 dark:text-gray-100 md:col-span-4">
-                  {role.title}
-                </p>
-                <div className="md:col-span-6">
-                  <p className="text-gray-900 dark:text-gray-100">{role.company}</p>
-                  <p className="text-gray-600 dark:text-gray-400">{role.summary}</p>
-                </div>
-                <p className="tabular-nums text-gray-600 dark:text-gray-400 md:col-span-2 md:text-right">
-                  {role.years}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        {/* Toolkit */}
-        <section className="mb-20" aria-labelledby="toolkit-heading">
-          <h2 id="toolkit-heading" className={`${sectionHeading} mb-8`}>
-            Toolkit
-          </h2>
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {skills.map((group) => (
-              <div key={group.group}>
-                <h3 className="mb-3 border-b border-gray-200 pb-2 font-semibold text-gray-900 dark:border-gray-700 dark:text-gray-100">
-                  {group.group}
-                </h3>
-                <ul className="space-y-1 text-gray-600 dark:text-gray-400">
-                  {group.items.map((item) => (
-                    <li key={item}>{item}</li>
-                  ))}
-                </ul>
+      {/* The work, set as an index in display type */}
+      <section aria-labelledby="work-heading">
+        <h2 id="work-heading" className="sr-only">
+          Work
+        </h2>
+        <ul className="border-b border-rule">
+          {work.map((item) => (
+            <li key={item.slug} className="border-t border-rule pb-8 pt-5 md:pb-10 md:pt-6">
+              <h3 className="display">
+                <WorkLink item={item} className="nav-link">
+                  {item.display}
+                </WorkLink>
+                <span className="years">{item.years}</span>
+              </h3>
+              <div className="mt-5 grid gap-x-10 md:mt-6 md:grid-cols-12">
+                <p className="max-w-[58ch] md:col-span-6 md:col-start-7">{item.summary}</p>
               </div>
-            ))}
-          </div>
-          <h3 className="mb-3 mt-10 font-semibold text-gray-900 dark:text-gray-100">
-            Certifications
-          </h3>
-          <ul className="flex flex-wrap gap-2">
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Who and where */}
+      <section className="grid gap-x-10 gap-y-12 py-24 md:grid-cols-12 md:py-36" aria-labelledby="now-heading">
+        <div className="md:col-span-6">
+          <h2 id="now-heading" className="section-heading mb-5">
+            Now
+          </h2>
+          <p className="lead">
+            I&apos;m a Solutions Consultant at Wiz, part of Google, where I manage 16 enterprise
+            customers across AWS, GCP and Azure.
+          </p>
+          <p className="mt-6 max-w-[58ch]">
+            Before that I worked in cloud security engineering and consulting at RKON and ScaleSec,
+            and I started as a software engineer at Northwestern Mutual. I came to security through
+            graphic design and software engineering.{' '}
+            <Link href="/about">More about me</Link>
+          </p>
+        </div>
+        <div className="md:col-span-6 md:col-start-7">
+          <h2 className="section-heading mb-5">Certifications</h2>
+          <ul className="space-y-2">
             {certifications.map((cert) => (
-              <li
-                key={cert}
-                className="rounded-full border border-gray-200 px-3 py-1 text-sm text-gray-700 dark:border-gray-600 dark:text-gray-300"
-              >
-                {cert}
-              </li>
+              <li key={cert}>{cert}</li>
             ))}
           </ul>
-        </section>
+        </div>
+      </section>
 
-        {/* Writing */}
-        <section aria-labelledby="writing-heading">
-          <div className="mb-8 flex flex-wrap items-baseline justify-between gap-4">
-            <h2 id="writing-heading" className={sectionHeading}>
-              Writing
-            </h2>
-            <Link href="/blog" className={sectionLink}>
-              All writing <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-          <ul className="border-t border-gray-200 dark:border-gray-700">
-            {articles.map((article) => (
-              <li
-                key={article.url}
-                className="grid gap-x-6 gap-y-1 border-b border-gray-200 py-5 dark:border-gray-700 md:grid-cols-12"
-              >
-                <a
-                  href={article.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="rounded font-semibold text-gray-900 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:text-gray-100 dark:hover:text-blue-400 dark:focus:ring-offset-gray-900 md:col-span-8"
-                >
+      {/* Experience as a plain table */}
+      <section aria-labelledby="experience-heading">
+        <h2 id="experience-heading" className="section-heading mb-5">
+          Experience
+        </h2>
+        <ul className="border-b border-rule">
+          {experience.map((role) => (
+            <li
+              key={`${role.company}-${role.title}`}
+              className="grid gap-x-10 gap-y-1 border-t border-rule py-4 md:grid-cols-12"
+            >
+              <p className="font-semibold md:col-span-6">{role.title}</p>
+              <p className="md:col-span-4">{role.company}</p>
+              <p className="tabular-nums text-soft md:col-span-2 md:text-right">{role.years}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Writing */}
+      <section className="pt-24 md:pt-36" aria-labelledby="writing-heading">
+        <h2 id="writing-heading" className="section-heading mb-5">
+          Writing
+        </h2>
+        <ul className="border-b border-rule">
+          {articles.map((article) => (
+            <li
+              key={article.url}
+              className="grid gap-x-10 gap-y-1 border-t border-rule py-4 md:grid-cols-12"
+            >
+              <p className="font-semibold md:col-span-6">
+                <a href={article.url} target="_blank" rel="noopener noreferrer" className="nav-link">
                   {article.title}
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
-                <p className="text-gray-600 dark:text-gray-400 md:col-span-2">
-                  {article.publisher}
-                </p>
-                <p className="tabular-nums text-gray-600 dark:text-gray-400 md:col-span-2 md:text-right">
-                  {article.year}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
+              </p>
+              <p className="md:col-span-4">{article.publisher}</p>
+              <p className="tabular-nums text-soft md:col-span-2 md:text-right">{article.year}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
     </div>
   )
 }

@@ -1,13 +1,13 @@
 import type { Metadata } from 'next'
-import WorkCard from '@/components/work-card'
+import WorkLink from '@/components/work-link'
 import { profile, work } from '@/lib/site'
 
-const title = `Case Studies - ${profile.name}`
+const title = `Work - ${profile.name}`
 const description =
   'Work by Henry Phillips: a 62,800+ secret migration from HashiCorp Vault to AWS Secrets Manager, a multi-tenant CI/CD platform on GCP, and two personal projects.'
 
 export const metadata: Metadata = {
-  title: 'Case Studies',
+  title: 'Work',
   description,
   keywords: [
     'Cloud Security Case Studies',
@@ -38,45 +38,40 @@ export const metadata: Metadata = {
   },
 }
 
-const sectionHeading = 'mb-8 text-3xl font-bold text-gray-900 dark:text-gray-100'
-
-export default function CaseStudies() {
-  const caseStudies = work.filter((item) => item.kind === 'Case study')
-  const otherWork = work.filter((item) => item.kind !== 'Case study')
-
+export default function Work() {
   return (
-    <div className="container mx-auto px-4 py-12">
-      <div className="max-w-5xl">
-        <h1 className="mb-8 bg-gradient-to-r from-blue-500 via-purple-500 to-cyan-500 bg-clip-text pb-2 text-5xl font-bold leading-tight text-transparent">
-          Case Studies
-        </h1>
-        <p className="mb-16 max-w-3xl text-xl leading-relaxed text-gray-700 dark:text-gray-300">
+    <div className="gutter">
+      <header className="pb-14 pt-10 md:pb-24 md:pt-20">
+        <h1 className="title">Work</h1>
+        <p className="lead mt-8 max-w-[46ch] text-soft">
           Client work from my time at ScaleSec and RKON, and two projects I build and run myself.
-          The case study has a full write-up of the design, the security model and the results.
         </p>
+      </header>
 
-        <section className="mb-16" aria-labelledby="case-studies-heading">
-          <h2 id="case-studies-heading" className={sectionHeading}>
-            Case study
-          </h2>
-          <div className="space-y-6">
-            {caseStudies.map((item) => (
-              <WorkCard key={item.slug} item={item} />
-            ))}
-          </div>
-        </section>
-
-        <section aria-labelledby="other-work-heading">
-          <h2 id="other-work-heading" className={sectionHeading}>
-            Other work
-          </h2>
-          <div className="space-y-6">
-            {otherWork.map((item) => (
-              <WorkCard key={item.slug} item={item} />
-            ))}
-          </div>
-        </section>
-      </div>
+      <ul className="border-b border-rule">
+        {work.map((item) => (
+          <li
+            key={item.slug}
+            className="grid gap-x-10 gap-y-5 border-t border-rule py-8 md:grid-cols-12 md:py-12"
+          >
+            <div className="md:col-span-6">
+              <h2 className="entry">{item.title}</h2>
+              <p className="mt-3 text-soft">
+                {item.kind}, {item.period}
+              </p>
+            </div>
+            <div className="max-w-[58ch] md:col-span-6">
+              <p>{item.summary}</p>
+              <p className="mt-4 text-soft">{item.tags.join(', ')}</p>
+              {item.link && (
+                <p className="mt-4 font-semibold">
+                  <WorkLink item={item}>{item.link.label}</WorkLink>
+                </p>
+              )}
+            </div>
+          </li>
+        ))}
+      </ul>
     </div>
   )
 }
