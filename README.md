@@ -29,8 +29,35 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The site is a static export (`output: 'export'` in `next.config.ts`) served by
+[Cloudflare Pages](https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/).
+Cloudflare builds and deploys every push to `main`, and builds a preview for
+every pull request.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pages project settings:
+
+| Setting | Value |
+| --- | --- |
+| Framework preset | Next.js (Static HTML Export) |
+| Build command | `npx next build` |
+| Build output directory | `out` |
+| Production branch | `main` |
+
+Things that differ from a server-rendered Next.js app:
+
+- **Response headers** (Content Security Policy and the other security
+  headers) are set in `public/_headers`, not in `next.config.ts`.
+- **Social preview images** are rendered at build time by
+  `src/app/og/[slug]/route.tsx` and exported as `/og/*.png`.
+- **Node.js version** for Cloudflare builds and CI is pinned in `.node-version`.
+- There is no server, so API routes, server actions and `next/image`
+  optimization are not available.
+
+To preview the production build locally:
+
+```bash
+npm run build
+npx serve out
+```

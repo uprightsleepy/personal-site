@@ -10,6 +10,7 @@ import PlausibleProvider from 'next-plausible'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://henryp.me'),
   title: {
     default: 'Henry Phillips - Cloud Security Consultant & Software Engineer',
     template: '%s | Henry Phillips'

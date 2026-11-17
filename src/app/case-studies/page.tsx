@@ -11,7 +11,7 @@ export const metadata: Metadata = {
     url: 'https://henryp.me/case-studies',
     images: [
       {
-        url: '/api/og?title=Case Studies&subtitle=Real-world Cloud Security Solutions',
+        url: '/og/case-studies.png',
         width: 1200,
         height: 630,
         alt: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering Solutions',
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Case Studies - Henry Phillips | Cloud Security & Software Engineering',
     description: 'Real-world case studies showcasing cloud security solutions and secure system architectures.',
-    images: ['/api/og?title=Case Studies&subtitle=Real-world Cloud Security Solutions'],
+    images: ['/og/case-studies.png'],
   },
 }
 

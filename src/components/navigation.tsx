@@ -2,16 +2,17 @@
 
 import Link from 'next/link'
 import { useTheme } from "next-themes"
-import { useEffect, useState } from "react"
+import { useState, useSyncExternalStore } from "react"
+
+const subscribeToNothing = () => () => {}
 
 export default function Navigation() {
   const { setTheme, theme } = useTheme()
-  const [mounted, setMounted] = useState(false)
+  // False in the prerendered HTML and during hydration, true once running in
+  // the browser. The theme is only known in the browser, so the nav renders
+  // after hydration (same behavior as the previous useEffect/setState guard).
+  const mounted = useSyncExternalStore(subscribeToNothing, () => true, () => false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-  }, [])
 
   if (!mounted) return null
 
