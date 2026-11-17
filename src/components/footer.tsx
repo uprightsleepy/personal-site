@@ -13,12 +13,12 @@ export default function Footer() {
               </div>
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Henry Phillips</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Software Engineer</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Cloud Security Engineer</p>
               </div>
             </div>
             <p className="text-gray-600 dark:text-gray-400 leading-relaxed max-w-md">
-              Building secure, scalable systems for enterprise environments. 
-              Specializing in cloud architecture, microservices, and Fortune 100 solutions.
+              Application and cloud security engineer. DevSecOps, CI/CD platform engineering
+              and secrets management on AWS and GCP.
             </p>
           </div>
           
@@ -45,15 +45,6 @@ export default function Footer() {
           <div>
             <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Connect</h4>
             <div className="space-y-3">
-              <a 
-                href="mailto:henry@henryp.me" 
-                className="flex items-center space-x-3 text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors group"
-              >
-                <div className="w-8 h-8 bg-gray-200 dark:bg-gray-700 rounded-lg flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900 transition-colors">
-                  <span className="text-sm">📧</span>
-                </div>
-                <span>Email</span>
-              </a>
               <a 
                 href="https://www.linkedin.com/in/henryjphillips/" 
                 target="_blank" 

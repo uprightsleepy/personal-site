@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useTheme } from "next-themes"
+import { Moon, Sun } from "lucide-react"
 import { useState, useSyncExternalStore } from "react"
 
 const subscribeToNothing = () => () => {}
@@ -54,7 +55,7 @@ export default function Navigation() {
               className="p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
               aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
             >
-              {theme === "dark" ? "☀️" : "🌙"}
+              {theme === "dark" ? <Sun className="h-5 w-5" aria-hidden="true" /> : <Moon className="h-5 w-5" aria-hidden="true" />}
             </button>
           </div>
 
@@ -114,7 +115,7 @@ export default function Navigation() {
                 className="flex items-center space-x-3 w-full p-2 rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900"
                 aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
               >
-                <span className="text-lg">{theme === "dark" ? "☀️" : "🌙"}</span>
+                {theme === "dark" ? <Sun className="h-5 w-5" aria-hidden="true" /> : <Moon className="h-5 w-5" aria-hidden="true" />}
                 <span>Switch to {theme === "dark" ? "light" : "dark"} mode</span>
               </button>
             </div>

@@ -22,23 +22,23 @@ type OgImage = {
 const images: Record<string, OgImage> = {
   'home.png': {
     title: 'Henry Phillips',
-    subtitle: 'Cloud Security Consultant & Software Engineer',
+    subtitle: 'Application and Cloud Security Engineer',
   },
   'about.png': {
     title: 'About Henry Phillips',
-    subtitle: 'From Design to Software Engineering',
+    subtitle: 'From Design to Security Engineering',
   },
   'blog.png': {
-    title: 'Technical Writing',
-    subtitle: 'Cloud Security & Software Engineering Insights',
+    title: 'Writing',
+    subtitle: 'AI Tooling and Security',
   },
   'case-studies.png': {
     title: 'Case Studies',
-    subtitle: 'Real-world Cloud Security Solutions',
+    subtitle: 'Secrets Migration, CI/CD Platform, Projects',
   },
   'secrets-migration.png': {
     title: 'Secrets Migration Case Study',
-    subtitle: '68,000+ Secrets Migrated',
+    subtitle: '62,800+ Secrets Migrated',
     type: 'case-study',
   },
 }

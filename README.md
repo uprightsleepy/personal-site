@@ -29,6 +29,14 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
+## Content
+
+Site copy that appears on more than one page (work, experience, skills,
+certifications, education and articles) lives in `src/lib/site.ts`. Update that
+file when the resume changes and the home, About, Case Studies and Writing
+pages follow. The secrets migration case study has its own page at
+`src/app/case-studies/secrets-migration/page.tsx`.
+
 ## Deployment
 
 The site is a static export (`output: 'export'` in `next.config.ts`) served by

@@ -2,11 +2,11 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager | Henry Phillips',
-  description: 'A detailed case study of migrating 68,000+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
+  title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
+  description: 'A detailed case study of migrating 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
   keywords: ['HashiCorp Vault Migration', 'AWS Secrets Manager', 'Cloud Security', 'Lambda Architecture', 'Secret Management', 'Fault Tolerance'],
   openGraph: {
-    title: 'Secrets Migration Case Study: 68,000+ Secrets Migrated | Henry Phillips',
+    title: 'Secrets Migration Case Study: 62,800+ Secrets Migrated | Henry Phillips',
     description: 'How we architected and executed a large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
     url: 'https://henryp.me/case-studies/secrets-migration',
     images: [
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Secrets Migration Case Study: 68,000+ Secrets Migrated',
+    title: 'Secrets Migration Case Study: 62,800+ Secrets Migrated',
     description: 'Large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
     images: ['/og/secrets-migration.png'],
   },
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
 
 export default function SecretsMigration() {
   return (
-    <main className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl">
         {/* Back Navigation */}
         <div className="mb-8">
@@ -51,9 +51,9 @@ export default function SecretsMigration() {
           </p>
           
           <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400 mb-6">
-            <span>📅 Duration: 12 months total (4 months core migration)</span>
-            <span>📊 Scale: 62,800+ secrets</span>
-            <span>⏱️ 8 min read</span>
+            <span>Duration: 12 months total (4 months core migration)</span>
+            <span>Scale: 62,800+ secrets</span>
+            <span>8 min read</span>
           </div>
           
           <div className="flex flex-wrap gap-2">
@@ -76,7 +76,7 @@ export default function SecretsMigration() {
             <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Executive Summary</h2>
             <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-lg">
               <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg">
-                Architected and implemented the core Lambda migration system that successfully transferred <strong>62,800+ secrets</strong> from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 financial services institution. The project followed the <strong>Pareto Distribution</strong>—85% of secrets were migrated in 4 months using standard processes, while the remaining 15% required custom solutions for complex scenarios like Active Directory authentication. The solution included <strong>white glove user support</strong> for secret identification, code migration assistance, and just-in-time access controls with zero standing privileges.
+                Architected and implemented the core Lambda migration system that successfully transferred <strong>62,800+ secrets</strong> from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 financial services institution. The project followed the <strong>Pareto Distribution</strong>: 85% of secrets were migrated in 4 months using standard processes, while the remaining 15% required custom solutions for complex scenarios like Active Directory authentication. The solution included <strong>white glove user support</strong> for secret identification, code migration assistance, and just-in-time access controls with zero standing privileges.
               </p>
             </div>
           </section>
@@ -123,7 +123,7 @@ export default function SecretsMigration() {
                 </li>
                 <li className="flex items-start space-x-3">
                   <span className="w-2 h-2 bg-red-500 rounded-full flex-shrink-0 mt-2"></span>
-                  <span><strong>Auditability:</strong> Every migration action needed comprehensive logging</span>
+                  <span><strong>Auditability:</strong> Every migration action needed to be logged</span>
                 </li>
               </ul>
             </div>
@@ -181,7 +181,7 @@ export default function SecretsMigration() {
               <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Security Model</h3>
               
               <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-6 mb-6">
-                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-4">🔒 Zero Standing Privileges Architecture</h4>
+                <h4 className="font-semibold text-green-800 dark:text-green-300 mb-4">Zero Standing Privileges Architecture</h4>
                 <ol className="space-y-3 text-gray-700 dark:text-gray-300">
                   <li><strong>1. Pre-migration:</strong> No roles have access to vault paths</li>
                   <li><strong>2. JIT Access Grant:</strong> Admin role grants reader role permission to specific vault path</li>
@@ -208,7 +208,7 @@ export default function SecretsMigration() {
               <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-gray-100">Phased Approach & The Pareto Distribution</h3>
               
               <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-6 mb-6">
-                <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-3">📊 The 80/20 Rule in Action</h4>
+                <h4 className="font-semibold text-purple-800 dark:text-purple-300 mb-3">The 80/20 Rule in Action</h4>
                 <p className="text-gray-700 dark:text-gray-300 text-sm mb-3">
                   Our migration exemplified the <strong>Pareto Distribution</strong>: 80% of secrets followed standard patterns and 
                   were migrated in 5 months, 15% required custom solutions for complex scenarios like Active Directory 
@@ -289,7 +289,7 @@ export default function SecretsMigration() {
                     <strong>Issue:</strong> Vault authentication could occasionally fail due to network issues or temporary service unavailability.
                   </p>
                   <p className="text-gray-700 dark:text-gray-300 text-sm">
-                    <strong>Solution:</strong> Implemented custom retry logic with exponential backoff specifically for Vault authentication, ensuring robust connectivity while maintaining security principles.
+                    <strong>Solution:</strong> Implemented custom retry logic with exponential backoff specifically for Vault authentication, ensuring reliable connectivity while maintaining security principles.
                   </p>
                 </div>
                 
@@ -318,10 +318,10 @@ export default function SecretsMigration() {
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-4">
                   <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Challenge: Error Recovery</h4>
                   <p className="text-gray-700 dark:text-gray-300 text-sm mb-2">
-                    <strong>Issue:</strong> Network failures and API errors required robust retry mechanisms.
+                    <strong>Issue:</strong> Network failures and API errors required reliable retry mechanisms.
                   </p>
                   <p className="text-gray-700 dark:text-gray-300 text-sm">
-                    <strong>Solution:</strong> Implemented idempotent operations with comprehensive logging and automated retry logic for transient failures.
+                    <strong>Solution:</strong> Implemented idempotent operations with detailed logging and automated retry logic for transient failures.
                   </p>
                 </div>
               </div>
@@ -393,11 +393,11 @@ export default function SecretsMigration() {
 
           {/* Lessons Learned */}
           <section className="mb-12">
-            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Key Learnings & Takeaways</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-900 dark:text-gray-100">Retrospective</h2>
             
             <div className="grid md:grid-cols-2 gap-8">
               <div>
-                <h3 className="text-xl font-semibold mb-4 text-green-600 dark:text-green-400">✅ What Worked Well</h3>
+                <h3 className="text-xl font-semibold mb-4 text-green-600 dark:text-green-400">What Worked Well</h3>
                 <ul className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">
                   <li>• Just-in-time access with single-path isolation eliminated security risks</li>
                   <li>• Security-first design decisions (no multi-threading) proved correct</li>
@@ -409,7 +409,7 @@ export default function SecretsMigration() {
               </div>
               
               <div>
-                <h3 className="text-xl font-semibold mb-4 text-orange-600 dark:text-orange-400">🔄 Future Improvements</h3>
+                <h3 className="text-xl font-semibold mb-4 text-orange-600 dark:text-orange-400">Future Improvements</h3>
                 <ul className="space-y-2 text-gray-700 dark:text-gray-300 text-sm">
                   <li>• <strong>LLM-powered secret analysis</strong> to reduce reliance on user input for metadata</li>
                   <li>• Intelligent pattern recognition to automatically categorize secret types</li>
@@ -471,6 +471,6 @@ export default function SecretsMigration() {
           
         </div>
       </div>
-    </main>
+    </div>
   )
 }
