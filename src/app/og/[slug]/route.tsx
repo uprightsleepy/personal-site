@@ -7,7 +7,7 @@ import { ImageResponse } from 'next/og'
 // server or edge function. To add an image, add an entry here and point the
 // page's metadata at /og/<key>.
 //
-// They follow the site's one-ink identity: blue type on white, set in Archivo
+// They follow the site's blueprint identity: white type on blue, set in Archivo
 // read from the installed font package, so nothing is fetched at build time.
 export const dynamic = 'force-static'
 export const dynamicParams = false
@@ -74,8 +74,8 @@ export async function GET(
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          background: '#ffffff',
-          color: BLUE,
+          background: BLUE,
+          color: '#ffffff',
           padding: '56px 64px',
           fontFamily: 'Archivo',
         }}
@@ -101,7 +101,7 @@ export async function GET(
               display: 'flex',
               marginTop: 32,
               paddingTop: 24,
-              borderTop: `3px solid ${BLUE}`,
+              borderTop: '3px solid #ffffff',
               fontSize: 34,
               fontWeight: 400,
             }}

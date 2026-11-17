@@ -1,27 +1,41 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant paper (&:is(.light *));
 
 /*
-  One ink. The site is set in a single blue on white paper, the way a one-color
-  print job is. "Blueprint" (the dark theme) swaps the two: white ink on the
-  same blue. Hierarchy comes from size, weight and width, never from a second
-  color.
+  One ink. The site is a blueprint by default: white ink on a single blue.
+  "Paper" (the light theme, class .light on <html>) swaps the two, the way a
+  one-color print job would run the same blue on white. Hierarchy comes from
+  size, weight and width, never from a second color.
 */
 :root {
   --blue: #1b22d2;
-  --ink: var(--blue);
-  --paper: #ffffff;
-  /* Secondary text and hairlines are tints of the ink, like a halftone. */
-  --soft: #5a5fe0;
-  --rule: #c9cbf5;
-}
-
-.dark {
   --ink: #ffffff;
   --paper: var(--blue);
+  /* Secondary text and hairlines are tints of the ink, like a halftone. */
   --soft: #d0d2f8;
   --rule: #5b60e0;
+  /* Faint lines of the drafting grid. */
+  --grid: rgb(255 255 255 / 0.07);
+  /* Width of the drawing frame's zone band. Zero until the frame shows. */
+  --band: 0rem;
+  color-scheme: dark;
+}
+
+/* Wide screens get the drawing frame (see .frame below). */
+@media (min-width: 64rem) {
+  :root {
+    --band: 1.5rem;
+  }
+}
+
+.light {
+  --ink: var(--blue);
+  --paper: #ffffff;
+  --soft: #5a5fe0;
+  --rule: #c9cbf5;
+  --grid: transparent;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -216,11 +230,11 @@
   subject of the work, and all of them stay in the one ink.
 */
 @layer components {
-  /* Blueprint theme: the sheet gets a faint drafting grid. */
-  .dark .sheet {
+  /* The blueprint sheet has a faint drafting grid. Paper has none. */
+  .sheet {
     background-image:
-      linear-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.07) 1px, transparent 1px);
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
     background-size: 2.5rem 2.5rem;
     background-position: -1px -1px;
   }
@@ -319,7 +333,7 @@
 
   @media (min-width: 64rem) {
     .title-block {
-      grid-template-columns: 1.4fr 1.4fr 0.8fr 1.2fr 1.2fr;
+      grid-template-columns: 1.3fr 1.3fr 0.8fr 1.2fr 0.9fr 1.2fr;
     }
   }
 
@@ -349,5 +363,211 @@
   .work-row .display a,
   .work-row .display a:hover {
     text-decoration-line: none;
+  }
+}
+
+/*
+  Second round of embellishments: the drawing frame, the stamp, crop marks on
+  the portrait and the wipe between Blueprint and Paper.
+*/
+@layer components {
+  /*
+    Drawing frame. On wide screens the viewport is bordered like a drawing
+    sheet, with zone numbers across and letters down. The band is opaque, so
+    the page scrolls under it and the work index flood stops at the border.
+    src/components/sheet-frame.tsx marks the zone under the pointer.
+  */
+  .frame {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .sheet {
+      padding-block: var(--band);
+    }
+
+    .gutter {
+      padding-inline: calc(var(--band) + 2rem);
+    }
+
+    .frame {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      pointer-events: none;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* The inner border of the sheet. */
+    .frame::after {
+      content: "";
+      position: absolute;
+      inset: var(--band);
+      border: 1.5px solid var(--ink);
+    }
+
+    .frame-strip {
+      position: absolute;
+      display: flex;
+      background: var(--paper);
+    }
+
+    .frame-strip span {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .frame-top,
+    .frame-bottom {
+      left: 0;
+      right: 0;
+      height: var(--band);
+      padding-inline: var(--band);
+    }
+
+    .frame-top {
+      top: 0;
+    }
+
+    .frame-bottom {
+      bottom: 0;
+    }
+
+    .frame-left,
+    .frame-right {
+      top: var(--band);
+      bottom: var(--band);
+      width: var(--band);
+      flex-direction: column;
+    }
+
+    .frame-left {
+      left: 0;
+    }
+
+    .frame-right {
+      right: 0;
+    }
+
+    /* Ticks between zones. */
+    .frame-top span + span,
+    .frame-bottom span + span {
+      border-left: 1px solid var(--ink);
+    }
+
+    .frame-left span + span,
+    .frame-right span + span {
+      border-top: 1px solid var(--ink);
+    }
+
+    .frame-strip span[data-on] {
+      background: var(--ink);
+      color: var(--paper);
+    }
+  }
+
+  /* Rubber stamp in the footer. Stamps are set in capitals. */
+  .stamp {
+    display: inline-block;
+    padding: 0.5em 0.8em 0.42em;
+    border: 2.5px solid currentColor;
+    outline: 1.5px solid currentColor;
+    outline-offset: 3px;
+    font-stretch: 68%;
+    font-weight: 800;
+    font-size: clamp(1.25rem, 2vw, 1.75rem);
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transform: rotate(-5deg);
+  }
+
+  /*
+    Crop marks around the portrait. Each <i> is a zero-size anchor on one
+    corner, and its two pseudo-elements are the marks, which stop short of
+    the corner the way a printer's marks do.
+  */
+  .crop {
+    position: relative;
+  }
+
+  .crop > i {
+    position: absolute;
+    width: 0;
+    height: 0;
+    --gap: 0.3rem;
+    --len: 0.7rem;
+  }
+
+  .crop > i::before,
+  .crop > i::after {
+    content: "";
+    position: absolute;
+    background: var(--ink);
+  }
+
+  .crop > i::before {
+    width: var(--len);
+    height: 1.5px;
+  }
+
+  .crop > i::after {
+    width: 1.5px;
+    height: var(--len);
+  }
+
+  /* Leave room for the lower marks above the caption. */
+  .crop + .caption {
+    margin-top: 1.3rem;
+  }
+
+  .crop > i:nth-of-type(1) { top: 0; left: 0; }
+  .crop > i:nth-of-type(1)::before { right: var(--gap); top: 0; }
+  .crop > i:nth-of-type(1)::after { bottom: var(--gap); left: 0; }
+
+  .crop > i:nth-of-type(2) { top: 0; right: 0; }
+  .crop > i:nth-of-type(2)::before { left: var(--gap); top: 0; }
+  .crop > i:nth-of-type(2)::after { bottom: var(--gap); right: 0; }
+
+  .crop > i:nth-of-type(3) { bottom: 0; left: 0; }
+  .crop > i:nth-of-type(3)::before { right: var(--gap); bottom: 0; }
+  .crop > i:nth-of-type(3)::after { top: var(--gap); left: 0; }
+
+  .crop > i:nth-of-type(4) { bottom: 0; right: 0; }
+  .crop > i:nth-of-type(4)::before { left: var(--gap); bottom: 0; }
+  .crop > i:nth-of-type(4)::after { top: var(--gap); right: 0; }
+}
+
+/*
+  Switching between Blueprint and Paper wipes the new sheet in from the left.
+  The navigation adds .theme-wipe to <html> for the length of the transition,
+  and skips it for people who ask for reduced motion.
+*/
+html.theme-wipe::view-transition-old(root),
+html.theme-wipe::view-transition-new(root) {
+  mix-blend-mode: normal;
+}
+
+html.theme-wipe::view-transition-old(root) {
+  animation: none;
+}
+
+html.theme-wipe::view-transition-new(root) {
+  animation: theme-wipe 0.55s cubic-bezier(0.7, 0, 0.2, 1) both;
+}
+
+@keyframes theme-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
   }
 }

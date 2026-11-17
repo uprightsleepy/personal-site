@@ -12,9 +12,18 @@ const sheets = [
 ]
 
 // A drafting title block: who drew the sheet, which sheet this is, what it
-// was printed in and when. `printed` is the build date, so it changes with
-// every deploy.
-export default function TitleBlock({ printed }: { printed: string }) {
+// was printed in, which revision and when. `printed` is the build date and
+// `revision` is the commit the site was built from, so both change with every
+// deploy.
+export default function TitleBlock({
+  printed,
+  revision,
+  repo,
+}: {
+  printed: string
+  revision: string | null
+  repo: string
+}) {
   const pathname = usePathname().replace(/\/$/, '') || '/'
   const index = sheets.findIndex((sheet) => sheet.path === pathname)
   const sheet = index === -1 ? null : sheets[index]
@@ -36,9 +45,9 @@ export default function TitleBlock({ printed }: { printed: string }) {
       <div>
         <dt>Ink</dt>
         <dd className="flex flex-wrap items-center gap-x-3 gap-y-1">
-          {/* The Blueprint theme prints white on blue */}
-          <span className="dark:hidden">One, blue</span>
-          <span className="hidden dark:inline">One, white</span>
+          {/* Blueprint prints white on blue. The Paper theme prints blue on white. */}
+          <span className="paper:hidden">One, white</span>
+          <span className="hidden paper:inline">One, blue</span>
           <span className="tint-strip" aria-hidden="true">
             <span />
             <span style={{ opacity: 0.75 }} />
@@ -47,7 +56,20 @@ export default function TitleBlock({ printed }: { printed: string }) {
           </span>
         </dd>
       </div>
-      <div className="col-span-2 lg:col-span-1">
+      <div>
+        <dt>Revision</dt>
+        <dd className="tabular-nums">
+          {revision ? (
+            <a href={`${repo}/commit/${revision}`} target="_blank" rel="noopener noreferrer">
+              {revision.slice(0, 7)}
+              <span className="sr-only"> on GitHub (opens in a new tab)</span>
+            </a>
+          ) : (
+            'Unrecorded'
+          )}
+        </dd>
+      </div>
+      <div>
         <dt>Last printed</dt>
         <dd className="tabular-nums">{printed}</dd>
       </div>
