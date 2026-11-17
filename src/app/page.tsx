@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Door, SheetRef } from '@/components/drafting'
+import { Leader, SheetRef } from '@/components/drafting'
 import RevisionCloud from '@/components/revision-cloud'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
@@ -70,7 +70,7 @@ export default function Home() {
                   {item.link && (
                     <p className="mt-3 font-semibold">
                       <span className="underline">{item.link.label}</span>
-                      {item.link.external ? <Door /> : <SheetRef path={item.link.href} />}
+                      {item.link.external ? <Leader /> : <SheetRef path={item.link.href} />}
                     </p>
                   )}
                 </div>
@@ -144,7 +144,7 @@ export default function Home() {
                   {article.title}
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
-                <Door />
+                <Leader />
               </p>
               <p className="md:col-span-4">{article.publisher}</p>
               <p className="tabular-nums text-soft md:col-span-2 md:text-right">{article.year}</p>

@@ -48,9 +48,13 @@ size, weight and width of one typeface, Archivo, which is self-hosted from
 colors, so new sections should reuse the existing classes (`display`, `title`,
 `entry`, `lead`).
 
+The site icon is the north arrow: `src/app/icon.svg`, with `favicon.ico` and
+`apple-icon.png` beside it rendered from the same drawing.
+
 Embellishments, all defined at the end of `globals.css`:
 
-- Work index rows flood with ink on hover or keyboard focus.
+- Work index rows flood with ink on hover or keyboard focus. Every row floods
+  under the mouse, including work with no page to link to.
 - The word "Secrets" in the first index title loads redacted and the bar wipes
   away once. It is skipped when the visitor asks for reduced motion.
 - The blueprint sheet has a faint drafting grid.
@@ -65,9 +69,9 @@ Embellishments, all defined at the end of `globals.css`:
 - Unknown addresses get a 404 page in the same design (`src/app/not-found.tsx`),
   stamped "Void".
 - Drafting symbols from `src/components/drafting.tsx`: a circled sheet number
-  beside links to other pages (numbers come from `src/lib/sheets.ts`), a door
-  swing beside links that leave the site, and a north arrow in the footer that
-  links back to the top.
+  beside links to other pages (numbers come from `src/lib/sheets.ts`), a
+  leader arrow beside links that leave the site, and a north arrow in the
+  footer that links back to the top.
 - The footer opens with a dimension line that measures its own width
   (`src/components/dimension-line.tsx`) and carries a list of general notes.
 - The title block also names what checked the sheet (the CodeQL workflow) and

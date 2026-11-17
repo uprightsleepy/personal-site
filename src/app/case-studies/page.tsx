@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Door, SheetRef } from '@/components/drafting'
+import { Leader, SheetRef } from '@/components/drafting'
 import WorkLink from '@/components/work-link'
 import { profile, work } from '@/lib/site'
 
@@ -67,7 +67,7 @@ export default function Work() {
               {item.link && (
                 <p className="mt-4 font-semibold">
                   <WorkLink item={item}>{item.link.label}</WorkLink>
-                  {item.link.external ? <Door /> : <SheetRef path={item.link.href} />}
+                  {item.link.external ? <Leader /> : <SheetRef path={item.link.href} />}
                 </p>
               )}
             </div>

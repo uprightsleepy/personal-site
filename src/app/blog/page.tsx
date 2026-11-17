@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Door } from '@/components/drafting'
+import { Leader } from '@/components/drafting'
 import { articles, profile } from '@/lib/site'
 
 const title = `Writing - ${profile.name}`
@@ -60,7 +60,7 @@ export default function Blog() {
                   {article.title}
                   <span className="sr-only"> (opens in a new tab)</span>
                 </a>
-                <Door />
+                <Leader />
               </h2>
               <p className="mt-3 text-soft">
                 {article.publisher}, {article.year}
