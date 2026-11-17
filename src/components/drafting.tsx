@@ -19,13 +19,13 @@ export function SheetRef({ path }: { path: string }) {
   )
 }
 
-// The plan symbol for a door marks links that leave the site: two stubs of
-// wall, the open leaf and the arc of its swing.
-export function Door() {
+// A leader arrow, the kind that runs from a note to the thing it describes,
+// marks links that leave the site. It points up and out of the sheet.
+export function Leader() {
   return (
-    <svg className="door" viewBox="0 0 22 16" aria-hidden="true" focusable="false">
-      <path d="M5 14V2A12 12 0 0 1 17 14" />
-      <path className="door-wall" d="M0 14H5M17 14H22" />
+    <svg className="leader" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M1.5 14.5L9.5 6.5" fill="none" />
+      <path d="M15 1L11.6 9L7 4.4Z" stroke="none" />
     </svg>
   )
 }

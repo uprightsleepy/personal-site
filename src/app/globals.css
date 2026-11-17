@@ -253,12 +253,25 @@
     inset: 0;
   }
 
-  .work-row:has(a:hover),
   .work-row:has(a:focus-visible) {
     background: var(--ink);
     color: var(--paper);
     box-shadow: 0 0 0 100vmax var(--ink);
     clip-path: inset(0 -100vmax);
+  }
+
+  /*
+    Every row floods under the mouse, including work with no page to link
+    to, so the index behaves the same from top to bottom. Touch screens have
+    no hover, and a tap would leave a row stuck in this state.
+  */
+  @media (hover: hover) {
+    .work-row:hover {
+      background: var(--ink);
+      color: var(--paper);
+      box-shadow: 0 0 0 100vmax var(--ink);
+      clip-path: inset(0 -100vmax);
+    }
   }
 
   .work-row:has(a:focus-visible) a {
@@ -360,8 +373,8 @@
 
 @layer components {
   /* The ink flood is the hover state for index titles, so no underline. */
-  .work-row .display a,
-  .work-row .display a:hover {
+  .work-row .display .nav-link,
+  .work-row .display .nav-link:hover {
     text-decoration-line: none;
   }
 }
@@ -573,7 +586,7 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /*
-  Third round: more of the drafter's kit. Reference bubbles, door symbols, a
+  Third round: more of the drafter's kit. Reference bubbles, leader arrows, a
   north arrow, general notes, a dimension line, a graphic scale and a
   revision cloud.
 */
@@ -595,31 +608,24 @@ html.theme-wipe::view-transition-new(root) {
     vertical-align: 0.1em;
   }
 
-  /* Door swing beside a link that leaves the site. */
-  .door {
+  /* Leader arrow beside a link that leaves the site. */
+  .leader {
     display: inline-block;
-    width: 1.1em;
-    height: 0.8em;
-    margin-left: 0.45em;
-    vertical-align: -0.03em;
-    fill: none;
+    width: 0.72em;
+    height: 0.72em;
+    margin-left: 0.4em;
+    vertical-align: 0.02em;
+    fill: currentColor;
     stroke: currentColor;
-    stroke-width: 1.4;
+    stroke-width: 1.5;
     overflow: visible;
   }
 
-  .door .door-wall {
-    stroke-width: 3;
-  }
-
-  .entry .door {
-    width: 0.75em;
-    height: 0.55em;
-    stroke-width: 1;
-  }
-
-  .entry .door .door-wall {
-    stroke-width: 2.4;
+  .entry .leader {
+    width: 0.5em;
+    height: 0.5em;
+    stroke-width: 1.2;
+    vertical-align: 0.08em;
   }
 
   /* North arrow, which is also the way back to the top. */
