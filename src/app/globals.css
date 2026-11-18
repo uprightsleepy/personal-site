@@ -235,6 +235,8 @@
 @layer components {
   /* The blueprint sheet has a faint drafting grid. Paper has none. */
   .sheet {
+    /* Row hatching runs past both edges; this keeps it from adding a scrollbar. */
+    overflow-x: clip;
     background-image:
       linear-gradient(var(--grid) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
@@ -243,11 +245,14 @@
   }
 
   /*
-    Work index rows that lead somewhere flood with ink on hover or keyboard
-    focus, edge to edge, and the whole row is the link.
+    Work index rows fill with hatching on hover or keyboard focus, edge to
+    edge, the way a drafter shades a cut section. Where a row leads
+    somewhere, the whole row is the link. The hatch is a tint of the ink, so
+    the type keeps its color and the change is easy on the eye.
   */
   .work-row {
     position: relative;
+    isolation: isolate;
   }
 
   .work-row a::after {
@@ -256,24 +261,35 @@
     inset: 0;
   }
 
-  .work-row:has(a:focus-visible) {
-    background: var(--ink);
-    color: var(--paper);
-    box-shadow: 0 0 0 100vmax var(--ink);
-    clip-path: inset(0 -100vmax);
+  .work-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 -100vmax;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--ink) 26%, transparent) 0 1px,
+        transparent 1px 0.5rem
+      ),
+      color-mix(in srgb, var(--ink) 7%, transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+
+  .work-row:has(a:focus-visible)::before {
+    opacity: 1;
   }
 
   /*
-    Every row floods under the mouse, including work with no page to link
+    Every row fills under the mouse, including work with no page to link
     to, so the index behaves the same from top to bottom. Touch screens have
     no hover, and a tap would leave a row stuck in this state.
   */
   @media (hover: hover) {
-    .work-row:hover {
-      background: var(--ink);
-      color: var(--paper);
-      box-shadow: 0 0 0 100vmax var(--ink);
-      clip-path: inset(0 -100vmax);
+    .work-row:hover::before {
+      opacity: 1;
     }
   }
 
@@ -282,7 +298,7 @@
   }
 
   .work-row:has(a:focus-visible) {
-    outline: 3px solid var(--paper);
+    outline: 3px solid var(--ink);
     outline-offset: -8px;
   }
 
@@ -375,7 +391,7 @@
 }
 
 @layer components {
-  /* The ink flood is the hover state for index titles, so no underline. */
+  /* The hatching is the hover state for index titles, so no underline. */
   .work-row .display .nav-link,
   .work-row .display .nav-link:hover {
     text-decoration-line: none;
@@ -390,7 +406,7 @@
   /*
     Drawing frame. On wide screens the viewport is bordered like a drawing
     sheet, with zone numbers across and letters down. The band is opaque, so
-    the page scrolls under it and the work index flood stops at the border.
+    the page scrolls under it and the work index hatching stops at the border.
     src/components/sheet-frame.tsx marks the zone under the pointer.
   */
   .frame {
