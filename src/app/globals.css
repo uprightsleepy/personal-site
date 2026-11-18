@@ -149,6 +149,9 @@
     vertical-align: top;
     margin-left: 0.6em;
     white-space: nowrap;
+    /* Set on its side, reading down, beside the title. */
+    display: inline-block;
+    writing-mode: vertical-rl;
   }
 
   .nav-link {
@@ -232,6 +235,8 @@
 @layer components {
   /* The blueprint sheet has a faint drafting grid. Paper has none. */
   .sheet {
+    /* Row hatching runs past both edges; this keeps it from adding a scrollbar. */
+    overflow-x: clip;
     background-image:
       linear-gradient(var(--grid) 1px, transparent 1px),
       linear-gradient(90deg, var(--grid) 1px, transparent 1px);
@@ -240,11 +245,14 @@
   }
 
   /*
-    Work index rows that lead somewhere flood with ink on hover or keyboard
-    focus, edge to edge, and the whole row is the link.
+    Work index rows fill with hatching on hover or keyboard focus, edge to
+    edge, the way a drafter shades a cut section. Where a row leads
+    somewhere, the whole row is the link. The hatch is a tint of the ink, so
+    the type keeps its color and the change is easy on the eye.
   */
   .work-row {
     position: relative;
+    isolation: isolate;
   }
 
   .work-row a::after {
@@ -253,24 +261,35 @@
     inset: 0;
   }
 
-  .work-row:has(a:focus-visible) {
-    background: var(--ink);
-    color: var(--paper);
-    box-shadow: 0 0 0 100vmax var(--ink);
-    clip-path: inset(0 -100vmax);
+  .work-row::before {
+    content: "";
+    position: absolute;
+    inset: 0 -100vmax;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--ink) 26%, transparent) 0 1px,
+        transparent 1px 0.5rem
+      ),
+      color-mix(in srgb, var(--ink) 7%, transparent);
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+
+  .work-row:has(a:focus-visible)::before {
+    opacity: 1;
   }
 
   /*
-    Every row floods under the mouse, including work with no page to link
+    Every row fills under the mouse, including work with no page to link
     to, so the index behaves the same from top to bottom. Touch screens have
     no hover, and a tap would leave a row stuck in this state.
   */
   @media (hover: hover) {
-    .work-row:hover {
-      background: var(--ink);
-      color: var(--paper);
-      box-shadow: 0 0 0 100vmax var(--ink);
-      clip-path: inset(0 -100vmax);
+    .work-row:hover::before {
+      opacity: 1;
     }
   }
 
@@ -279,7 +298,7 @@
   }
 
   .work-row:has(a:focus-visible) {
-    outline: 3px solid var(--paper);
+    outline: 3px solid var(--ink);
     outline-offset: -8px;
   }
 
@@ -372,7 +391,7 @@
 }
 
 @layer components {
-  /* The ink flood is the hover state for index titles, so no underline. */
+  /* The hatching is the hover state for index titles, so no underline. */
   .work-row .display .nav-link,
   .work-row .display .nav-link:hover {
     text-decoration-line: none;
@@ -387,7 +406,7 @@
   /*
     Drawing frame. On wide screens the viewport is bordered like a drawing
     sheet, with zone numbers across and letters down. The band is opaque, so
-    the page scrolls under it and the work index flood stops at the border.
+    the page scrolls under it and the work index hatching stops at the border.
     src/components/sheet-frame.tsx marks the zone under the pointer.
   */
   .frame {
@@ -776,5 +795,66 @@ html.theme-wipe::view-transition-new(root) {
     .rev-cloud-outline {
       inset: -1.25rem 0;
     }
+  }
+}
+
+/*
+  Fourth round: the type itself does more. A poster statement fitted to the
+  measure, display titles that widen under the pointer, and dates set on
+  their side.
+*/
+@layer components {
+  /*
+    Poster statement (src/components/poster.tsx). Each line has its own width
+    of the typeface (--stretch) and its width in ems at that setting (--ems),
+    so dividing the measure by --ems makes the line fill it.
+  */
+  .poster {
+    display: block;
+    container-type: inline-size;
+    overflow-x: clip;
+    text-transform: uppercase;
+    font-weight: 800;
+    line-height: 0.8;
+  }
+
+  .poster-line {
+    display: block;
+    width: max-content;
+    white-space: nowrap;
+    font-stretch: var(--stretch);
+    font-size: calc(99.7cqw / var(--ems));
+    letter-spacing: 0;
+    padding-top: 0.07em;
+  }
+
+  /* Drawn, not inked: these lines are outlines in the same ink. */
+  .poster-outline {
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.014em) var(--ink);
+  }
+
+  /*
+    The footer sentence picks the outline up: the words are drawn and the
+    two links are inked in, so the links are the solid part of the line.
+  */
+  .drawn {
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.018em) var(--ink);
+  }
+
+  .drawn a {
+    color: var(--ink);
+    -webkit-text-stroke: 0;
+  }
+
+  /* Display titles whose letters widen under the pointer (lens-title.tsx). */
+  .lens-word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .lens-letter {
+    transition: font-stretch 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }

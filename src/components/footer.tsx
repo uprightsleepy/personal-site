@@ -16,7 +16,7 @@ export default function Footer() {
   return (
     <footer className="gutter pb-8 pt-28 md:pt-40">
       <DimensionLine className="mb-16 md:mb-24" />
-      <p className="title max-w-[14em]">
+      <p className="title drawn max-w-[14em]">
         Find me on{' '}
         <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
           LinkedIn
