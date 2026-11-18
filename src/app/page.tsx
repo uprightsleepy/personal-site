@@ -1,6 +1,8 @@
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { Leader, SheetRef } from '@/components/drafting'
+import LensTitle from '@/components/lens-title'
+import Poster, { type PosterLine } from '@/components/poster'
 import RevisionCloud from '@/components/revision-cloud'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
@@ -31,16 +33,32 @@ export const metadata: Metadata = {
   },
 }
 
+// The opening statement, one line of the poster each. Every line is set in a
+// different width of Archivo and sized to fill the measure.
+const statement: PosterLine[] = [
+  { text: 'Henry Phillips', stretch: 100, ems: 8.6585 },
+  { text: 'is an application', stretch: 62, ems: 6.725, outline: true },
+  { text: 'and cloud security', stretch: 84, ems: 10.0663 },
+  { text: 'engineer.', stretch: 125, ems: 7.2325, outline: true },
+]
+
 export default function Home() {
   return (
     <div className="gutter">
-      {/* Opening statement */}
-      <section className="max-w-[46ch] pb-14 pt-10 md:pb-24 md:pt-20">
-        <h1 className="lead">Henry Phillips is an application and cloud security engineer.</h1>
-        <p className="lead mt-[0.6em] text-soft">
-          I build security into how software gets delivered: CI/CD platforms, secrets management,
-          IAM and infrastructure as code on AWS and GCP.
-        </p>
+      {/* Opening statement, set as a poster */}
+      <section className="pb-14 pt-6 md:pb-24 md:pt-10">
+        <h1>
+          <Poster
+            label="Henry Phillips is an application and cloud security engineer."
+            lines={statement}
+          />
+        </h1>
+        <div className="mt-10 grid gap-x-10 md:mt-16 md:grid-cols-12">
+          <p className="lead max-w-[40ch] md:col-span-6 md:col-start-7">
+            I build security into how software gets delivered: CI/CD platforms, secrets
+            management, IAM and infrastructure as code on AWS and GCP.
+          </p>
+        </div>
       </section>
 
       {/* The work, set as an index in display type */}
@@ -53,14 +71,11 @@ export default function Home() {
             <li key={item.slug} className="work-row border-t border-rule pb-8 pt-5 md:pb-10 md:pt-6">
               <h3 className="display">
                 <WorkLink item={item} className="nav-link">
-                  {item.slug === 'secrets-migration' ? (
-                    <>
-                      {/* Loads redacted, then the bar wipes away (see globals.css) */}
-                      <span className="redact">Secrets</span> migration
-                    </>
-                  ) : (
-                    item.display
-                  )}
+                  <span className="sr-only">{item.display}</span>
+                  <LensTitle
+                    text={item.display}
+                    redactFirstWord={item.slug === 'secrets-migration'}
+                  />
                 </WorkLink>
                 <span className="years">{item.years}</span>
               </h3>

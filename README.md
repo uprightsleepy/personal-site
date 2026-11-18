@@ -79,6 +79,15 @@ Embellishments, all defined at the end of `globals.css`:
 - The "Now" section on the home page sits in a revision cloud
   (`src/components/revision-cloud.tsx`).
 - The case study is stamped "As built".
+- The home page opens with a poster statement (`src/components/poster.tsx`):
+  each line is set in a different width of Archivo and sized to fill the
+  measure, and alternate lines are outlines. The lines and their widths are
+  listed at the top of `src/app/page.tsx`.
+- Work index titles widen under the mouse, letter by letter, along Archivo's
+  width axis (`src/components/lens-title.tsx`). It is skipped on touch
+  screens and for reduced motion.
+- The dates beside the work titles are set on their side, and the footer
+  sentence is outlined with its two links inked in.
 
 ## Deployment
 

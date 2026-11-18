@@ -149,6 +149,9 @@
     vertical-align: top;
     margin-left: 0.6em;
     white-space: nowrap;
+    /* Set on its side, reading down, beside the title. */
+    display: inline-block;
+    writing-mode: vertical-rl;
   }
 
   .nav-link {
@@ -776,5 +779,66 @@ html.theme-wipe::view-transition-new(root) {
     .rev-cloud-outline {
       inset: -1.25rem 0;
     }
+  }
+}
+
+/*
+  Fourth round: the type itself does more. A poster statement fitted to the
+  measure, display titles that widen under the pointer, and dates set on
+  their side.
+*/
+@layer components {
+  /*
+    Poster statement (src/components/poster.tsx). Each line has its own width
+    of the typeface (--stretch) and its width in ems at that setting (--ems),
+    so dividing the measure by --ems makes the line fill it.
+  */
+  .poster {
+    display: block;
+    container-type: inline-size;
+    overflow-x: clip;
+    text-transform: uppercase;
+    font-weight: 800;
+    line-height: 0.8;
+  }
+
+  .poster-line {
+    display: block;
+    width: max-content;
+    white-space: nowrap;
+    font-stretch: var(--stretch);
+    font-size: calc(99.7cqw / var(--ems));
+    letter-spacing: 0;
+    padding-top: 0.07em;
+  }
+
+  /* Drawn, not inked: these lines are outlines in the same ink. */
+  .poster-outline {
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.014em) var(--ink);
+  }
+
+  /*
+    The footer sentence picks the outline up: the words are drawn and the
+    two links are inked in, so the links are the solid part of the line.
+  */
+  .drawn {
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.018em) var(--ink);
+  }
+
+  .drawn a {
+    color: var(--ink);
+    -webkit-text-stroke: 0;
+  }
+
+  /* Display titles whose letters widen under the pointer (lens-title.tsx). */
+  .lens-word {
+    display: inline-block;
+    white-space: nowrap;
+  }
+
+  .lens-letter {
+    transition: font-stretch 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
 }
