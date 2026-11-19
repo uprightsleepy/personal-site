@@ -59,7 +59,7 @@ Embellishments, all defined at the end of `globals.css`:
   away once. It is skipped when the visitor asks for reduced motion.
 - The blueprint sheet has a faint drafting grid.
 - On wide screens the viewport has a drawing frame with zone references
-  (`src/components/sheet-frame.tsx`), and the zone under the mouse is marked.
+  (`src/components/sheet-frame.tsx`), and the zone under the mouse is hatched.
 - The footer has a drawing title block (`src/components/title-block.tsx`) with
   the sheet number, the ink, the commit the site was built from and the date
   of the last build, plus a "Not for construction" stamp.
