@@ -3,7 +3,6 @@ import type { Metadata } from 'next'
 import { Leader, SheetRef } from '@/components/drafting'
 import LensTitle from '@/components/lens-title'
 import Poster, { type PosterLine } from '@/components/poster'
-import RevisionCloud from '@/components/revision-cloud'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
@@ -97,8 +96,8 @@ export default function Home() {
 
       {/* Who and where */}
       <section className="grid gap-x-10 gap-y-12 py-24 md:grid-cols-12 md:py-36" aria-labelledby="now-heading">
-        {/* The newest part of the drawing gets a revision cloud */}
-        <RevisionCloud className="md:col-span-6">
+        {/* Boxed with ruled lines that run past the corners (see .drafted) */}
+        <div className="drafted md:col-span-6">
           <h2 id="now-heading" className="section-heading mb-5">
             Now
           </h2>
@@ -113,8 +112,9 @@ export default function Home() {
             <Link href="/about">More about me</Link>
             <SheetRef path="/about" />
           </p>
-        </RevisionCloud>
-        <div className="md:col-span-6 md:col-start-7">
+        </div>
+        {/* The top padding lines this heading up with "Now" inside its box */}
+        <div className="md:col-span-6 md:col-start-7 md:pt-[1.6rem]">
           <h2 className="section-heading mb-5">Certifications</h2>
           <ul className="space-y-2">
             {certifications.map((cert) => (

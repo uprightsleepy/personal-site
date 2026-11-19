@@ -607,7 +607,7 @@ html.theme-wipe::view-transition-new(root) {
 /*
   Third round: more of the drafter's kit. Reference bubbles, leader arrows, a
   north arrow, general notes, a dimension line, a graphic scale and a
-  revision cloud.
+  drafted box.
 */
 @layer components {
   /* Circled sheet number beside a link to another page. */
@@ -766,34 +766,37 @@ html.theme-wipe::view-transition-new(root) {
     background: var(--ink);
   }
 
-  /* Revision cloud. The outline hangs outside the box it wraps. */
-  .rev-cloud {
+  /*
+    Drafted box. Four ruled lines in the same weight as the title block,
+    each running a little past the corners, the way hand-drafted lines
+    overrun where they meet. One pseudo-element draws the horizontal pair
+    and the other the vertical pair.
+  */
+  .drafted {
     position: relative;
+    padding: 1.25rem 1.1rem 1.4rem;
   }
 
-  .rev-cloud-outline {
+  .drafted::before,
+  .drafted::after {
+    content: "";
     position: absolute;
-    inset: -1.5rem -0.9rem;
     pointer-events: none;
   }
 
-  .rev-cloud-outline svg {
-    display: block;
-    overflow: visible;
-    fill: none;
-    stroke: var(--ink);
-    stroke-width: 1.5;
-    stroke-linejoin: round;
+  .drafted::before {
+    inset: 0 -0.6rem;
+    border-block: 1.5px solid var(--ink);
   }
 
-  /* On phones there is no room to hang outside, so the text steps in. */
-  @media (max-width: 47.99rem) {
-    .rev-cloud {
-      padding-inline: 0.6rem;
-    }
+  .drafted::after {
+    inset: -0.6rem 0;
+    border-inline: 1.5px solid var(--ink);
+  }
 
-    .rev-cloud-outline {
-      inset: -1.25rem 0;
+  @media (min-width: 48rem) {
+    .drafted {
+      padding: 1.6rem 1.75rem 1.9rem;
     }
   }
 }
