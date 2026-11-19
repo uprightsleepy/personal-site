@@ -17,6 +17,17 @@
   --rule: #5b60e0;
   /* Faint lines of the drafting grid. */
   --grid: rgb(255 255 255 / 0.07);
+  /*
+    Section hatching, a tint of the ink. It is the highlight for work index
+    rows and for the frame's zone markers.
+  */
+  --hatch:
+    repeating-linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--ink) 26%, transparent) 0 1px,
+      transparent 1px 0.5rem
+    ),
+    color-mix(in srgb, var(--ink) 7%, transparent);
   /* Width of the drawing frame's zone band. Zero until the frame shows. */
   --band: 0rem;
   color-scheme: dark;
@@ -267,13 +278,7 @@
     inset: 0 -100vmax;
     z-index: -1;
     pointer-events: none;
-    background:
-      repeating-linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--ink) 26%, transparent) 0 1px,
-        transparent 1px 0.5rem
-      ),
-      color-mix(in srgb, var(--ink) 7%, transparent);
+    background: var(--hatch);
     opacity: 0;
     transition: opacity 0.2s ease-out;
   }
@@ -498,9 +503,27 @@
       border-top: 1px solid var(--ink);
     }
 
-    .frame-strip span[data-on] {
-      background: var(--ink);
-      color: var(--paper);
+    /*
+      The zone under the pointer is hatched, the same as a work row, and
+      fades in and out as the pointer moves between zones.
+    */
+    .frame-strip span {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .frame-strip span::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: var(--hatch);
+      opacity: 0;
+      transition: opacity 0.25s ease-out;
+    }
+
+    .frame-strip span[data-on]::before {
+      opacity: 1;
     }
   }
 
