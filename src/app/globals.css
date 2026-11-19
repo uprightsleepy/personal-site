@@ -606,8 +606,7 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   Third round: more of the drafter's kit. Reference bubbles, leader arrows, a
-  north arrow, general notes, a dimension line, a graphic scale and a
-  revision cloud.
+  north arrow, general notes, a dimension line and a graphic scale.
 */
 @layer components {
   /* Circled sheet number beside a link to another page. */
@@ -764,37 +763,6 @@ html.theme-wipe::view-transition-new(root) {
 
   .scale-bar span:nth-child(odd) {
     background: var(--ink);
-  }
-
-  /* Revision cloud. The outline hangs outside the box it wraps. */
-  .rev-cloud {
-    position: relative;
-  }
-
-  .rev-cloud-outline {
-    position: absolute;
-    inset: -1.5rem -0.9rem;
-    pointer-events: none;
-  }
-
-  .rev-cloud-outline svg {
-    display: block;
-    overflow: visible;
-    fill: none;
-    stroke: var(--ink);
-    stroke-width: 1.5;
-    stroke-linejoin: round;
-  }
-
-  /* On phones there is no room to hang outside, so the text steps in. */
-  @media (max-width: 47.99rem) {
-    .rev-cloud {
-      padding-inline: 0.6rem;
-    }
-
-    .rev-cloud-outline {
-      inset: -1.25rem 0;
-    }
   }
 }
 

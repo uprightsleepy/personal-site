@@ -76,8 +76,6 @@ Embellishments, all defined at the end of `globals.css`:
   (`src/components/dimension-line.tsx`) and carries a list of general notes.
 - The title block also names what checked the sheet (the CodeQL workflow) and
   has a 100 pixel graphic scale.
-- The "Now" section on the home page sits in a revision cloud
-  (`src/components/revision-cloud.tsx`).
 - The case study is stamped "As built".
 - The home page opens with a poster statement (`src/components/poster.tsx`):
   each line is set in a different width of Archivo and sized to fill the
