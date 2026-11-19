@@ -606,7 +606,8 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   Third round: more of the drafter's kit. Reference bubbles, leader arrows, a
-  north arrow, general notes, a dimension line and a graphic scale.
+  north arrow, general notes, a dimension line, a graphic scale and a
+  drafted box.
 */
 @layer components {
   /* Circled sheet number beside a link to another page. */
@@ -763,6 +764,40 @@ html.theme-wipe::view-transition-new(root) {
 
   .scale-bar span:nth-child(odd) {
     background: var(--ink);
+  }
+
+  /*
+    Drafted box. Four ruled lines in the same weight as the title block,
+    each running a little past the corners, the way hand-drafted lines
+    overrun where they meet. One pseudo-element draws the horizontal pair
+    and the other the vertical pair.
+  */
+  .drafted {
+    position: relative;
+    padding: 1.25rem 1.1rem 1.4rem;
+  }
+
+  .drafted::before,
+  .drafted::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .drafted::before {
+    inset: 0 -0.6rem;
+    border-block: 1.5px solid var(--ink);
+  }
+
+  .drafted::after {
+    inset: -0.6rem 0;
+    border-inline: 1.5px solid var(--ink);
+  }
+
+  @media (min-width: 48rem) {
+    .drafted {
+      padding: 1.6rem 1.75rem 1.9rem;
+    }
   }
 }
 
