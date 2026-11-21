@@ -5,8 +5,9 @@ import styles from './torn-corner.module.css'
 
 // An easter egg for the home page. The bottom right corner of the sheet is
 // torn and folded back a little. Drag the corner up and to the left: it
-// peels after the pointer, and past a certain pull the sheet rips open on a
-// music video.
+// peels after the pointer, then the sheet starts to tear, a little further
+// with every bit of pull, in the direction it is being pulled. Pull far
+// enough and the piece comes away, leaving a music video behind the hole.
 //
 // The video is a YouTube embed from the no-cookie domain. Nothing is
 // requested from YouTube until the sheet is torn, and public/_headers allows
@@ -25,42 +26,37 @@ import styles from './torn-corner.module.css'
 //   - The edge of the hole is not the straight fold line but a ragged path
 //     that wanders around it, with a band of white fibre where the paper
 //     split, a few loose fibres, and a shadow cast into the hole.
-//   - When the sheet rips, the tear spreads from the fold to an uneven
-//     outline (TORN) that leaves the video partly tucked behind the sheet,
-//     and the flap drops away.
+//   - As the sheet tears, that path spreads from the fold toward an uneven
+//     outline. The outline is different every time (`seed`) and leans the
+//     way the corner is pulled (`lean`): pull left and the tear runs along
+//     the bottom, pull up and it runs up the side.
 const VIDEO = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0'
 
 type State = 'idle' | 'dragging' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
+type Shape = {
+  // Where the folded corner lands, as an offset from the corner.
+  tip: Point
+  // 0 to 1 as the tear spreads from the fold to the finished outline.
+  rip: number
+  // Picks this tear's outline. A new one is drawn for every attempt.
+  seed: number
+  // 0 to 1: how much of the pull is sideways (1) as opposed to upward (0).
+  lean: number
+}
 
 // Where the corner sits at rest and when the pointer is over it, as offsets
 // of P from the corner. Slightly lopsided, so it does not look ruled.
 const REST: Point = [-27, -36]
 const PEEK: Point = [-40, -54]
-const RIP_AT = 0.78 // rip once the corner is pulled this share of the box height
-const RIP_MS = 760
+// The pull, as a share of the box's height, at which the sheet starts to
+// tear and at which it has torn right through.
+const TEAR_FROM = 0.5
+const TEAR_TO = 1.2
+const STEPS = 20 // the tear advances in this many small jerks
+const POINTS = 13 // points along the tear's outline
 
-// The shape of the finished tear, as fractions of the box, from its end on
-// the bottom edge to its end on the right edge. It is deliberately uneven:
-// the sheet comes away in a ragged piece, and the video stays partly tucked
-// behind what is left, most of all at the top left corner.
-// The bottom left stays clear, because that is where the player's controls
-// are.
-const TORN: Point[] = [
-  [0.012, 1],
-  [0.03, 0.83],
-  [0.1, 0.63],
-  [0.04, 0.44],
-  [0.13, 0.3],
-  [0.22, 0.13],
-  [0.37, 0.16],
-  [0.5, 0.045],
-  [0.66, 0.11],
-  [0.82, 0.03],
-  [0.93, 0.09],
-  [1, 0.06],
-]
-
+const clamp = (value: number, low = 0, high = 1) => Math.min(high, Math.max(low, value))
 const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount
 const mix = (from: Point, to: Point, amount: number): Point => [
   lerp(from[0], to[0], amount),
@@ -68,7 +64,8 @@ const mix = (from: Point, to: Point, amount: number): Point => [
 ]
 const fmt = (point: Point) => `${point[0].toFixed(1)} ${point[1].toFixed(1)}`
 
-// Repeatable noise, so the tear keeps its shape from frame to frame.
+// Repeatable noise: the same inputs always give the same value, so a tear
+// keeps its shape from frame to frame, and a new seed gives a new tear.
 const hash = (n: number) => {
   const x = Math.sin(n * 127.1 + 311.7) * 43758.5453
   return x - Math.floor(x)
@@ -109,20 +106,73 @@ function outlinePosition(point: Point, w: number, h: number): number {
   return 2 * w + h + (h - y)
 }
 
+// The outline a finished tear settles into, from its end on the bottom edge
+// to its end on the right edge. It bulges away from the corner like a
+// rounded rectangle. `lean` decides how far it reaches along each edge, and
+// `seed` gives it its own lumps and bites.
+function tornOutline(w: number, h: number, seed: number, lean: number): Point[] {
+  const sideways = clamp(lean * 2)
+  const upward = clamp((1 - lean) * 2)
+  const reachX = (0.52 + 0.47 * sideways) * w
+  const reachY = (0.5 + 0.46 * upward) * h
+  const bite = 0.2 + hash(seed + 5) * 0.6 // where along the tear one deep bite falls
+  const points: Point[] = []
+  for (let i = 0; i < POINTS; i++) {
+    const t = i / (POINTS - 1)
+    const angle = (t * Math.PI) / 2
+    // A squarer curve than a circle, so the opening fills its corner.
+    const cx = Math.pow(Math.cos(angle), 0.62)
+    const cy = Math.pow(Math.sin(angle), 0.62)
+    const pinned = Math.min(1, t * 5, (1 - t) * 5)
+    const lumps = noise(t * 5.3, seed + 11) * 0.11 + noise(t * 11.7, seed + 23) * 0.05
+    const dent = -0.17 * Math.exp(-Math.pow((t - bite) / 0.07, 2))
+    const scale = 1 + (lumps + dent) * pinned
+    points.push([
+      clamp(w - reachX * cx * scale, w * 0.012, w),
+      clamp(h - reachY * cy * scale, h * 0.03, h),
+    ])
+  }
+  return points
+}
+
 export default function TornCorner() {
   const box = useRef<HTMLDivElement>(null)
   const hole = useRef<HTMLDivElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const [state, setState] = useState<State>('idle')
   const current = useRef<State>('idle')
-  // `tip` is where the folded corner lands, as an offset from the corner.
-  // `rip` runs 0 to 1 as the tear spreads from the fold to the whole box.
-  const shape = useRef<{ tip: Point; rip: number }>({ tip: REST, rip: 0 })
+  const shape = useRef<Shape>({ tip: REST, rip: 0, seed: 1, lean: 0.5 })
   const tween = useRef(0)
+  const audio = useRef<AudioContext | null>(null)
 
   const move = useCallback((next: State) => {
     current.current = next
     setState(next)
+  }, [])
+
+  // The sound of paper giving way: a short burst of filtered noise. `force`
+  // runs from a faint tick to the final rip.
+  const crackle = useCallback((force: number) => {
+    const context = audio.current
+    if (!context || context.state !== 'running') return
+    const seconds = 0.025 + 0.2 * force * force
+    const buffer = context.createBuffer(1, Math.ceil(context.sampleRate * seconds), context.sampleRate)
+    const data = buffer.getChannelData(0)
+    for (let i = 0; i < data.length; i++) {
+      // Noise that dies away, with a little grit in it.
+      const fade = Math.pow(1 - i / data.length, 1.6)
+      data[i] = (Math.random() * 2 - 1) * fade * (0.6 + 0.4 * Math.random())
+    }
+    const source = context.createBufferSource()
+    source.buffer = buffer
+    const filter = context.createBiquadFilter()
+    filter.type = 'bandpass'
+    filter.frequency.value = 2600 + Math.random() * 2600
+    filter.Q.value = 0.6
+    const gain = context.createGain()
+    gain.gain.value = 0.035 + 0.1 * force
+    source.connect(filter).connect(gain).connect(context.destination)
+    source.start()
   }, [])
 
   const draw = useCallback(() => {
@@ -131,15 +181,12 @@ export default function TornCorner() {
     if (!el || !root || !hole.current) return
     const w = el.offsetWidth
     const h = el.offsetHeight
-    const { tip, rip } = shape.current
+    const { tip, rip, seed, lean } = shape.current
     const part = (name: string) => root.querySelector<SVGElement>(`[data-part="${name}"]`)!
 
     // --- The fold --------------------------------------------------------
     const corner: Point = [w, h]
-    const p: Point = [
-      Math.min(w - 10, Math.max(8, w + tip[0])),
-      Math.min(h - 10, Math.max(8, h + tip[1])),
-    ]
+    const p: Point = [clamp(w + tip[0], 8, w - 10), clamp(h + tip[1], 8, h - 10)]
     const mid = mix(corner, p, 0.5)
     const reach = Math.hypot(corner[0] - p[0], corner[1] - p[1])
     // Unit vector across the fold, pointing from the flap toward the corner.
@@ -159,35 +206,29 @@ export default function TornCorner() {
     const ends = folded.filter((point) => !isCorner(point))
     if (ends.length < 2) return
     const positions = ends.map((point) => outlinePosition(point, w, h)).sort((x, y) => x - y)
-    // `upper` is on the top or right edge, `lower` on the bottom or left.
-    // As the sheet rips they slide along the outline to where the finished
-    // tear ends.
-    const last = TORN.length - 1
-    const upperAt = lerp(positions[0], w + TORN[last][1] * h, rip)
-    const lowerAt = lerp(positions[1], w + h + (1 - TORN[0][0]) * w, rip)
-    const upper = onOutline(upperAt, w, h)
-    const lower = onOutline(lowerAt, w, h)
-    const foldLower = onOutline(positions[1], w, h)
     const foldUpper = onOutline(positions[0], w, h)
-    // The tear's path: a row of points that start out spaced along the
-    // straight fold and travel to the uneven outline in TORN. The middle of
-    // the tear runs ahead of its ends, so the rip opens from the corner.
-    const controls: Point[] = TORN.map((target, index) => {
-      if (index === 0) return lower
-      if (index === last) return upper
+    const foldLower = onOutline(positions[1], w, h)
+
+    // --- The tear's path -------------------------------------------------
+    // A row of points that start out spaced along the straight fold and
+    // travel to this tear's outline. Its two ends slide along the box's
+    // edges. The middle runs ahead of the ends, so it opens from the corner.
+    const target = tornOutline(w, h, seed, lean)
+    const last = POINTS - 1
+    const lowerAt = lerp(positions[1], outlinePosition(target[0], w, h), rip)
+    const upperAt = lerp(positions[0], outlinePosition(target[last], w, h), rip)
+    const controls: Point[] = target.map((to, index) => {
+      if (index === 0) return onOutline(lowerAt, w, h)
+      if (index === last) return onOutline(upperAt, w, h)
       const along = index / last
-      const lead = Math.max(0, Math.min(1, rip * 1.35 - 0.35 * Math.abs(along - 0.5) * 2))
-      return mix(mix(foldLower, foldUpper, along), [target[0] * w, target[1] * h], lead)
+      const lead = clamp(rip * 1.35 - 0.35 * Math.abs(along - 0.5) * 2)
+      return mix(mix(foldLower, foldUpper, along), to, lead)
     })
 
     // --- The ragged edge -------------------------------------------------
     // Walk a smooth curve through those points a few pixels at a time, and
     // roughen it. `centre` is the edge of the hole. `sheet` and `core` are
     // the two sides of the band of white fibre.
-    const centre: Point[] = []
-    const sheet: Point[] = []
-    const core: Point[] = []
-    const fibres: string[] = []
     const curve: Point[] = []
     for (let i = 0; i < last; i++) {
       const p0 = controls[Math.max(0, i - 1)]
@@ -204,9 +245,13 @@ export default function TornCorner() {
             (p2[k] - p0[k]) * t +
             (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t +
             (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t * t * t)
-        curve.push([at(0), at(1)])
+        curve.push([clamp(at(0), 0, w), clamp(at(1), 0, h)])
       }
     }
+    const centre: Point[] = []
+    const sheet: Point[] = []
+    const core: Point[] = []
+    const fibres: string[] = []
     let travelled = 0
     for (let i = 0; i < curve.length; i++) {
       const [x, y] = curve[i]
@@ -225,20 +270,21 @@ export default function TornCorner() {
       // The ends are pinned to the outline; the wander fades in from them.
       const pinned = Math.min(1, i / 3, (curve.length - 1 - i) / 3)
       const wander =
-        (noise(s / 16, 1) * 3.4 + noise(s / 5.5, 2) * 1.7 + noise(s / 2.2, 3) * 0.7) * pinned
-      const tuft = hash(Math.floor(s / 9) + 9) > 0.78 ? 2.6 : 0
-      const outer = 1.1 + (noise(s / 7, 4) + 1) * 1.4
-      const inner = 1.3 + (noise(s / 6, 5) + 1) * 2.1 + tuft
+        (noise(s / 16, seed + 1) * 3.4 + noise(s / 5.5, seed + 2) * 1.7 + noise(s / 2.2, seed + 3) * 0.7) *
+        pinned
+      const tuft = hash(Math.floor(s / 9) + seed + 9) > 0.78 ? 2.6 : 0
+      const outer = 1.1 + (noise(s / 7, seed + 4) + 1) * 1.4
+      const inner = 1.3 + (noise(s / 6, seed + 5) + 1) * 2.1 + tuft
       centre.push([x + ax * wander, y + ay * wander])
       sheet.push([x + ax * (wander + outer), y + ay * (wander + outer)])
       core.push([x + ax * (wander - inner), y + ay * (wander - inner)])
       // Now and then a loose fibre hangs into the hole.
-      if (i % 5 === 2 && hash(Math.floor(s / 17) + 31) > 0.45) {
-        const long = 3 + hash(i * 7.3) * 7
-        const lean = (hash(i * 3.1 + 3) - 0.5) * 5
+      if (i % 5 === 2 && hash(Math.floor(s / 17) + seed + 31) > 0.45) {
+        const long = 3 + hash(i * 7.3 + seed) * 7
+        const sway = (hash(i * 3.1 + seed + 3) - 0.5) * 5
         fibres.push(
           `M${fmt([x + ax * (wander - inner + 0.5), y + ay * (wander - inner + 0.5)])}` +
-            `l${(-ax * long - ay * lean).toFixed(1)} ${(-ay * long + ax * lean).toFixed(1)}`,
+            `l${(-ax * long - ay * sway).toFixed(1)} ${(-ay * long + ax * sway).toFixed(1)}`,
         )
       }
     }
@@ -262,10 +308,10 @@ export default function TornCorner() {
     part('fibres').setAttribute('d', fibres.join(''))
 
     // --- The flap --------------------------------------------------------
-    // The folded corner: the hole's straight-edged shape, mirrored across
-    // the fold. It keeps its last shape once the sheet starts to rip, while
-    // the stylesheet drops it away.
-    if (rip === 0) {
+    // The folded corner: the fold's straight-edged shape, mirrored across
+    // the fold. Once the piece comes away it keeps its last shape while the
+    // stylesheet drops it.
+    if (current.current === 'idle' || current.current === 'dragging') {
       const mirror = (point: Point): Point => {
         const d = nx * point[0] + ny * point[1] + c
         return [point[0] - 2 * d * nx, point[1] - 2 * d * ny]
@@ -309,11 +355,10 @@ export default function TornCorner() {
         const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
         // A rip comes in jerks, not one smooth pull.
         const jerk = to.rip !== undefined && t < 1 ? Math.sin(t * 31) * 0.014 : 0
-        const ripped = lerp(from.rip, target.rip, eased) + jerk
         shape.current = {
+          ...shape.current,
           tip: mix(from.tip, target.tip, eased),
-          // The jerk must not carry the tear back to a clean fold mid-rip.
-          rip: t < 1 ? Math.max(0.001, Math.min(1, ripped)) : target.rip,
+          rip: clamp(lerp(from.rip, target.rip, eased) + jerk),
         }
         draw()
         if (t < 1) tween.current = requestAnimationFrame(frame)
@@ -324,11 +369,16 @@ export default function TornCorner() {
     [draw],
   )
 
-  const rip = useCallback(() => {
+  // The piece comes away. Whatever is left of the tear finishes on its own,
+  // quicker the further it had already gone.
+  const comeAway = useCallback(() => {
     if (current.current !== 'idle' && current.current !== 'dragging') return
     move('ripping')
-    animate({ rip: 1 }, RIP_MS, () => move('open'))
-  }, [animate, move])
+    crackle(1)
+    navigator.vibrate?.(28)
+    const left = 1 - shape.current.rip
+    animate({ rip: 1 }, 160 + 520 * left, () => move('open'))
+  }, [animate, crackle, move])
 
   // Closing takes the video away at once, lets the tear run back to the
   // corner, then brings the folded corner back.
@@ -338,12 +388,40 @@ export default function TornCorner() {
   }, [animate, move])
 
   // Dragging the corner.
-  const drag = useRef<{ x: number; y: number; moved: boolean } | null>(null)
+  const drag = useRef<{
+    x: number
+    y: number
+    moved: boolean
+    step: number
+    at: number
+    speed: number
+    lastX: number
+    lastY: number
+  } | null>(null)
 
   const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (current.current !== 'idle') return
     event.currentTarget.setPointerCapture(event.pointerId)
-    drag.current = { x: event.clientX, y: event.clientY, moved: false }
+    cancelAnimationFrame(tween.current)
+    // Browsers only let a page make sound once it has been touched.
+    try {
+      audio.current ??= new AudioContext()
+      void audio.current.resume()
+    } catch {
+      audio.current = null
+    }
+    drag.current = {
+      x: event.clientX,
+      y: event.clientY,
+      moved: false,
+      step: 0,
+      at: performance.now(),
+      speed: 0,
+      lastX: event.clientX,
+      lastY: event.clientY,
+    }
+    // Every attempt tears differently.
+    shape.current = { ...shape.current, rip: 0, seed: Math.random() * 1000 }
     move('dragging')
   }
 
@@ -353,13 +431,41 @@ export default function TornCorner() {
     const dx = Math.min(0, event.clientX - origin.x)
     const dy = Math.min(0, event.clientY - origin.y)
     if (Math.hypot(dx, dy) > 4) origin.moved = true
-    cancelAnimationFrame(tween.current)
+
+    // How fast the hand is moving, smoothed, for the moment it lets go.
+    const now = performance.now()
+    const elapsed = Math.max(1, now - origin.at)
+    const speed = Math.hypot(event.clientX - origin.lastX, event.clientY - origin.lastY) / elapsed
+    origin.speed = lerp(origin.speed, speed, 0.4)
+    origin.at = now
+    origin.lastX = event.clientX
+    origin.lastY = event.clientY
+
     const tip: Point = [PEEK[0] + dx, PEEK[1] + dy]
-    shape.current = { tip, rip: 0 }
+    const height = box.current.offsetHeight
+    const pull = Math.hypot(tip[0], tip[1]) / height
+    // Past a certain pull the paper tears, and it tears in little jerks: it
+    // holds, then gives. Each time it gives there is a tick and, on phones
+    // that can, a tap of vibration.
+    const raw = clamp((pull - TEAR_FROM) / (TEAR_TO - TEAR_FROM))
+    const step = Math.floor(raw * STEPS)
+    const within = raw * STEPS - step
+    const rip = clamp((step + Math.pow(within, 5)) / STEPS)
+    if (step > origin.step) {
+      crackle(0.15 + 0.35 * Math.random())
+      navigator.vibrate?.(7)
+    }
+    origin.step = step
+    // The tear leans the way it is being pulled. It eases toward the new
+    // direction, so a change of mind bends the tear instead of jumping it.
+    const sideways = Math.abs(tip[0]) / (Math.abs(tip[0]) + Math.abs(tip[1]) || 1)
+    const lean = raw === 0 ? sideways : lerp(shape.current.lean, sideways, 0.18)
+
+    shape.current = { ...shape.current, tip, rip, lean }
     draw()
-    if (Math.hypot(tip[0], tip[1]) >= box.current.offsetHeight * RIP_AT) {
+    if (raw >= 1) {
       drag.current = null
-      rip()
+      comeAway()
     }
   }
 
@@ -367,20 +473,32 @@ export default function TornCorner() {
     const origin = drag.current
     drag.current = null
     if (current.current !== 'dragging') return
+    const { rip } = shape.current
+    // Far enough, or let go with a flick, and the piece comes away.
+    if (rip > 0.3 || (rip > 0.08 && origin && origin.speed > 0.9)) {
+      comeAway()
+      return
+    }
     move('idle')
     if (origin && !origin.moved) {
       // A plain click gives the corner a tug, as a hint that it pulls.
       animate({ tip: [-84, -96] }, 170, () => animate({ tip: REST }, 300))
     } else {
-      animate({ tip: REST }, 300)
+      // Not far enough: the corner settles back.
+      animate({ tip: REST, rip: 0 }, 320)
     }
   }
 
-  // The pointer drags; the keyboard rips in one go.
+  // The pointer drags; the keyboard rips in one go, in a direction of its own.
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      rip()
+      shape.current = {
+        ...shape.current,
+        seed: Math.random() * 1000,
+        lean: 0.3 + Math.random() * 0.4,
+      }
+      comeAway()
     }
   }
 
@@ -390,6 +508,7 @@ export default function TornCorner() {
     return () => {
       window.removeEventListener('resize', draw)
       cancelAnimationFrame(tween.current)
+      void audio.current?.close()
     }
   }, [draw])
 
