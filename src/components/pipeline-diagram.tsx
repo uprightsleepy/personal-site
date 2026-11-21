@@ -26,7 +26,11 @@ import Reveal from '@/components/reveal'
 // outer edge, the top of the upper lane and the bottom of the lower, so the
 // calls in the band between them never run through a title.
 //
-// It moves in two ways, both styled in globals.css.
+// It moves in three ways, all styled in globals.css.
+//
+// At rest the dotted calls march from caller to resource, the dashed "no"
+// loops march back to the first step, and the resources breathe, each a
+// little out of step with the others.
 //
 // The first time it scrolls into view it is drawn in the order a change
 // travels: the merge request, the way in, each lane from left to right, then

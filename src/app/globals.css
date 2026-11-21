@@ -1566,8 +1566,10 @@ html.theme-wipe::view-transition-new(root) {
   line-drawn symbol on each. It is wider than the text column, and on a
   narrow screen it keeps a readable size and scrolls sideways.
 
-  Its motion is at the end of this block: it is drawn in once, the first
-  time it is seen, and pointing at a step or resource traces its calls.
+  Its motion is at the end of this block. It is drawn in once, the first
+  time it is seen. At rest its dotted and dashed lines march the way they
+  point and its resources breathe. Pointing at a step or resource traces
+  its calls.
 */
 .diagram {
   max-width: 70rem;
@@ -1721,6 +1723,21 @@ html.theme-wipe::view-transition-new(root) {
   }
 }
 
+/* The same for the dashes of a "no" loop (4 on, 4 off). */
+@keyframes pd-run-dashes {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+/* A resource swells a little and settles. It never gets smaller than drawn,
+   so the calls that end on its edge stay covered. */
+@keyframes pd-breathe {
+  50% {
+    transform: scale(1.045);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   /* Not seen yet: hold every piece back. See reveal.tsx for the states. */
   .diagram [data-reveal="wait"] .pd-in {
@@ -1745,7 +1762,29 @@ html.theme-wipe::view-transition-new(root) {
     animation-duration: 0.3s;
   }
 
+  /* At rest: calls march slowly towards their resource, and quicken when traced. */
+  .pd-call {
+    animation: pd-run 1.1s linear infinite;
+  }
+
   .pd-call.is-live {
-    animation: pd-run 0.45s linear infinite;
+    animation-duration: 0.45s;
+  }
+
+  /* A refused merge request marches back to the first step. */
+  .pd-dashed {
+    animation: pd-run-dashes 1.6s linear infinite;
+  }
+
+  /*
+    Each resource breathes about its own centre. They start out of step with
+    one another, by an amount taken from when each was drawn in (--t), so
+    the swell passes across the drawing and they never pulse as one.
+  */
+  .pd-resource {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pd-breathe 5s ease-in-out infinite;
+    animation-delay: calc(var(--t, 0ms) * -3);
   }
 }
