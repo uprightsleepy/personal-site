@@ -745,7 +745,7 @@ export default function TornCorner() {
     let length = 0
     let rewound = 0
     const rewind = () => {
-      if (performance.now() - rewound < 2000) return
+      if (performance.now() - rewound < 4000) return
       rewound = performance.now()
       send({ event: 'command', func: 'seekTo', args: [0, true] })
       send({ event: 'command', func: 'playVideo', args: [] })
@@ -763,9 +763,9 @@ export default function TornCorner() {
       if (typeof info.duration === 'number' && info.duration > 0) length = info.duration
       if (typeof info.currentTime === 'number') {
         if (info.currentTime >= CLEAR_AFTER) setClear(true)
-        // Go round again just before the end, so the player's end screen
-        // never comes up.
-        if (length && info.currentTime > length - 1) rewind()
+        // Go round again a little before the end. The player takes a moment
+        // to act on it, and its end screen must not come up in the meantime.
+        if (length && info.currentTime > length - 2.5) rewind()
       }
       if (info.playerState === 0) rewind()
     }
