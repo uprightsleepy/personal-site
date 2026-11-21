@@ -19,7 +19,9 @@ import styles from './torn-corner.module.css'
 //   - The corner of the sheet (C) is folded so that it lands on a point P,
 //     which follows the pointer. The fold line is the perpendicular bisector
 //     of C and P. The part of the box on C's side of that line is the hole;
-//     its mirror image across the line is the folded-back flap.
+//     its mirror image across the line is the folded-back flap, which shows
+//     the back of the sheet: the same stock, with the grid and the frame's
+//     border showing through in reverse.
 //   - The edge of the hole is not the straight fold line but a ragged path
 //     that wanders around it, with a band of white fibre where the paper
 //     split, a few loose fibres, and a shadow cast into the hole.
@@ -221,6 +223,13 @@ export default function TornCorner() {
         return [point[0] - 2 * d * nx, point[1] - 2 * d * ny]
       }
       const points = folded.map(mirror).map(fmt).join(' ')
+      // The sheet's own edges, as opposed to the fold: start just after the
+      // fold and walk round to its other end.
+      const foldStart = folded.findIndex(
+        (point, index) => !isCorner(point) && !isCorner(folded[(index + 1) % folded.length]),
+      )
+      const edges = folded.map((_, index) => folded[(foldStart + 1 + index) % folded.length])
+      part('flap-border').setAttribute('points', edges.map(mirror).map(fmt).join(' '))
       part('flap').setAttribute('points', points)
       part('flap-edge').setAttribute('points', points)
       part('flap-print').setAttribute('points', points)
@@ -369,17 +378,21 @@ export default function TornCorner() {
           <filter id="tear-soft" x="-30%" y="-30%" width="160%" height="160%">
             <feGaussianBlur stdDeviation="7" />
           </filter>
-          {/* Shading across the folded corner, from crease to tip */}
+          {/*
+            The folded corner shows the back of the sheet: the same stock as
+            the front, a touch paler, shaded from the crease to the tip. The
+            colours come from the stylesheet so both themes work.
+          */}
           <linearGradient id="tear-curl" data-part="curl" gradientUnits="userSpaceOnUse">
-            <stop offset="0" stopColor="#aab1e6" />
-            <stop offset="0.07" stopColor="#dfe3fa" />
-            <stop offset="0.2" stopColor="#ffffff" />
-            <stop offset="0.55" stopColor="#f0f2fd" />
-            <stop offset="1" stopColor="#d3d8f5" />
+            <stop offset="0" className={styles.curlCrease} />
+            <stop offset="0.07" className={styles.curlShade} />
+            <stop offset="0.22" className={styles.curlRidge} />
+            <stop offset="0.6" className={styles.curlBack} />
+            <stop offset="1" className={styles.curlTip} />
           </linearGradient>
-          {/* The drafting grid, seen faintly through the back of the sheet */}
+          {/* The drafting grid, showing through the back of the sheet */}
           <pattern id="tear-grid" width="40" height="40" patternUnits="userSpaceOnUse">
-            <path d="M40 0H0V40" fill="none" stroke="#1b22d2" strokeOpacity="0.13" strokeWidth="1" />
+            <path d="M40 0H0V40" className={styles.ghost} />
           </pattern>
           <clipPath id="tear-flap-clip">
             <polygon data-part="flap-print" />
@@ -398,7 +411,7 @@ export default function TornCorner() {
             <feColorMatrix
               in="grain"
               type="matrix"
-              values="0 0 0 0 0.25  0 0 0 0 0.28  0 0 0 0 0.6  0 0 0 0.9 -0.34"
+              values="0 0 0 0 0.02  0 0 0 0 0.03  0 0 0 0 0.3  0 0 0 0.7 -0.3"
               result="fleck"
             />
             <feComposite in="fleck" in2="SourceAlpha" operator="in" result="grained" />
@@ -429,6 +442,8 @@ export default function TornCorner() {
                 fill="url(#tear-grid)"
               />
             </g>
+            {/* The frame's border, which runs along these two edges on the front */}
+            <polyline data-part="flap-border" className={styles.ghostBorder} />
             <polygon data-part="flap-edge" className={styles.flapEdge} />
           </g>
         </g>

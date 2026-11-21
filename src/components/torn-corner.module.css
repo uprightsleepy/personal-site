@@ -72,10 +72,58 @@
   stroke-linecap: round;
 }
 
-/* A hairline round the folded corner, so it holds its shape on white. */
+/*
+  The back of the sheet. It is the same stock as the front (--paper), a touch
+  paler where it catches the light and darker in the crease.
+*/
+.curlCrease {
+  stop-color: color-mix(in srgb, var(--paper) 62%, #00001a);
+}
+
+.curlShade {
+  stop-color: color-mix(in srgb, var(--paper) 88%, #00001a);
+}
+
+.curlRidge {
+  stop-color: color-mix(in srgb, var(--paper) 78%, white);
+}
+
+.curlBack {
+  stop-color: color-mix(in srgb, var(--paper) 89%, white);
+}
+
+.curlTip {
+  stop-color: color-mix(in srgb, var(--paper) 95%, #00001a);
+}
+
+/* The print on the front shows through faintly, in reverse. */
+.ghost {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.14;
+  stroke-width: 1;
+}
+
+/* Only wide screens have the frame, so only they have its border to show. */
+.ghostBorder {
+  display: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.34;
+  stroke-width: 3;
+}
+
+@media (min-width: 64rem) {
+  .ghostBorder {
+    display: inline;
+  }
+}
+
+/* A hairline round the folded corner, so it holds its shape. */
 .flapEdge {
   fill: none;
-  stroke: rgb(20 26 120 / 0.28);
+  stroke: var(--ink);
+  stroke-opacity: 0.3;
   stroke-width: 0.75;
   stroke-linejoin: round;
 }
