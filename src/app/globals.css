@@ -1561,9 +1561,10 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   The pipeline diagram on the CI/CD case study (pipeline-diagram.tsx). It is
-  drawn in the sheet's ink: outlined steps, each with a line-drawn symbol.
-  It is wider than the text column, and on a narrow screen it keeps a
-  readable size and scrolls sideways.
+  drawn in the sheet's ink: outlined boxes for pipeline steps, solid boxes
+  for the cloud resources they call, dotted lines for the calls, and a
+  line-drawn symbol on each. It is wider than the text column, and on a
+  narrow screen it keeps a readable size and scrolls sideways.
 */
 .diagram {
   max-width: 70rem;
@@ -1610,6 +1611,30 @@ html.theme-wipe::view-transition-new(root) {
 
 .pd-small.pd-strong {
   font-weight: 650;
+}
+
+/* A cloud resource: solid ink, with its symbol and words in the paper's colour. */
+.pd-solid {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.pd-resource .pd-glyph {
+  stroke: var(--paper);
+}
+
+.pd-resource .pd-small {
+  fill: var(--paper);
+}
+
+/* A call from a step to a resource. */
+.pd-call {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 4;
+  stroke-linecap: round;
 }
 
 .pd-text,
