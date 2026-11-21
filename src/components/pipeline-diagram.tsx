@@ -1,3 +1,8 @@
+"use client"
+
+import { useState } from 'react'
+import Reveal from '@/components/reveal'
+
 // A drawing of the CI/CD platform's two pipelines for its case study
 // (src/app/case-studies/cicd-platform/page.tsx), in the sheet's one ink.
 //
@@ -20,6 +25,18 @@
 // the key's lines running outside the bucket's. Each lane's title is on its
 // outer edge, the top of the upper lane and the bottom of the lower, so the
 // calls in the band between them never run through a title.
+//
+// It moves in two ways, both styled in globals.css.
+//
+// The first time it scrolls into view it is drawn in the order a change
+// travels: the merge request, the way in, each lane from left to right, then
+// the resources and the calls to them. Every piece carries its start time in
+// --t. Without scripts, or for anyone who asks for reduced motion, it is
+// simply there.
+//
+// Pointing at a step or a resource (or tapping one) traces its calls: those
+// lines and the things at either end stay at full strength, their dots run
+// from the caller to the resource, and the rest of the drawing steps back.
 
 type Symbol =
   | 'merge'
@@ -85,8 +102,11 @@ const symbols: Record<Symbol, string> = {
 }
 
 type Step = { x: number; symbol: Symbol; lines: string[] }
-type Lane = { top: number; title: string; titleAt: 'top' | 'bottom'; steps: Step[] }
-type Resource = { x: number; y: number; w: number; h: number; symbol: Symbol; lines: string[] }
+type Lane = { id: string; top: number; title: string; titleAt: 'top' | 'bottom'; steps: Step[] }
+type Resource = { id: string; x: number; y: number; w: number; h: number; symbol: Symbol; lines: string[] }
+// A call runs from the thing that makes it to the resource it reaches. A
+// step's name is its lane's letter and its place in the lane, from 0.
+type Call = { d: string; from: string; to: string }
 
 const WIDTH = 1272
 const HEIGHT = 680
@@ -101,6 +121,7 @@ const RIGHT = 1252
 // both lanes. Step centres: 261, 385, 509, 633, then 931, 1055, 1179.
 const lanes: Lane[] = [
   {
+    id: 'a',
     top: 76,
     title: 'Application pipeline: React, Java, Python, Go',
     titleAt: 'top',
@@ -115,6 +136,7 @@ const lanes: Lane[] = [
     ],
   },
   {
+    id: 't',
     top: 420,
     title: 'Terraform pipeline',
     titleAt: 'bottom',
@@ -136,36 +158,65 @@ const lanes: Lane[] = [
 // server is above the upper lane, because a line down from the scan step
 // would cross that lane's "no" loop.
 const resources: Resource[] = [
-  { x: 558, y: 1, w: 150, h: 40, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
-  { x: 1, y: 316, w: 149, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
-  { x: 918, y: 302, w: 150, h: 40, symbol: 'key', lines: ['Cloud KMS key'] },
-  { x: 1104, y: 302, w: 148, h: 40, symbol: 'shield', lines: ['Binary', 'Authorization'] },
-  { x: 707, y: 356, w: 150, h: 40, symbol: 'bucket', lines: ['Storage bucket'] },
-  { x: 190, y: 356, w: 150, h: 40, symbol: 'badge', lines: ['Plan service', 'account'] },
-  { x: 1104, y: 356, w: 148, h: 40, symbol: 'badge', lines: ['Apply service', 'account'] },
+  { id: 'sonar', x: 558, y: 1, w: 150, h: 40, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
+  { id: 'wif', x: 1, y: 316, w: 149, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
+  { id: 'kms', x: 918, y: 302, w: 150, h: 40, symbol: 'key', lines: ['Cloud KMS key'] },
+  { id: 'binauth', x: 1104, y: 302, w: 148, h: 40, symbol: 'shield', lines: ['Binary', 'Authorization'] },
+  { id: 'bucket', x: 707, y: 356, w: 150, h: 40, symbol: 'bucket', lines: ['Storage bucket'] },
+  { id: 'plan-sa', x: 190, y: 356, w: 150, h: 40, symbol: 'badge', lines: ['Plan service', 'account'] },
+  { id: 'apply-sa', x: 1104, y: 356, w: 148, h: 40, symbol: 'badge', lines: ['Apply service', 'account'] },
 ]
 
-// A dotted line for each call. Step tops and bottoms: the application steps
-// run from 120 to 212, and the Terraform steps start at 464.
-const calls = [
+// A dotted line for each call, drawn from the caller to the resource so the
+// dots can run that way. Step tops and bottoms: the application steps run
+// from 120 to 212, and the Terraform steps start at 464.
+const calls: Call[] = [
   // The scan step sends the build to the SonarQube server
-  'M633 41V120',
+  { d: 'M633 120V41', from: 'a3', to: 'sonar' },
   // Signing the build and its provenance uses the key
-  'M931 212V302',
+  { d: 'M931 212V302', from: 'a4', to: 'kms' },
   // Cloud Run asks Binary Authorization before it runs a new revision in
   // production, and Binary Authorization checks against the key
-  'M1179 212V302',
-  'M1068 322H1104',
+  { d: 'M1179 212V302', from: 'a6', to: 'binauth' },
+  { d: 'M1104 322H1068', from: 'binauth', to: 'kms' },
   // The key again: sign plan, and check signature
-  'M918 322H509V464',
-  'M1055 342V464',
+  { d: 'M509 464V322H918', from: 't2', to: 'kms' },
+  { d: 'M1055 464V342', from: 't5', to: 'kms' },
   // Store plan and read plan use the bucket
-  'M707 376H633V464',
-  'M857 376H931V464',
+  { d: 'M633 464V376H707', from: 't3', to: 'bucket' },
+  { d: 'M931 464V376H857', from: 't4', to: 'bucket' },
   // Plan and apply each run as their own service account
-  'M261 396V464',
-  'M1179 396V464',
+  { d: 'M261 464V396', from: 't0', to: 'plan-sa' },
+  { d: 'M1179 464V396', from: 't6', to: 'apply-sa' },
 ]
+
+// Everything that makes or takes a call, and so can be traced.
+const traceable = new Set(calls.flatMap((call) => [call.from, call.to]))
+
+// When each piece starts being drawn, in milliseconds from the first.
+const AT = {
+  trigger: 0,
+  toWayIn: 110,
+  wayIn: 220,
+  lanes: 300,
+  intoLanes: 340,
+  firstStep: 420,
+  column: 90, // from one step to the next
+  resources: 1200,
+  resource: 50, // from one resource to the next
+  calls: 1500,
+  call: 35, // from one call to the next
+  legend: 1880,
+}
+const gateAt = AT.firstStep + 4 * AT.column
+const stepAt = (index: number) => (index < 4 ? AT.firstStep + index * AT.column : gateAt + 110 + (index - 4) * AT.column)
+
+// The start time, as the style the stylesheet reads.
+const at = (ms: number) => ({ '--t': `${ms}ms` }) as React.CSSProperties
+
+// What a traceable thing needs: whether it is part of the trace, and the
+// handlers that start and end one.
+type Trace = (id: string) => React.SVGAttributes<SVGGElement>
 
 // One symbol, drawn at a size, with its top left corner at a point.
 function Glyph({ symbol, x, y, size = 28 }: { symbol: Symbol; x: number; y: number; size?: number }) {
@@ -204,7 +255,10 @@ function Label({
   )
 }
 
-function LaneDrawing({ lane }: { lane: Lane }) {
+// An outlined box as a path, so its outline can be drawn in.
+const box = (x: number, y: number, w: number, h: number) => `M${x} ${y}h${w}v${h}h${-w}Z`
+
+function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
   const boxTop = lane.top + 44
   const mid = boxTop + STEP_H / 2
   const loop = boxTop + STEP_H + 26
@@ -216,68 +270,110 @@ function LaneDrawing({ lane }: { lane: Lane }) {
   const gateRight = GATE + GATE_W / 2
   return (
     <g>
-      <rect className="pd-lane" x={190} y={lane.top} width={RIGHT - 190} height={200} />
-      <text className="pd-title" x={204} y={lane.titleAt === 'top' ? lane.top + 24 : lane.top + 184}>
-        {lane.title}
-      </text>
+      <g className="pd-in" style={at(AT.lanes)}>
+        <rect className="pd-lane" x={190} y={lane.top} width={RIGHT - 190} height={200} />
+        <text className="pd-title" x={204} y={lane.titleAt === 'top' ? lane.top + 24 : lane.top + 184}>
+          {lane.title}
+        </text>
+      </g>
 
       {/* In from Workload Identity Federation */}
-      <path className="pd-arrow" d={`M170 349V${mid}H${first.x - 2}`} markerEnd="url(#pd-head)" />
+      <g className="pd-in pd-wire" style={at(AT.intoLanes)}>
+        <path
+          className="pd-arrow pd-draw"
+          pathLength={1}
+          d={`M170 349V${mid}H${first.x - 2}`}
+          markerEnd="url(#pd-head)"
+        />
+      </g>
 
       {before.map((step, index) => {
         const next = before[index + 1]
         const to = next ? next.x : gateLeft
         return (
-          <path
-            key={step.x}
-            className="pd-arrow"
-            d={`M${step.x + STEP_W} ${mid}H${to - 2}`}
-            markerEnd="url(#pd-head)"
-          />
+          <g key={step.x} className="pd-in pd-wire" style={at(stepAt(index) + 50)}>
+            <path
+              className="pd-arrow pd-draw"
+              pathLength={1}
+              d={`M${step.x + STEP_W} ${mid}H${to - 2}`}
+              markerEnd="url(#pd-head)"
+            />
+          </g>
         )
       })}
       {after.map((step, index) => {
         const from = index === 0 ? gateRight : after[index - 1].x + STEP_W
         return (
-          <path key={step.x} className="pd-arrow" d={`M${from} ${mid}H${step.x - 2}`} markerEnd="url(#pd-head)" />
+          <g key={step.x} className="pd-in pd-wire" style={at(stepAt(index + 4) - 40)}>
+            <path
+              className="pd-arrow pd-draw"
+              pathLength={1}
+              d={`M${from} ${mid}H${step.x - 2}`}
+              markerEnd="url(#pd-head)"
+            />
+            {index === 0 && (
+              <text className="pd-small" x={(gateRight + step.x) / 2} y={mid - 10} textAnchor="middle">
+                Yes
+              </text>
+            )}
+          </g>
         )
       })}
-      <text className="pd-small" x={(gateRight + after[0].x) / 2} y={mid - 10} textAnchor="middle">
-        Yes
-      </text>
 
       {/* Not approved: back to the first step */}
-      <path
-        className="pd-arrow pd-dashed"
-        d={`M${GATE} ${mid + GATE_H / 2}V${loop}H${first.x + STEP_W / 2}V${boxTop + STEP_H + 2}`}
-        markerEnd="url(#pd-head)"
-      />
-      <text className="pd-small" x={(GATE + first.x + STEP_W / 2) / 2} y={loop + 18} textAnchor="middle">
-        No: back to the developer
-      </text>
+      <g className="pd-in pd-wire" style={at(gateAt + 160)}>
+        <path
+          className="pd-arrow pd-dashed"
+          d={`M${GATE} ${mid + GATE_H / 2}V${loop}H${first.x + STEP_W / 2}V${boxTop + STEP_H + 2}`}
+          markerEnd="url(#pd-head)"
+        />
+        <text className="pd-small" x={(GATE + first.x + STEP_W / 2) / 2} y={loop + 18} textAnchor="middle">
+          No: back to the developer
+        </text>
+      </g>
 
-      {lane.steps.map((step) => (
-        <g key={step.x}>
-          <rect className="pd-step" x={step.x} y={boxTop} width={STEP_W} height={STEP_H} />
+      {lane.steps.map((step, index) => (
+        <g key={step.x} style={at(stepAt(index))} {...trace(`${lane.id}${index}`)}>
+          <path className="pd-step pd-draw" pathLength={1} d={box(step.x, boxTop, STEP_W, STEP_H)} />
           <Glyph symbol={step.symbol} x={step.x + STEP_W / 2 - 14} y={boxTop + 12} />
           <Label x={step.x + STEP_W / 2} y={boxTop + 66} lines={step.lines} className="pd-small pd-strong" />
         </g>
       ))}
 
-      <path
-        className="pd-step"
-        d={`M${gateLeft} ${mid}L${GATE} ${mid - GATE_H / 2}L${gateRight} ${mid}L${GATE} ${mid + GATE_H / 2}Z`}
-      />
-      <Label x={GATE} y={mid} lines={['Merge request', 'approved?']} className="pd-small pd-strong" />
+      <g style={at(gateAt)} {...trace(`${lane.id}-gate`)}>
+        <path
+          className="pd-step pd-draw"
+          pathLength={1}
+          d={`M${gateLeft} ${mid}L${GATE} ${mid - GATE_H / 2}L${gateRight} ${mid}L${GATE} ${mid + GATE_H / 2}Z`}
+        />
+        <Label x={GATE} y={mid} lines={['Merge request', 'approved?']} className="pd-small pd-strong" />
+      </g>
     </g>
   )
 }
 
 export default function PipelineDiagram() {
+  // The step or resource whose calls are being traced, if any.
+  const [traced, setTraced] = useState<string | null>(null)
+  const live = calls.filter((call) => call.from === traced || call.to === traced)
+  const ends = new Set(live.flatMap((call) => [call.from, call.to]))
+
+  // A mouse traces while it is over something. A finger has no "over", so a
+  // tap starts a trace and a second tap ends it.
+  const trace: Trace = (id) => ({
+    className: `pd-in pd-node${ends.has(id) ? ' is-live' : ''}`,
+    ...(traceable.has(id) && {
+      onPointerEnter: (event) => event.pointerType === 'mouse' && setTraced(id),
+      onPointerLeave: (event) => event.pointerType === 'mouse' && setTraced(null),
+      onPointerUp: (event) => event.pointerType !== 'mouse' && setTraced((now) => (now === id ? null : id)),
+    }),
+  })
+
   return (
     <figure className="diagram">
-      <div className="diagram-scroll">
+      <Reveal className="diagram-scroll">
         <svg
+          data-tracing={live.length > 0 || undefined}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
           aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
@@ -289,53 +385,77 @@ export default function PipelineDiagram() {
           </defs>
 
           {/* Where both pipelines start */}
-          <rect className="pd-step" x={1} y={120} width={149} height={92} />
-          <Glyph symbol="merge" x={61} y={132} />
-          <Label x={75} y={186} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
-          <path className="pd-arrow" d="M75 212V314" markerEnd="url(#pd-head)" />
-          <path className="pd-arrow" d="M150 349H170" />
+          <g style={at(AT.trigger)} {...trace('trigger')}>
+            <path className="pd-step pd-draw" pathLength={1} d={box(1, 120, 149, 92)} />
+            <Glyph symbol="merge" x={61} y={132} />
+            <Label x={75} y={186} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
+          </g>
+          <g className="pd-in pd-wire" style={at(AT.toWayIn)}>
+            <path className="pd-arrow pd-draw" pathLength={1} d="M75 212V314" markerEnd="url(#pd-head)" />
+          </g>
+          <g className="pd-in pd-wire" style={at(AT.intoLanes)}>
+            <path className="pd-arrow" d="M150 349H170" />
+          </g>
 
           {lanes.map((lane) => (
-            <LaneDrawing key={lane.title} lane={lane} />
+            <LaneDrawing key={lane.title} lane={lane} trace={trace} />
           ))}
 
           {/* Calls from steps to resources, under the resources themselves */}
-          {calls.map((d) => (
-            <path key={d} className="pd-call" d={d} />
-          ))}
-
-          {resources.map((resource) => (
-            <g key={`${resource.x}-${resource.y}`} className="pd-resource">
-              <rect className="pd-solid" x={resource.x} y={resource.y} width={resource.w} height={resource.h} />
-              <Glyph symbol={resource.symbol} x={resource.x + 12} y={resource.y + resource.h / 2 - 10} size={20} />
-              <Label
-                x={resource.x + 42}
-                y={resource.y + resource.h / 2}
-                lines={resource.lines}
-                className="pd-small pd-strong"
-                anchor="start"
-              />
+          {calls.map((call, index) => (
+            <g key={call.d} className="pd-in" style={at(AT.calls + index * AT.call)}>
+              <path className={`pd-call${live.includes(call) ? ' is-live' : ''}`} d={call.d} />
             </g>
           ))}
 
+          {[...resources]
+            .sort((one, other) => one.x - other.x)
+            .map((resource, index) => (
+              <g
+                key={resource.id}
+                style={at(resource.id === 'wif' ? AT.wayIn : AT.resources + index * AT.resource)}
+                {...trace(resource.id)}
+              >
+                <g className="pd-resource">
+                  <rect className="pd-solid" x={resource.x} y={resource.y} width={resource.w} height={resource.h} />
+                  <Glyph
+                    symbol={resource.symbol}
+                    x={resource.x + 12}
+                    y={resource.y + resource.h / 2 - 10}
+                    size={20}
+                  />
+                  <Label
+                    x={resource.x + 42}
+                    y={resource.y + resource.h / 2}
+                    lines={resource.lines}
+                    className="pd-small pd-strong"
+                    anchor="start"
+                  />
+                </g>
+              </g>
+            ))}
+
           {/* What the three kinds of mark mean */}
-          <rect className="pd-step" x={204} y={644} width={26} height={16} />
-          <text className="pd-small" x={240} y={652} dominantBaseline="central">
-            Pipeline step
-          </text>
-          <rect className="pd-solid" x={364} y={644} width={26} height={16} />
-          <text className="pd-small" x={400} y={652} dominantBaseline="central">
-            Platform resource
-          </text>
-          <path className="pd-call" d="M534 652H566" />
-          <text className="pd-small" x={576} y={652} dominantBaseline="central">
-            A call to a resource
-          </text>
+          <g className="pd-in" style={at(AT.legend)}>
+            <rect className="pd-step" x={204} y={644} width={26} height={16} />
+            <text className="pd-small" x={240} y={652} dominantBaseline="central">
+              Pipeline step
+            </text>
+            <rect className="pd-solid" x={364} y={644} width={26} height={16} />
+            <text className="pd-small" x={400} y={652} dominantBaseline="central">
+              Platform resource
+            </text>
+            <path className="pd-call pd-sample" d="M534 652H566" />
+            <text className="pd-small" x={576} y={652} dominantBaseline="central">
+              A call to a resource
+            </text>
+          </g>
         </svg>
-      </div>
+      </Reveal>
       <figcaption className="caption">
         Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
-        run as Cloud Run jobs in that team&rsquo;s own GCP project.
+        run as Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or
+        a resource to trace its calls.
       </figcaption>
     </figure>
   )

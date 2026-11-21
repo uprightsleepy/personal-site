@@ -1565,6 +1565,9 @@ html.theme-wipe::view-transition-new(root) {
   for the resources they call, dotted lines for the calls, and a
   line-drawn symbol on each. It is wider than the text column, and on a
   narrow screen it keeps a readable size and scrolls sideways.
+
+  Its motion is at the end of this block: it is drawn in once, the first
+  time it is seen, and pointing at a step or resource traces its calls.
 */
 .diagram {
   max-width: 70rem;
@@ -1585,6 +1588,7 @@ html.theme-wipe::view-transition-new(root) {
 
 .diagram .caption {
   margin-top: 0.9rem;
+  text-wrap: pretty;
 }
 
 .pd-lane {
@@ -1668,3 +1672,80 @@ html.theme-wipe::view-transition-new(root) {
   fill: var(--ink);
 }
 
+/*
+  Tracing. While something is being traced the svg carries data-tracing, and
+  the calls being traced and the things at their ends carry is-live. The
+  rest steps back.
+*/
+.pd-node,
+.pd-wire,
+.pd-call {
+  transition: opacity 0.2s ease;
+}
+
+.diagram svg[data-tracing] :is(.pd-node:not(.is-live), .pd-wire) {
+  opacity: 0.4;
+}
+
+/* The legend's sample of a call is not a call. */
+.diagram svg[data-tracing] .pd-call:not(.is-live, .pd-sample) {
+  opacity: 0.3;
+}
+
+.pd-call.is-live {
+  stroke-width: 2;
+}
+
+@keyframes pd-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* For a path whose pathLength is 1: its line grows from its start. */
+@keyframes pd-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* One step of a call's dots (1.5 on, 4 off), towards the end of its line. */
+@keyframes pd-run {
+  to {
+    stroke-dashoffset: -5.5;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Not seen yet: hold every piece back. See reveal.tsx for the states. */
+  .diagram [data-reveal="wait"] .pd-in {
+    opacity: 0;
+  }
+
+  /*
+    Seen: each piece comes in at its own time, --t. The fill is backwards
+    only, so that once a piece is in, its opacity is free for tracing.
+  */
+  .diagram [data-reveal="go"] .pd-in {
+    animation: pd-fade 0.4s ease-out backwards;
+    animation-delay: var(--t, 0ms);
+  }
+
+  .diagram [data-reveal="go"] .pd-draw {
+    animation: pd-draw 0.55s ease-out backwards;
+    animation-delay: var(--t, 0ms);
+  }
+
+  .diagram [data-reveal="go"] .pd-wire .pd-draw {
+    animation-duration: 0.3s;
+  }
+
+  .pd-call.is-live {
+    animation: pd-run 0.45s linear infinite;
+  }
+}
