@@ -53,8 +53,12 @@ import styles from './torn-corner.module.css'
 //     fold in both directions, so laying the paper down closes the tear.
 const CLIP = '/tear-video.mp4'
 const SONG = '/tear-audio.mp3'
-// Where the chosen volume is kept between visits.
-const VOLUME_KEY = 'tear-volume'
+// Where the volume slider's position is kept between visits.
+const VOLUME_KEY = 'tear-level'
+// The slider starts low. Its position is squared to get the loudness, so
+// the quiet end, where the music is most comfortable, has the most travel.
+const QUIET = 0.28
+const loudness = (position: number) => position * position
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
@@ -248,7 +252,7 @@ export default function TornCorner() {
     } catch {
       // No storage (or no window, on the server): use the default.
     }
-    return 0.5
+    return QUIET
   })
   const current = useRef<State>('idle')
   const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
@@ -301,7 +305,7 @@ export default function TornCorner() {
       wanted.current = true
       if (fromTheTop) song.currentTime = 0
       song.muted = muted
-      song.volume = volume
+      song.volume = loudness(volume)
       song.play().then(
         () => setRefused(false),
         () => setRefused(true),
@@ -811,7 +815,7 @@ export default function TornCorner() {
 
   const changeVolume = (next: number) => {
     setVolume(next)
-    if (music.current) music.current.volume = next
+    if (music.current) music.current.volume = loudness(next)
     try {
       window.localStorage.setItem(VOLUME_KEY, String(next))
     } catch {
@@ -985,7 +989,7 @@ export default function TornCorner() {
                 type="range"
                 min="0"
                 max="1"
-                step="0.05"
+                step="0.02"
                 value={volume}
                 onChange={(event) => changeVolume(Number(event.target.value))}
               />
