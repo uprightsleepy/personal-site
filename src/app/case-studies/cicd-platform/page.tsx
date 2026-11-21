@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SheetRef } from '@/components/drafting'
+import PipelineDiagram from '@/components/pipeline-diagram'
 
 export const metadata: Metadata = {
   title: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
@@ -50,7 +51,7 @@ const constraints = [
 const components = [
   [
     'Bitbucket trigger',
-    'A push or merge in a team’s repository starts that team’s pipeline. Teams kept the source control they already used.',
+    'A merge request in a team’s repository starts that team’s pipeline. Teams kept the source control they already used.',
   ],
   [
     'Workload Identity Federation',
@@ -83,6 +84,10 @@ const terraformSteps = [
   [
     'Sign',
     'The pipeline signs the plan with a key held in Cloud KMS, so there is a record of exactly what was planned.',
+  ],
+  [
+    'Approve',
+    'The merge request is reviewed with the signed plan attached. Nothing is applied until it is approved, and a request that is not approved goes back to the developer.',
   ],
   [
     'Validate',
@@ -251,6 +256,17 @@ export default function CicdPlatform() {
           ))}
         </dl>
 
+        <h3>How a change moves through it</h3>
+        <p>
+          Both pipelines run on a merge request. The checks run first. The steps that change
+          anything, signing a build for production or applying a Terraform plan, wait until the
+          merge request is approved. A request that is not approved goes back to the developer.
+        </p>
+      </div>
+
+      <PipelineDiagram />
+
+      <div className="longform">
         <h3>Isolation between teams</h3>
         <p>
           Because a team&rsquo;s jobs run in that team&rsquo;s project, as service accounts that
