@@ -14,7 +14,9 @@ const SPREAD = 0.07 // how far the bulge reaches, as a share of the title's widt
 // The letters are hidden from screen readers; the caller supplies the text.
 // Each letter also carries its place in the title, and the title its place
 // in the list (`row`), which the stylesheet uses to give every letter its
-// own chips of missing ink (see .lens-letter in globals.css).
+// own chips of missing ink (see .lens-letter in globals.css). Where the
+// letters can move, each one's width at rest is measured, so its chips can
+// be stretched with it and stay on the same parts of the letter.
 export default function LensTitle({
   text,
   row = 0,
@@ -39,6 +41,20 @@ export default function LensTitle({
     let centers: number[] = []
     let width = 0
     let frame = 0
+
+    // Each letter's width at rest, for its chips (see .lens[data-fit]). Taken
+    // once the typeface has loaded and again whenever the title changes size,
+    // but never while the pointer is on it and the letters are out of shape.
+    const fit = () => {
+      if (centers.length) return
+      letters.forEach((letter) => {
+        letter.style.setProperty('--w0', letter.getBoundingClientRect().width.toFixed(2))
+      })
+      el.dataset.fit = ''
+    }
+    void document.fonts.ready.then(fit)
+    const sizes = new ResizeObserver(fit)
+    sizes.observe(el)
 
     const enter = () => {
       width = el.getBoundingClientRect().width
@@ -71,6 +87,7 @@ export default function LensTitle({
     row.addEventListener('pointerleave', leave)
     return () => {
       cancelAnimationFrame(frame)
+      sizes.disconnect()
       row.removeEventListener('pointerenter', enter)
       row.removeEventListener('pointermove', move)
       row.removeEventListener('pointerleave', leave)
@@ -91,7 +108,12 @@ export default function LensTitle({
               <span
                 key={position}
                 className="lens-letter"
-                style={{ '--chip': starts[index] + position } as React.CSSProperties}
+                style={
+                  {
+                    '--chip': starts[index] + position,
+                    '--across': `${((starts[index] + position) * 37 + row * 61) % 100}%`,
+                  } as React.CSSProperties
+                }
               >
                 {letter}
               </span>

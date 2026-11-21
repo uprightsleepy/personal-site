@@ -1012,6 +1012,20 @@ html.theme-wipe::view-transition-new(root) {
     mask-position: calc(var(--chip) * -47px + var(--row) * -89px) calc(var(--chip) * -71px + var(--row) * -53px);
   }
 
+  /*
+    Where the letters can move, the chips are tied to the letter's width, so
+    they stretch as it widens and stay on the same parts of the letter. The
+    tile's width and its place across the letter are both given as shares of
+    the letter's box: --w0 is the letter's width at rest in pixels, which
+    makes the tile 256px wide at rest, the same size as everywhere else.
+  */
+  .lens[data-fit] .lens-letter {
+    -webkit-mask-size: calc(25600% / var(--w0)) 256px;
+    mask-size: calc(25600% / var(--w0)) 256px;
+    -webkit-mask-position: var(--across) calc(var(--chip) * -71px + var(--row) * -53px);
+    mask-position: var(--across) calc(var(--chip) * -71px + var(--row) * -53px);
+  }
+
   /* Outlined type is drawn by hand, so its lines wander a little. */
   .poster-outline,
   .drawn {
