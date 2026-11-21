@@ -44,7 +44,7 @@ export default function Footer() {
             </a>
             <span className="commits" aria-hidden="true">
               <CommitGraph />
-              <Typed text={`$ gh repo clone ${profile.repo.replace('https://github.com/', '')}`} />
+              <Typed prompt="$" lines={['gh repo clone', profile.repo.replace('https://github.com/', '')]} />
             </span>
           </span>
           .

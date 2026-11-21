@@ -1350,31 +1350,56 @@ html.theme-wipe::view-transition-new(root) {
   stroke: var(--ink);
 }
 
-/* The command is set small and narrow, in the one typeface. */
+/*
+  The command, set like a line at a terminal: a small inked block for the
+  prompt, then the command in small wide type, in the one typeface. It is
+  never wider than the word above it. The repository's name goes on a line
+  of its own and breaks after its slash when the word is narrow.
+*/
 .typed {
-  display: block;
-  margin-top: 0.6rem;
-  white-space: pre;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.55em;
+  align-items: start;
+  margin-top: 0.55rem;
   color: var(--ink);
   -webkit-text-stroke: 0;
-  font-size: 1.0625rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  font-stretch: 84%;
-  line-height: 1;
-  letter-spacing: 0.01em;
+  font-stretch: 108%;
+  line-height: 1.45;
+  letter-spacing: 0.03em;
 }
 
-.typed span {
+.typed b {
+  padding: 0 0.42em;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 800;
+  opacity: 0;
+}
+
+.typed-line {
+  grid-column: 2;
+}
+
+/* A piece is never broken: lines only break between pieces. */
+.typed-piece {
+  display: inline-block;
+  white-space: pre;
+}
+
+.typed-piece span {
   opacity: 0;
 }
 
 /* The cursor: a block after the last character. */
 .typed i {
   display: inline-block;
-  width: 0.5em;
+  width: 0.55em;
   height: 1em;
   margin-left: 0.15em;
-  vertical-align: -0.12em;
+  vertical-align: -0.14em;
   background: var(--ink);
   opacity: 0;
 }
@@ -1439,8 +1464,14 @@ html.theme-wipe::view-transition-new(root) {
   }
 
   /* Then the command is typed, a character at a time, and the cursor blinks. */
-  .hung a:hover ~ .commits .typed span,
-  .hung a:focus-visible ~ .commits .typed span {
+  .hung a:hover ~ .commits .typed b,
+  .hung a:focus-visible ~ .commits .typed b {
+    opacity: 1;
+    transition: opacity 0s linear 0.45s;
+  }
+
+  .hung a:hover ~ .commits .typed-piece span,
+  .hung a:focus-visible ~ .commits .typed-piece span {
     opacity: 1;
     transition: opacity 0s linear calc(0.55s + var(--at) * 30ms);
   }
@@ -1458,7 +1489,8 @@ html.theme-wipe::view-transition-new(root) {
   .neck-word,
   .graph path,
   .graph circle,
-  .typed span {
+  .typed b,
+  .typed-piece span {
     transition: none !important;
   }
 
