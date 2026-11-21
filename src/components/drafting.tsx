@@ -50,18 +50,16 @@ export function NorthArrow() {
 }
 
 // The LinkedIn link in the footer gets a necktie on hover, and the word is
-// the neck. A band of tie goes round the middle of the word and is pulled
-// tight, the word is squeezed in from both sides, and the knot and blade
-// hang underneath. At rest none of it shows (see .tie in globals.css). The
-// drawing is 0.5em wide in the word's own type size, so 100 units here is
-// 1em: the capitals run from about 10 to 79. The band is drawn tight and
-// loosened by the stylesheet. Like the north arrow, the blade's left half is
-// inked in and its right half is outline.
+// the neck. The tie hangs under the word: the knot is pulled up tight
+// beneath the letters, the word is squeezed in from both sides, and the
+// blade hangs down and swings. At rest none of it shows (see .tie in
+// globals.css). The drawing is 0.5em wide in the word's own type size, so
+// 100 units here is 1em, and the letters stand on a line at about 79. Like
+// the north arrow, the blade's left half is inked in and its right half is
+// outline.
 export function Tie() {
   return (
     <svg className="tie" viewBox="0 0 50 172" aria-hidden="true" focusable="false">
-      {/* The band round the word. Paper inside, so it shows against the letters. */}
-      <rect className="tie-band" x="19.5" y="3" width="11" height="79" rx="5.5" />
       <g className="tie-hang">
         <g className="tie-blade">
           <path className="tie-paper" d="M25 93H29L35.5 152L25 168Z" />
