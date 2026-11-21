@@ -1214,8 +1214,8 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   The two footer links each have something that happens on hover or keyboard
-  focus: a tie is pulled tight round LinkedIn, and a command is typed under
-  GitHub. Both are decoration, hidden from screen readers, and they do not
+  focus: a tie is pulled tight round LinkedIn, squeezing the word, and a
+  command is typed under GitHub. Both are decoration, hidden from screen readers, and they do not
   take the pointer. Touch screens have no hover, so they never show.
 */
 .hung {
@@ -1224,7 +1224,6 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 .tie,
-.tie-loop,
 .typed {
   position: absolute;
   pointer-events: none;
@@ -1232,30 +1231,14 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /*
-  The tie. The word is its neck, and everything is sized in the word's own
-  em so it fits whatever size the sentence is set at.
-
-  The loop goes right round the word, the long way. Its bottom edge lies
-  exactly where the link's underline is, so on hover the underline seems to
-  grow into it.
+  The tie goes round the middle of the word, which is its neck. It is sized
+  in the word's own em, so it fits whatever size the sentence is set at.
 */
-.tie-loop {
-  left: -0.1em;
-  right: -0.1em;
-  top: -0.035em;
-  height: 1.06em;
-  border: 0.07em solid var(--ink);
-  border-radius: 0.3em;
-  transform-origin: 50% 100%;
-  transition: transform 0.2s ease-in;
-}
-
-/* The knot sits on the middle of the loop's bottom edge and the blade hangs from it. */
 .tie {
   left: 50%;
-  top: 0.9em;
+  top: 0;
   width: 0.5em;
-  height: 1em;
+  height: 1.72em;
   margin-left: -0.25em;
   overflow: visible;
   fill: none;
@@ -1265,7 +1248,7 @@ html.theme-wipe::view-transition-new(root) {
   transition: opacity 0.15s ease-out;
 }
 
-.tie path {
+.tie :is(path, rect) {
   vector-effect: non-scaling-stroke;
 }
 
@@ -1273,11 +1256,18 @@ html.theme-wipe::view-transition-new(root) {
   fill: var(--ink);
 }
 
-.tie .tie-paper {
+.tie :is(.tie-band, .tie-paper) {
   fill: var(--paper);
 }
 
-/* Loose: the knot hangs low. */
+/* Loose: the band is slack round the word and the knot hangs low. */
+.tie-band {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(1.7, 1.12);
+  transition: transform 0.2s ease-in;
+}
+
 .tie-hang {
   transform: translateY(14px);
   transition: transform 0.2s ease-in;
@@ -1340,37 +1330,26 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 @media (hover: hover) {
-  .hung a:hover ~ :is(.tie, .tie-loop, .typed),
-  .hung a:focus-visible ~ :is(.tie, .tie-loop, .typed) {
+  .hung a:hover ~ :is(.tie, .typed),
+  .hung a:focus-visible ~ :is(.tie, .typed) {
     opacity: 1;
   }
 
-  /* The loop's bottom edge takes the underline's place. */
-  .neck a:hover ~ .neck-rule,
-  .neck a:focus-visible ~ .neck-rule {
-    opacity: 0;
-  }
-
   /*
-    Cinched. The loop is pulled in from both sides, the word is squeezed
-    narrower and a little taller inside it, and the knot comes up, all on one
-    curve that goes a little too far and settles. Then the blade swings.
+    Cinched. The band is pulled tight, the knot comes up with it, and the
+    word is squeezed narrower and a little taller, all on one curve that
+    goes a little too far and settles. Then the blade swings.
   */
-  .neck a:hover ~ :is(.tie-loop, .tie .tie-hang),
-  .neck a:focus-visible ~ :is(.tie-loop, .tie .tie-hang),
+  .neck a:hover ~ .tie :is(.tie-band, .tie-hang),
+  .neck a:focus-visible ~ .tie :is(.tie-band, .tie-hang),
   .neck a:hover .neck-word,
   .neck a:focus-visible .neck-word {
     transition: transform 0.45s cubic-bezier(0.3, 1.9, 0.5, 1) 0.14s;
   }
 
-  .neck a:hover ~ .tie-loop,
-  .neck a:focus-visible ~ .tie-loop {
-    transform: scaleX(0.86);
-  }
-
-  .neck a:hover .neck-word,
-  .neck a:focus-visible .neck-word {
-    transform: scale(0.83, 1.06);
+  .neck a:hover ~ .tie .tie-band,
+  .neck a:focus-visible ~ .tie .tie-band {
+    transform: scale(1);
   }
 
   .neck a:hover ~ .tie .tie-hang,
@@ -1378,9 +1357,19 @@ html.theme-wipe::view-transition-new(root) {
     transform: translateY(0);
   }
 
+  .neck a:hover .neck-word,
+  .neck a:focus-visible .neck-word {
+    transform: scale(0.83, 1.06);
+  }
+
   .neck a:hover ~ .tie .tie-blade,
   .neck a:focus-visible ~ .tie .tie-blade {
     animation: tie-swing 0.7s ease-out 0.4s;
+  }
+
+  .neck a:hover ~ .neck-rule,
+  .neck a:focus-visible ~ .neck-rule {
+    height: 0.14em;
   }
 
   /* Typed: each character arrives in turn, then the cursor blinks. */
@@ -1399,7 +1388,7 @@ html.theme-wipe::view-transition-new(root) {
 @media (prefers-reduced-motion: reduce) {
   .tie,
   .tie-hang,
-  .tie-loop,
+  .tie-band,
   .neck-word,
   .hung a:hover + .typed span,
   .hung a:focus-visible + .typed span {

@@ -34,7 +34,7 @@ export default function Footer() {
               <span className="neck-word">LinkedIn</span>
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            {/* The link's underline, drawn here so it can turn into the tie's loop */}
+            {/* The link's underline, drawn here so it stays put while the word is squeezed */}
             <span className="neck-rule" />
             <Tie />
           </span>{' '}
