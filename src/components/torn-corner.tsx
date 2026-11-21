@@ -23,8 +23,13 @@ import styles from './torn-corner.module.css'
 //
 // Music starts with it: an 8-bit cover of the song (public/tear-audio.mp3,
 // made by scripts/build-tear-audio.sh). It is fetched when the corner is
-// first pressed. Once the piece is off there is a volume control beside the
-// button that tapes the sheet back.
+// first pressed. Once the piece is off there is a volume slider beside the
+// button that tapes the sheet back. On a touch screen, where the phone has
+// its own volume buttons, there is a mute button in its place. The music
+// and the clip stop whenever the page is out of sight: the tab is switched
+// or closed, the browser is put away, or the phone goes to sleep. The clip
+// picks up again when the page is back. So does the music if the page was
+// only away for a moment; after longer it waits to be turned back on.
 //
 // The music is played through the same Web Audio context as the tearing
 // sound, with a gain on it, and the slider moves that gain. Setting the
@@ -64,12 +69,15 @@ const POSTER = '/tear-poster.jpg'
 const SONG = '/tear-audio.mp3'
 // Where the volume slider's position is kept between visits.
 const VOLUME_KEY = 'tear-level-2'
-// The slider starts low, and lower still on a phone, whose speaker is close
-// and harsh. Its position is squared to get the loudness, so the quiet end,
-// where the music is most comfortable, has the most travel.
+// The slider starts low. Its position is squared to get the loudness, so
+// the quiet end, where the music is most comfortable, has the most travel.
+// A phone has no slider and plays at one level, lower still, because its
+// speaker is close and harsh.
 const QUIET = 0.28
 const QUIET_ON_A_PHONE = 0.2
 const loudness = (position: number) => position * position
+// A page that comes back within this long picks its music up again unasked.
+const A_MOMENT = 15000
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
@@ -267,23 +275,35 @@ export default function TornCorner() {
   const [showing, setShowing] = useState(false)
   const film = useRef<HTMLVideoElement>(null)
   // The music: the player, the gain it plays through, whether it is meant
-  // to be playing, whether the browser has kept it silent, and where the
-  // volume slider is.
+  // to be playing, whether the browser has kept it silent, whether this is
+  // a touch screen, where the volume slider is, and whether it is muted.
   const music = useRef<HTMLAudioElement | null>(null)
   const level = useRef<GainNode | null>(null)
   const wanted = useRef(false)
   const [refused, setRefused] = useState(false)
+  // The page was out of sight for a while, and the music is waiting to be
+  // turned back on.
+  const [held, setHeld] = useState(false)
+  const [touch] = useState(() => {
+    try {
+      return window.matchMedia('(pointer: coarse)').matches
+    } catch {
+      return false
+    }
+  })
   const [volume, setVolume] = useState(() => {
+    if (touch) return QUIET_ON_A_PHONE
     try {
       const kept = Number(window.localStorage.getItem(VOLUME_KEY) ?? 'none')
       if (kept >= 0 && kept <= 1) return kept
-      if (window.matchMedia('(pointer: coarse)').matches) return QUIET_ON_A_PHONE
     } catch {
       // No storage (or no window, on the server): use the default.
     }
     return QUIET
   })
   const position = useRef(volume)
+  const [muted, setMuted] = useState(false)
+  const silenced = useRef(false)
   const current = useRef<State>('idle')
   const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
   const line = useRef<Tear | null>(null)
@@ -345,14 +365,14 @@ export default function TornCorner() {
       .catch(() => {})
   }, [wake])
 
-  // Start the music from the top, or stop it.
-  const playMusic = useCallback(() => {
+  // Start the music, from the top or from where it was, or stop it.
+  const playMusic = useCallback((fromTheTop: boolean) => {
     prime()
     const song = music.current
     if (!song) return
     wanted.current = true
-    song.currentTime = 0
-    song.muted = false
+    if (fromTheTop) song.currentTime = 0
+    song.muted = silenced.current
     setLoudness(loudness(position.current))
     song.play().then(
       () => {
@@ -369,6 +389,7 @@ export default function TornCorner() {
     wanted.current = false
     music.current?.pause()
     setRefused(false)
+    setHeld(false)
   }, [])
 
   // The sound of paper giving way: a short burst of filtered noise. `force`
@@ -673,7 +694,7 @@ export default function TornCorner() {
     move('ripping')
     draw()
     film.current?.play().catch(() => {})
-    playMusic()
+    playMusic(true)
     crackle(1)
     navigator.vibrate?.(28)
     window.clearTimeout(timer.current)
@@ -854,12 +875,46 @@ export default function TornCorner() {
   // anywhere on the page is allowed to.
   useEffect(() => {
     if (!refused) return
-    const retry = () => playMusic()
+    const retry = () => playMusic(false)
     const events = ['pointerup', 'click', 'keydown'] as const
     events.forEach((name) => window.addEventListener(name, retry))
     return () => events.forEach((name) => window.removeEventListener(name, retry))
   }, [refused, playMusic])
 
+  // Out of sight, out of earshot. A page that cannot be seen (another tab,
+  // the browser put away, the phone asleep) stops the music and the clip.
+  // Seen again, the clip carries on. The music carries on too if it was only
+  // a moment; after longer, sound starting up by itself would be a surprise,
+  // so it waits for "Turn sound on". Leaving the page stops the music too.
+  useEffect(() => {
+    let hiddenAt = 0
+    const onChange = () => {
+      if (document.hidden) {
+        hiddenAt = performance.now()
+        music.current?.pause()
+        film.current?.pause()
+      } else if (wanted.current) {
+        film.current?.play().catch(() => {})
+        if (performance.now() - hiddenAt < A_MOMENT) playMusic(false)
+        else setHeld(true)
+      }
+    }
+    const onLeave = () => music.current?.pause()
+    document.addEventListener('visibilitychange', onChange)
+    window.addEventListener('pagehide', onLeave)
+    return () => {
+      document.removeEventListener('visibilitychange', onChange)
+      window.removeEventListener('pagehide', onLeave)
+    }
+  }, [playMusic])
+
+  const toggleMuted = () => {
+    const next = !muted
+    setMuted(next)
+    silenced.current = next
+    wake()
+    if (music.current) music.current.muted = next
+  }
   const changeVolume = (next: number) => {
     setVolume(next)
     position.current = next
@@ -1022,9 +1077,20 @@ export default function TornCorner() {
           <button type="button" className={styles.button} onClick={close}>
             Tape it back
           </button>
-          {refused ? (
-            <button type="button" className={styles.button} onClick={playMusic}>
+          {refused || held ? (
+            <button
+              type="button"
+              className={styles.button}
+              onClick={() => {
+                setHeld(false)
+                playMusic(false)
+              }}
+            >
               Turn sound on
+            </button>
+          ) : touch ? (
+            <button type="button" className={styles.button} onClick={toggleMuted}>
+              {muted ? 'Unmute' : 'Mute'}
             </button>
           ) : (
             <label className={styles.volume}>
