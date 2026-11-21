@@ -9,18 +9,14 @@ import styles from './torn-corner.module.css'
 // far enough and the piece comes away, leaving a music video behind the hole,
 // printed through a halftone screen in the sheet's one ink.
 //
-// The video is a YouTube embed from the no-cookie domain, and public/_headers
-// allows that one domain to be framed. It behaves like a GIF: it starts on
-// its own, has no sound and no controls, loops, and cannot be clicked. The
-// halftone is done in the stylesheet, on top of the live embed.
+// The video is a short silent clip served from this site
+// (public/tear-video.mp4, made by scripts/build-tear-video.sh). It behaves
+// like a GIF: no sound, no controls, it loops, and it cannot be clicked. The
+// halftone is done in the stylesheet, on top of the playing clip.
 //
-// Nothing is requested from YouTube until the corner is being pulled. The
-// embed loads out of sight while the sheet tears, because the player draws
-// its own buttons over the first few seconds and those must not be seen.
-// Behind the hole there is blank paper until the player says it is past
-// that point, and then the picture prints onto it from the top, a row at a
-// time. The component talks to the player by postMessage, which is also how
-// it loops the video, so no script from YouTube is loaded.
+// The clip is fetched when the pointer first reaches the corner, so it is
+// already there when the sheet starts to tear. Its first frame shows through
+// the hole as it opens, and it starts to play when the piece comes away.
 //
 // How the tear works. The component owns a 16:9 box pinned to the corner of
 // the sheet, and everything is computed in that box's pixel coordinates.
@@ -48,14 +44,7 @@ import styles from './torn-corner.module.css'
 //   - While the corner is being dragged a torn point stays torn. At other
 //     times (hovering, settling back, taping it back) the fronts follow the
 //     fold in both directions, so laying the paper down closes the tear.
-const PLAYER = 'https://www.youtube-nocookie.com'
-const VIDEO =
-  `${PLAYER}/embed/dQw4w9WgXcQ` +
-  '?autoplay=1&mute=1&controls=0&disablekb=1&fs=0&iv_load_policy=3&playsinline=1&rel=0&enablejsapi=1'
-// The player's own buttons are gone this many seconds into the video.
-const CLEAR_AFTER = 3.6
-// If the player never reports, the picture is shown anyway after this long.
-const GIVE_UP_AFTER = 9000
+const CLIP = '/tear-video.mp4'
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
@@ -228,11 +217,12 @@ export default function TornCorner() {
   const hole = useRef<HTMLDivElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const [state, setState] = useState<State>('idle')
-  // The embed's address once it has been asked for, and whether the player
-  // is past its opening buttons.
-  const [video, setVideo] = useState<string | null>(null)
-  const [clear, setClear] = useState(false)
-  const frame = useRef<HTMLIFrameElement>(null)
+  // The clip: whether it has been asked for, whether it has arrived, and
+  // whether it is behind the hole at the moment.
+  const [fetched, setFetched] = useState(false)
+  const [arrived, setArrived] = useState(false)
+  const [showing, setShowing] = useState(false)
+  const film = useRef<HTMLVideoElement>(null)
   const current = useRef<State>('idle')
   const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
   const line = useRef<Tear | null>(null)
@@ -246,14 +236,12 @@ export default function TornCorner() {
     setState(next)
   }, [])
 
-  // Start loading the video, out of sight, or take it away again.
-  const load = useCallback(() => {
-    setVideo((now) => now ?? `${VIDEO}&origin=${encodeURIComponent(window.location.origin)}`)
+  // Put the clip behind the hole, from its first frame, or take it away.
+  const show = useCallback(() => {
+    setFetched(true)
+    setShowing(true)
   }, [])
-  const unload = useCallback(() => {
-    setVideo(null)
-    setClear(false)
-  }, [])
+  const hide = useCallback(() => setShowing(false), [])
 
   // The sound of paper giving way: a short burst of filtered noise. `force`
   // runs from a faint tick to the final rip.
@@ -549,13 +537,14 @@ export default function TornCorner() {
     return { advanced, met }
   }, [crackle])
 
-  // The piece is off. The flap drops away and the video starts.
+  // The piece is off. The flap drops away and the clip starts to play.
   const rip = useCallback(() => {
     if (current.current === 'ripping' || current.current === 'open') return
     cancelAnimationFrame(tween.current)
     shape.current = { ...shape.current, boost: 1 }
     move('ripping')
     draw()
+    film.current?.play().catch(() => {})
     crackle(1)
     navigator.vibrate?.(28)
     window.clearTimeout(timer.current)
@@ -594,24 +583,24 @@ export default function TornCorner() {
   const comeAway = useCallback(() => {
     if (current.current !== 'idle' && current.current !== 'dragging') return
     move('finishing')
-    load()
+    show()
     const tear = line.current
     const left = tear ? (tear.upper - tear.lower) / (tear.hold.length - 1) : 1
     animate({ boost: 1 }, 200 + 620 * left, rip)
-  }, [animate, load, move, rip])
+  }, [animate, move, rip, show])
 
-  // Closing takes the video away at once and runs the tear back to the
-  // corner. The folded corner then comes back with a tear line of its own.
+  // Closing runs the tear back to the corner, over the picture. The folded
+  // corner then comes back with a tear line of its own.
   const close = useCallback(() => {
     window.clearTimeout(timer.current)
     move('closing')
-    unload()
     animate({ tip: REST, boost: 0, lean: REST_LEAN }, 460, () => {
       shape.current = { ...shape.current, seed: Math.random() * 1000 }
       move('idle')
+      hide()
       draw()
     })
-  }, [animate, draw, move, unload])
+  }, [animate, draw, hide, move])
 
   // Dragging the corner.
   const drag = useRef<{
@@ -626,6 +615,7 @@ export default function TornCorner() {
 
   const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (current.current !== 'idle') return
+    setFetched(true)
     event.currentTarget.setPointerCapture(event.pointerId)
     cancelAnimationFrame(tween.current)
     // Browsers only let a page make sound once it has been touched.
@@ -654,7 +644,7 @@ export default function TornCorner() {
     const dy = Math.min(0, event.clientY - origin.y)
     if (Math.hypot(dx, dy) > 4 && !origin.moved) {
       origin.moved = true
-      load()
+      show()
     }
 
     // How fast the hand is moving, smoothed, for the moment it lets go.
@@ -690,7 +680,7 @@ export default function TornCorner() {
       return
     }
     move('idle')
-    unload()
+    hide()
     if (origin && !origin.moved) {
       // A plain click gives the corner a tug, as a hint that it pulls.
       animate({ tip: TUG }, 170, () => animate({ tip: REST }, 300))
@@ -732,81 +722,37 @@ export default function TornCorner() {
     return () => window.removeEventListener('keydown', onKey)
   }, [state, close])
 
-  // Talking to the player. It reports where the video has got to, which says
-  // when its opening buttons are gone and when to send it back to the start.
+  // Put behind the hole, the clip waits on its first frame. It starts to
+  // play when the piece comes away (see `rip`) and stops when it is taken
+  // away again.
   useEffect(() => {
-    if (!video) return
-    const send = (message: Record<string, unknown>) =>
-      frame.current?.contentWindow?.postMessage(
-        JSON.stringify({ ...message, id: 'torn-corner', channel: 'widget' }),
-        PLAYER,
-      )
-    let heard = false
-    let length = 0
-    let rewound = 0
-    const rewind = () => {
-      if (performance.now() - rewound < 4000) return
-      rewound = performance.now()
-      send({ event: 'command', func: 'seekTo', args: [0, true] })
-      send({ event: 'command', func: 'playVideo', args: [] })
-    }
-    const onMessage = (event: MessageEvent) => {
-      if (event.origin !== PLAYER || event.source !== frame.current?.contentWindow) return
-      let info: { currentTime?: unknown; duration?: unknown; playerState?: unknown } | undefined
-      try {
-        info = (typeof event.data === 'string' ? JSON.parse(event.data) : event.data)?.info
-      } catch {
-        return
-      }
-      heard = true
-      if (!info || typeof info !== 'object') return
-      if (typeof info.duration === 'number' && info.duration > 0) length = info.duration
-      if (typeof info.currentTime === 'number') {
-        if (info.currentTime >= CLEAR_AFTER) setClear(true)
-        // Go round again a little before the end. The player takes a moment
-        // to act on it, and its end screen must not come up in the meantime.
-        if (length && info.currentTime > length - 2.5) rewind()
-      }
-      if (info.playerState === 0) rewind()
-    }
-    window.addEventListener('message', onMessage)
-    // The player only starts reporting once it has been asked to, and it
-    // cannot hear the request until it has loaded. Keep asking until it
-    // answers.
-    const asking = window.setInterval(() => {
-      if (heard) window.clearInterval(asking)
-      else send({ event: 'listening' })
-    }, 250)
-    const givenUp = window.setTimeout(() => setClear(true), GIVE_UP_AFTER)
-    return () => {
-      window.removeEventListener('message', onMessage)
-      window.clearInterval(asking)
-      window.clearTimeout(givenUp)
-    }
-  }, [video])
+    const clip = film.current
+    if (!clip) return
+    if (showing) clip.currentTime = 0
+    else clip.pause()
+  }, [showing, fetched])
 
-  const playing = state === 'ripping' || state === 'open'
 
   return (
-    <div ref={box} className={styles.tear} data-state={state}>
+    <div ref={box} className={styles.tear} data-state={state} data-film={showing && arrived ? 'on' : 'off'}>
       {/* What is behind the sheet */}
       <div ref={hole} className={styles.hole}>
-        {video && (
+        {fetched && (
           <>
-            {/*
-              The picture, the blank paper that covers it until it is ready,
-              and the dot screen. The stylesheet turns the three into a
-              halftone.
-            */}
+            {/* The picture and the dot screen, which the stylesheet turns into a halftone */}
             <div className={styles.print}>
-              <iframe
-                ref={frame}
-                src={video}
-                title="Rick Astley, Never Gonna Give You Up (music video, silent loop)"
-                allow="autoplay; encrypted-media"
+              <video
+                ref={film}
+                src={CLIP}
+                muted
+                loop
+                playsInline
+                preload="auto"
+                disablePictureInPicture
                 tabIndex={-1}
+                aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
+                onLoadedData={() => setArrived(true)}
               />
-              <div className={styles.blank} data-printed={playing && clear} />
               <div className={styles.screen} />
             </div>
             <div className={styles.ink} />
@@ -911,8 +857,10 @@ export default function TornCorner() {
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
           onPointerEnter={() => {
+            setFetched(true)
             if (current.current === 'idle') animate({ tip: PEEK }, 200)
           }}
+          onFocus={() => setFetched(true)}
           onPointerLeave={() => {
             if (current.current === 'idle') animate({ tip: REST }, 240)
           }}
