@@ -14,9 +14,12 @@ import styles from './torn-corner.module.css'
 // like a GIF: no sound, no controls, it loops, and it cannot be clicked. The
 // halftone is done in the stylesheet, on top of the playing clip.
 //
-// The clip is fetched when the pointer first reaches the corner, so it is
-// already there when the sheet starts to tear. Its first frame shows through
-// the hole as it opens, and it starts to play when the piece comes away.
+// The picture is always behind the sheet, so the folded corner gives a peek
+// of it. Until the clip is needed that is a still of its first frame
+// (public/tear-poster.jpg). The clip itself is fetched when the pointer
+// first reaches the corner, so it is already there when the sheet starts to
+// tear. Its first frame shows through the hole as it opens, and it starts to
+// play when the piece comes away.
 //
 // Music starts with it: an 8-bit cover of the song (public/tear-audio.mp3,
 // made by scripts/build-tear-audio.sh). It is fetched when the corner is
@@ -57,6 +60,7 @@ import styles from './torn-corner.module.css'
 //     times (hovering, settling back, taping it back) the fronts follow the
 //     fold in both directions, so laying the paper down closes the tear.
 const CLIP = '/tear-video.mp4'
+const POSTER = '/tear-poster.jpg'
 const SONG = '/tear-audio.mp3'
 // Where the volume slider's position is kept between visits.
 const VOLUME_KEY = 'tear-level-2'
@@ -96,10 +100,10 @@ type Tear = {
 
 // Where the corner sits at rest, with the pointer over it, and when it is
 // given a tug. Slightly lopsided, so it does not look ruled.
-const REST: Point = [-33, -44]
-const PEEK: Point = [-42, -56]
-const TUG: Point = [-66, -88]
-const REST_LEAN = 33 / 77
+const REST: Point = [-39, -52]
+const PEEK: Point = [-51, -68]
+const TUG: Point = [-72, -96]
+const REST_LEAN = 39 / 91
 // The tear line's control points: along the bottom edge, round the outline,
 // and down the right edge, plus the two nicks.
 const ALONG_BOTTOM = 6
@@ -257,10 +261,9 @@ export default function TornCorner() {
   const hole = useRef<HTMLDivElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const [state, setState] = useState<State>('idle')
-  // The clip: whether it has been asked for, whether it has arrived, and
+  // The clip: whether it has been asked for, and
   // whether it is behind the hole at the moment.
   const [fetched, setFetched] = useState(false)
-  const [arrived, setArrived] = useState(false)
   const [showing, setShowing] = useState(false)
   const film = useRef<HTMLVideoElement>(null)
   // The music: the player, the gain it plays through, whether it is meant
@@ -868,42 +871,42 @@ export default function TornCorner() {
       // Not kept for next time, which is fine.
     }
   }
-  // Put behind the hole, the clip waits on its first frame. It starts to
-  // play when the piece comes away (see `rip`) and stops when it is taken
-  // away again.
+  // The clip waits on its first frame. It starts to play when the piece
+  // comes away (see `rip`), and goes back to its first frame when the sheet
+  // has been taped back or the corner let go.
   useEffect(() => {
     const clip = film.current
     if (!clip) return
-    if (showing) clip.currentTime = 0
-    else clip.pause()
+    if (!showing) clip.pause()
+    clip.currentTime = 0
   }, [showing, fetched])
 
 
   return (
-    <div ref={box} className={styles.tear} data-state={state} data-film={showing && arrived ? 'on' : 'off'}>
+    <div ref={box} className={styles.tear} data-state={state}>
       {/* What is behind the sheet */}
       <div ref={hole} className={styles.hole}>
-        {fetched && (
-          <>
-            {/* The picture and the dot screen, which the stylesheet turns into a halftone */}
-            <div className={styles.print}>
-              <video
-                ref={film}
-                src={CLIP}
-                muted
-                loop
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                tabIndex={-1}
-                aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
-                onLoadedData={() => setArrived(true)}
-              />
-              <div className={styles.screen} />
-            </div>
-            <div className={styles.ink} />
-          </>
-        )}
+        {/*
+          The picture and the dot screen, which the stylesheet turns into a
+          halftone. The still is the picture until the clip is over it.
+        */}
+        <div className={styles.print} style={{ backgroundImage: `url(${POSTER})` }}>
+          {fetched && (
+            <video
+              ref={film}
+              src={CLIP}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              disablePictureInPicture
+              tabIndex={-1}
+              aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
+            />
+          )}
+          <div className={styles.screen} />
+        </div>
+        <div className={styles.ink} />
       </div>
 
       <svg ref={svg} className={styles.drawing} aria-hidden="true" focusable="false">
