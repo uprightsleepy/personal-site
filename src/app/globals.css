@@ -5,7 +5,7 @@
 /*
   One ink. The site is a blueprint by default: white ink on a single blue.
   "Paper" (the light theme, class .light on <html>) swaps the two, the way a
-  one-color print job would run the same blue on white. Hierarchy comes from
+  one-color print job would run the same blue on an unbleached stock. Hierarchy comes from
   size, weight and width, never from a second color.
 */
 :root {
@@ -48,9 +48,14 @@
 
 .light {
   --ink: var(--blue);
-  --paper: #ffffff;
-  --soft: #5a5fe0;
-  --rule: #c9cbf5;
+  /*
+    Not white: an unbleached drawing paper, well short of white so a full
+    screen of it is easy on the eye. Secondary text is the ink let down with
+    a little of the paper, dark enough to read on this stock.
+  */
+  --paper: #ddd7c6;
+  --soft: color-mix(in srgb, var(--blue) 82%, var(--paper));
+  --rule: color-mix(in srgb, var(--blue) 24%, var(--paper));
   --grid: transparent;
   --exposure-light: rgb(27 34 210 / 0.035);
   --exposure-deep: transparent;
@@ -190,6 +195,25 @@
   /* The portrait file is white halftone dots on black; screen drops the black. */
   .one-ink img {
     mix-blend-mode: screen;
+  }
+
+  /*
+    On paper the dots are the stock showing through the ink, so they take the
+    paper's colour and not white.
+  */
+  .light .one-ink {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .light .one-ink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    /* Darken leaves the ink as it is and brings white down to the paper. */
+    mix-blend-mode: darken;
+    pointer-events: none;
   }
 
   /* Long-form text on the case study page. */
