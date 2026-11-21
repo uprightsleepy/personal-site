@@ -35,7 +35,23 @@
        dark parts of the picture grow big dots and light parts small ones.
 
   .ink then turns the black into the sheet's blue and leaves white as paper.
+
+  The embed is loaded while the sheet is still tearing, so all of this stays
+  invisible until the piece is off.
 */
+.print,
+.ink {
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+}
+
+.tear[data-state='ripping'] .print,
+.tear[data-state='ripping'] .ink,
+.tear[data-state='open'] .print,
+.tear[data-state='open'] .ink {
+  opacity: 1;
+}
+
 .print {
   position: absolute;
   inset: 0;
@@ -57,6 +73,24 @@
   border: 0;
   pointer-events: none;
   filter: grayscale(1) blur(1.5px) brightness(1.08);
+}
+
+/*
+  Blank paper over the picture: a pale grey, which the screen turns into a
+  faint tint of small dots. When the player is ready it is drawn back from
+  the top in steps, so the picture arrives a row at a time, the way a dot
+  matrix printer lays one down.
+*/
+.blank {
+  position: absolute;
+  inset: 0;
+  background: #e2e2e2;
+  clip-path: inset(0);
+  transition: clip-path 1.6s steps(32, jump-end);
+}
+
+.blank[data-printed='true'] {
+  clip-path: inset(100% 0 0 0);
 }
 
 .screen {
@@ -272,7 +306,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flap {
+  .flap,
+  .blank,
+  .print,
+  .ink {
     transition: none;
   }
 }
