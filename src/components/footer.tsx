@@ -1,5 +1,5 @@
 import DimensionLine from '@/components/dimension-line'
-import { NorthArrow, Tie, Typed } from '@/components/drafting'
+import { Neck, NorthArrow, Tie, Typed } from '@/components/drafting'
 import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
@@ -28,12 +28,14 @@ export default function Footer() {
         <DimensionLine className="mb-16 md:mb-24" />
         <p className="title drawn max-w-[14em]">
           Find me on{' '}
-          {/* Each link has something that happens under it on hover: see .hung */}
-          <span className="hung">
+          {/* Each link has something that happens to it on hover: see .hung */}
+          <span className="hung neck">
             <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-              LinkedIn
-              <span className="sr-only"> (opens in a new tab)</span>
+              <Neck text="LinkedIn" />
+              <span className="sr-only">LinkedIn (opens in a new tab)</span>
             </a>
+            {/* The link's underline, drawn here because split letters lose theirs */}
+            <span className="neck-rule" />
             <Tie />
           </span>{' '}
           and{' '}

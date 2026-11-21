@@ -49,22 +49,49 @@ export function NorthArrow() {
   )
 }
 
-// A necktie that hangs under the LinkedIn link in the footer. At rest it is
-// not there. On hover it drops in loose and the knot is pulled up to the
-// collar (see .tie in globals.css). Like the north arrow, its left half is
-// inked in and its right half is outline.
+// The LinkedIn link in the footer gets a necktie on hover, and the word is
+// the neck. A band of tie goes round the middle of the word and is pulled
+// tight, the letters pinch in at the waist (see Neck below), and the knot and
+// blade hang underneath. At rest none of it shows. The drawing is 0.5em wide
+// in the word's own type size, so 100 units here is 1em: the capitals run
+// from about 10 to 79, and the band is drawn tight and loosened by the
+// stylesheet (see .tie in globals.css).
 export function Tie() {
   return (
-    <svg className="tie" viewBox="0 0 40 72" aria-hidden="true" focusable="false">
-      <path className="tie-collar" d="M5 1L20 11.5L35 1" />
+    <svg className="tie" viewBox="0 0 50 170" aria-hidden="true" focusable="false">
+      {/* The band round the word. Paper inside, so it shows against the letters. */}
+      <rect className="tie-band" x="19.5" y="20" width="11" height="49" rx="5.5" />
       <g className="tie-hang">
+        {/* The blade: left half inked, right half outline, like the north arrow */}
         <g className="tie-blade">
-          <path className="tie-fill" d="M20 18H17.4L12 55L20 67Z" />
-          <path d="M20 18H22.6L28 55L20 67" />
+          <path className="tie-paper" d="M25 79H29L35.5 146L25 162Z" />
+          <path className="tie-fill" d="M25 79H21L14.5 146L25 162Z" />
         </g>
-        <path className="tie-fill" d="M15.4 9H24.6L22.6 18.5H17.4Z" />
+        <path className="tie-fill" d="M17.2 65.5H32.8L29.4 80H20.6Z" />
       </g>
     </svg>
+  )
+}
+
+// A word whose letters can pinch in at the middle, for the tie above. Each
+// letter carries how far it is squeezed: the middle ones most, the ends not
+// at all. The letters are hidden from screen readers; the caller supplies
+// the text.
+export function Neck({ text }: { text: string }) {
+  const letters = Array.from(text)
+  const middle = (letters.length - 1) / 2
+  return (
+    <span aria-hidden="true">
+      {letters.map((letter, index) => {
+        const away = Math.abs(index - middle) / middle
+        const squeeze = 1 - 0.42 * Math.exp(-Math.pow(away / 0.42, 2))
+        return (
+          <span key={index} className="neck-letter" style={{ '--squeeze': squeeze.toFixed(3) } as React.CSSProperties}>
+            {letter}
+          </span>
+        )
+      })}
+    </span>
   )
 }
 

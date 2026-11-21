@@ -1213,10 +1213,10 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /*
-  The two footer links each have something that happens under them on hover
-  or keyboard focus: a tie is cinched under LinkedIn, and a command is typed
-  under GitHub. Both are decoration, hidden from screen readers, and they do
-  not take the pointer. Touch screens have no hover, so they never show.
+  The two footer links each have something that happens on hover or keyboard
+  focus: a tie is pulled tight round LinkedIn, and a command is typed under
+  GitHub. Both are decoration, hidden from screen readers, and they do not
+  take the pointer. Touch screens have no hover, so they never show.
 */
 .hung {
   position: relative;
@@ -1226,26 +1226,29 @@ html.theme-wipe::view-transition-new(root) {
 .tie,
 .typed {
   position: absolute;
-  top: 100%;
   pointer-events: none;
   opacity: 0;
 }
 
-/* The tie hangs from the middle of the word, just under its underline. */
+/*
+  The tie goes round the middle of the word, which is its neck. It is sized
+  in the word's own em, so it fits whatever size the sentence is set at.
+*/
 .tie {
   left: 50%;
-  width: 2.9rem;
-  height: 5.22rem;
-  margin: 0.5rem 0 0 -1.45rem;
+  top: 0;
+  width: 0.5em;
+  height: 1.7em;
+  margin-left: -0.25em;
   overflow: visible;
   fill: none;
   stroke: var(--ink);
   stroke-width: 1.5;
-  stroke-linejoin: miter;
+  stroke-linejoin: round;
   transition: opacity 0.15s ease-out;
 }
 
-.tie path {
+.tie :is(path, rect) {
   vector-effect: non-scaling-stroke;
 }
 
@@ -1253,16 +1256,20 @@ html.theme-wipe::view-transition-new(root) {
   fill: var(--ink);
 }
 
-/* Loose: the knot hangs low and the collar is open. */
-.tie-hang {
-  transform: translateY(0.95rem);
+.tie :is(.tie-band, .tie-paper) {
+  fill: var(--paper);
+}
+
+/* Loose: the band is slack round the full height of the word and the knot hangs low. */
+.tie-band {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(1.5, 1.72);
   transition: transform 0.2s ease-in;
 }
 
-.tie-collar {
-  transform-box: fill-box;
-  transform-origin: 50% 100%;
-  transform: scale(1.35, 0.7);
+.tie-hang {
+  transform: translateY(18px);
   transition: transform 0.2s ease-in;
 }
 
@@ -1271,9 +1278,34 @@ html.theme-wipe::view-transition-new(root) {
   transform-origin: 50% 0%;
 }
 
+/*
+  The neck. The letters are blocks so they can be squeezed; each has its own
+  --squeeze (drafting.tsx). They pinch toward the middle of the capitals.
+*/
+.neck-letter {
+  display: inline-block;
+  transform-origin: 50% 48%;
+  transition: transform 0.2s ease-in;
+}
+
+.neck a {
+  text-decoration-line: none;
+}
+
+.neck-rule {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.954em;
+  height: 0.07em;
+  background: var(--ink);
+  pointer-events: none;
+}
+
 /* The command is set small and narrow, in the one typeface. */
 .typed {
   left: 0.05em;
+  top: 100%;
   margin-top: 0.95rem;
   white-space: pre;
   color: var(--ink);
@@ -1301,27 +1333,46 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 @media (hover: hover) {
-  .hung a:hover + :is(.tie, .typed),
-  .hung a:focus-visible + :is(.tie, .typed) {
+  .hung a:hover ~ :is(.tie, .typed),
+  .hung a:focus-visible ~ :is(.tie, .typed) {
     opacity: 1;
   }
 
-  /* Cinched: the knot is pulled up to the collar, past it, and settles. */
-  .hung a:hover + .tie .tie-hang,
-  .hung a:focus-visible + .tie .tie-hang {
-    transform: translateY(0);
-    transition: transform 0.42s cubic-bezier(0.3, 1.9, 0.5, 1) 0.12s;
+  /*
+    Cinched. The band is pulled tight, the knot comes up with it, and the
+    letters pinch in, all on one curve that goes a little too far and
+    settles. Then the blade swings.
+  */
+  .neck a:hover ~ .tie :is(.tie-band, .tie-hang),
+  .neck a:focus-visible ~ .tie :is(.tie-band, .tie-hang),
+  .neck a:hover .neck-letter,
+  .neck a:focus-visible .neck-letter {
+    transition: transform 0.45s cubic-bezier(0.3, 1.9, 0.5, 1) 0.14s;
   }
 
-  .hung a:hover + .tie .tie-collar,
-  .hung a:focus-visible + .tie .tie-collar {
+  .neck a:hover ~ .tie .tie-band,
+  .neck a:focus-visible ~ .tie .tie-band {
     transform: scale(1);
-    transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) 0.16s;
   }
 
-  .hung a:hover + .tie .tie-blade,
-  .hung a:focus-visible + .tie .tie-blade {
-    animation: tie-swing 0.7s ease-out 0.3s;
+  .neck a:hover ~ .tie .tie-hang,
+  .neck a:focus-visible ~ .tie .tie-hang {
+    transform: translateY(0);
+  }
+
+  .neck a:hover .neck-letter,
+  .neck a:focus-visible .neck-letter {
+    transform: scaleY(var(--squeeze));
+  }
+
+  .neck a:hover ~ .tie .tie-blade,
+  .neck a:focus-visible ~ .tie .tie-blade {
+    animation: tie-swing 0.7s ease-out 0.4s;
+  }
+
+  .neck a:hover ~ .neck-rule,
+  .neck a:focus-visible ~ .neck-rule {
+    height: 0.14em;
   }
 
   /* Typed: each character arrives in turn, then the cursor blinks. */
@@ -1340,14 +1391,15 @@ html.theme-wipe::view-transition-new(root) {
 @media (prefers-reduced-motion: reduce) {
   .tie,
   .tie-hang,
-  .tie-collar,
+  .tie-band,
+  .neck-letter,
   .hung a:hover + .typed span,
   .hung a:focus-visible + .typed span {
     transition: none !important;
   }
 
-  .hung a:hover + .tie .tie-blade,
-  .hung a:focus-visible + .tie .tie-blade {
+  .neck a:hover ~ .tie .tie-blade,
+  .neck a:focus-visible ~ .tie .tie-blade {
     animation: none;
   }
 
