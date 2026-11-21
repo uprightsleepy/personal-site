@@ -54,7 +54,7 @@ export const work: WorkItem[] = [
     title: 'Multi-tenant CI/CD platform on GCP',
     summary:
       'Architected a CI/CD platform on Cloud Run for a company new to GCP, with SonarQube scanning, secret validation and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
-    tags: ['GCP', 'Cloud Run', 'Terraform', 'Bitbucket', 'SonarQube'],
+    tags: ['GCP', 'Cloud Run', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
     link: {
       href: '/case-studies/cicd-platform',
       label: 'Read the case study',

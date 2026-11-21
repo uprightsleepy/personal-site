@@ -53,6 +53,10 @@ const components = [
     'A push or merge in a team’s repository starts that team’s pipeline. Teams kept the source control they already used.',
   ],
   [
+    'Workload Identity Federation',
+    'Bitbucket starts builds in GCP through Workload Identity Federation. It proves who it is with a short-lived token, so there is no service account key stored in Bitbucket to leak or rotate.',
+  ],
+  [
     'Cloud Run jobs',
     'The build, scan and deploy steps run as Cloud Run jobs. Each team has its own set, created in its own GCP project.',
   ],
@@ -76,7 +80,10 @@ const components = [
 
 const terraformSteps = [
   ['Plan', 'A plan service account, which can read the environment but not change it, produces the plan.'],
-  ['Sign', 'The pipeline signs the plan, so there is a record of exactly what was reviewed.'],
+  [
+    'Sign',
+    'The pipeline signs the plan with a key held in Cloud KMS, so there is a record of exactly what was planned.',
+  ],
   [
     'Validate',
     'Before anything is applied, the pipeline checks the signature and checks that the environment has not drifted since the plan was made.',
@@ -98,7 +105,7 @@ const checks = [
   ],
   [
     'Deploy signing',
-    'Production deploys are signed. What reaches production can be traced to the pipeline run that built it.',
+    'The pipeline signs what it builds with a key held in Cloud KMS, and a production deploy checks that signature first. Only files built by the pipeline can be deployed.',
   ],
 ]
 
@@ -135,18 +142,22 @@ const workedWell = [
   'Starting with three teams found the gaps while they were still cheap to fix.',
   'Working sessions with developers showed how teams built in practice, which their documentation did not.',
   'Scanning, secret validation and signing came with the pipeline, so teams got them by joining and did not have to ask.',
+  'Workload Identity Federation was new to the platform team. After using it here they extended it across the rest of their platform environment.',
   'Regular syncs with Directors and VPs kept the rollout decisions with the people who could make them.',
 ]
 
 const skillsShown = [
-  ['Cloud architecture', 'GCP projects as tenant boundaries, Cloud Run jobs, service accounts and IAM'],
+  [
+    'Cloud architecture',
+    'GCP projects as tenant boundaries, Cloud Run jobs, service accounts, IAM and Workload Identity Federation',
+  ],
   [
     'Infrastructure as code',
     'Terraform for the platform itself, and a plan and apply pipeline with signing and drift validation',
   ],
   [
     'Security engineering',
-    'Static analysis, secret validation and deploy signing built into the delivery path',
+    'Static analysis, secret validation and Cloud KMS signing built into the delivery path',
   ],
   [
     'Delivery',
@@ -182,7 +193,7 @@ export default function CicdPlatform() {
         <dl className="mt-12 max-w-[68ch] border-b border-rule">
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
-          <Row term="Stack">GCP Cloud Run, Terraform, Bitbucket, SonarQube</Row>
+          <Row term="Stack">GCP Cloud Run, Cloud KMS, Terraform, Bitbucket, SonarQube</Row>
           <Row term="Reading time">5 minutes</Row>
         </dl>
       </header>
@@ -192,10 +203,11 @@ export default function CicdPlatform() {
         <p>
           I architected and built a CI/CD platform on GCP for a Fortune 250 company that had no
           cloud environment before it. The platform is a set of <strong>Cloud Run jobs</strong>,
-          started from Bitbucket and created for each team inside that team&rsquo;s own GCP project,
-          with everything defined in Terraform. It builds React, Java, Python and Go applications
-          and runs Terraform, and every pipeline includes SonarQube scanning, secret validation and
-          signed production deploys. A team could be onboarded in{' '}
+          started from Bitbucket through Workload Identity Federation and created for each team
+          inside that team&rsquo;s own GCP project, with everything defined in Terraform. It builds
+          React, Java, Python and Go applications and runs Terraform. Every pipeline includes
+          SonarQube scanning and secret validation, and build outputs are signed with Cloud KMS so
+          that only what the pipeline built can be deployed to production. A team could be onboarded in{' '}
           <strong>about five minutes</strong>, where provisioning by ticket had taken several
           weeks. Twelve teams adopted it during my contract, and to my knowledge it now serves all
           of the company&rsquo;s development teams.
@@ -275,6 +287,14 @@ export default function CicdPlatform() {
             </Row>
           ))}
         </dl>
+
+        <h3>Keyless builds</h3>
+        <p>
+          The company had not used Workload Identity Federation before this project. Using it to
+          start builds meant the link between Bitbucket and GCP never depended on a long-lived
+          credential. The platform team has since extended the same pattern across the rest of
+          their platform environment.
+        </p>
 
         <h2>Rollout</h2>
         <ol>
