@@ -45,8 +45,9 @@ import Reveal from '@/components/reveal'
 // On a screen too narrow for it, the drawing keeps a readable size inside a
 // framed window and is moved around by dragging. A finger drags it through
 // the browser's own scrolling; a mouse drags it through the handlers here.
-// There are no scrollbars, so a small key plan beside the caption shows
-// which part of the drawing is in view.
+// The window has a drawing border and, along its bottom, a title strip.
+// There are no scrollbars, so a small key plan in the strip shows which part
+// of the drawing is in view.
 
 type Symbol =
   | 'merge'
@@ -455,6 +456,9 @@ export default function PipelineDiagram() {
   return (
     <figure className="diagram" data-pannable={pannable || undefined}>
       <Reveal className="diagram-box">
+        {/* When the drawing has to be dragged, this is its frame: a drawing
+            border, with a title strip along the bottom. */}
+        <div className="diagram-frame">
         <div
           ref={scroller}
           className="diagram-scroll"
@@ -550,19 +554,22 @@ export default function PipelineDiagram() {
         </svg>
           </div>
         </div>
-      </Reveal>
-      <div className="diagram-foot">
-        <figcaption className="caption">
-          Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
-          run as Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or
-          a resource to trace its calls.
-          {pannable && ' Drag the drawing to move around it.'}
-        </figcaption>
-        {/* Key plan: the whole drawing, with the part in view marked on it */}
-        <div ref={keyPlan} className="diagram-key" aria-hidden="true">
-          <i />
+        <div className="diagram-strip" aria-hidden="true">
+          <span>Drag to move around</span>
+          {/* Key plan: the whole drawing, with the part in view marked on it */}
+          <div className="diagram-key-cell">
+            <div ref={keyPlan} className="diagram-key">
+              <i />
+            </div>
+          </div>
         </div>
-      </div>
+        </div>
+      </Reveal>
+      <figcaption className="caption">
+        Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
+        run as Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or
+        a resource to trace its calls.
+      </figcaption>
     </figure>
   )
 }
