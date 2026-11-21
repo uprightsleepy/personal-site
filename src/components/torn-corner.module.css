@@ -259,13 +259,22 @@
   outline-offset: -3px;
 }
 
-/* Sits on the piece of sheet still covering the video's top left corner. */
-.close {
+/*
+  The controls, once the piece is off: tape the sheet back, and the volume.
+  They sit on the piece of sheet still covering the picture's top left corner.
+*/
+.controls {
   position: absolute;
   left: 0.6rem;
   top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
   pointer-events: auto;
-  cursor: pointer;
+}
+
+.button,
+.volume {
   padding: 0.35rem 0.7rem 0.3rem;
   border: 1.5px solid var(--ink);
   background: var(--paper);
@@ -275,9 +284,63 @@
   line-height: 1.2;
 }
 
-.close:hover {
+.button {
+  cursor: pointer;
+}
+
+.button:hover {
   background: var(--ink);
   color: var(--paper);
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/*
+  The slider is drawn as a scale bar: a ruled line with a tick at every
+  tenth, and a solid block for the handle.
+*/
+.volume input {
+  appearance: none;
+  width: 6.5rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 100% 1.5px no-repeat,
+    repeating-linear-gradient(to right, var(--ink) 0 1.5px, transparent 1.5px calc((100% - 1.5px) / 10))
+      center / 100% 0.5rem no-repeat;
+}
+
+.volume input::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.45rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.volume input::-moz-range-thumb {
+  width: 0.45rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.volume input::-moz-range-track {
+  background: transparent;
+}
+
+.volume input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {

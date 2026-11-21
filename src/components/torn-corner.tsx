@@ -18,6 +18,13 @@ import styles from './torn-corner.module.css'
 // already there when the sheet starts to tear. Its first frame shows through
 // the hole as it opens, and it starts to play when the piece comes away.
 //
+// Music starts with it: an 8-bit cover of the song (public/tear-audio.mp3,
+// made by scripts/build-tear-audio.sh). It is fetched when the corner is
+// first pressed. Once the piece is off there is a volume control beside the
+// button that tapes the sheet back. Browsers only let a page start sound in
+// answer to a press, a tap or a key, so if the music is refused it starts on
+// the next one, and the control offers to turn it on.
+//
 // How the tear works. The component owns a 16:9 box pinned to the corner of
 // the sheet, and everything is computed in that box's pixel coordinates.
 //
@@ -45,6 +52,9 @@ import styles from './torn-corner.module.css'
 //     times (hovering, settling back, taping it back) the fronts follow the
 //     fold in both directions, so laying the paper down closes the tear.
 const CLIP = '/tear-video.mp4'
+const SONG = '/tear-audio.mp3'
+// Where the chosen volume is kept between visits.
+const VOLUME_KEY = 'tear-volume'
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
@@ -223,6 +233,23 @@ export default function TornCorner() {
   const [arrived, setArrived] = useState(false)
   const [showing, setShowing] = useState(false)
   const film = useRef<HTMLVideoElement>(null)
+  // The music: the player, whether it is meant to be playing, whether the
+  // browser refused to start it, and how loud it is.
+  const music = useRef<HTMLAudioElement | null>(null)
+  const wanted = useRef(false)
+  const [refused, setRefused] = useState(false)
+  // Phones made by Apple do not let a page set the volume, only mute it.
+  const [adjustable, setAdjustable] = useState(true)
+  const [muted, setMuted] = useState(false)
+  const [volume, setVolume] = useState(() => {
+    try {
+      const kept = Number(window.localStorage.getItem(VOLUME_KEY) ?? 'none')
+      if (kept >= 0 && kept <= 1) return kept
+    } catch {
+      // No storage (or no window, on the server): use the default.
+    }
+    return 0.5
+  })
   const current = useRef<State>('idle')
   const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
   const line = useRef<Tear | null>(null)
@@ -242,6 +269,51 @@ export default function TornCorner() {
     setShowing(true)
   }, [])
   const hide = useCallback(() => setShowing(false), [])
+
+  // Make the music player, in answer to a press or a key. Playing it muted
+  // for a moment here is what lets it be started later, when the piece comes
+  // away, in browsers that tie sound to the gesture that asked for it.
+  const prime = useCallback(() => {
+    if (music.current) return
+    const song = new Audio(SONG)
+    song.loop = true
+    song.preload = 'auto'
+    song.volume = 0.5
+    setAdjustable(song.volume === 0.5)
+    song.muted = true
+    music.current = song
+    song
+      .play()
+      .then(() => {
+        if (wanted.current) return
+        song.pause()
+        song.currentTime = 0
+      })
+      .catch(() => {})
+  }, [])
+
+  // Start the music from the top, pick it up where it was, or stop it.
+  const playMusic = useCallback(
+    (fromTheTop: boolean) => {
+      prime()
+      const song = music.current
+      if (!song) return
+      wanted.current = true
+      if (fromTheTop) song.currentTime = 0
+      song.muted = muted
+      song.volume = volume
+      song.play().then(
+        () => setRefused(false),
+        () => setRefused(true),
+      )
+    },
+    [muted, prime, volume],
+  )
+  const stopMusic = useCallback(() => {
+    wanted.current = false
+    music.current?.pause()
+    setRefused(false)
+  }, [])
 
   // The sound of paper giving way: a short burst of filtered noise. `force`
   // runs from a faint tick to the final rip.
@@ -545,11 +617,12 @@ export default function TornCorner() {
     move('ripping')
     draw()
     film.current?.play().catch(() => {})
+    playMusic(true)
     crackle(1)
     navigator.vibrate?.(28)
     window.clearTimeout(timer.current)
     timer.current = window.setTimeout(() => move('open'), 420)
-  }, [crackle, draw, move])
+  }, [crackle, draw, move, playMusic])
 
   // Ease the shape toward new values, then run `done`.
   const animate = useCallback(
@@ -589,18 +662,19 @@ export default function TornCorner() {
     animate({ boost: 1 }, 200 + 620 * left, rip)
   }, [animate, move, rip, show])
 
-  // Closing runs the tear back to the corner, over the picture. The folded
-  // corner then comes back with a tear line of its own.
+  // Closing stops the music and runs the tear back to the corner, over the
+  // picture. The folded corner then comes back with a tear line of its own.
   const close = useCallback(() => {
     window.clearTimeout(timer.current)
     move('closing')
+    stopMusic()
     animate({ tip: REST, boost: 0, lean: REST_LEAN }, 460, () => {
       shape.current = { ...shape.current, seed: Math.random() * 1000 }
       move('idle')
       hide()
       draw()
     })
-  }, [animate, draw, hide, move])
+  }, [animate, draw, hide, move, stopMusic])
 
   // Dragging the corner.
   const drag = useRef<{
@@ -616,6 +690,7 @@ export default function TornCorner() {
   const onPointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
     if (current.current !== 'idle') return
     setFetched(true)
+    prime()
     event.currentTarget.setPointerCapture(event.pointerId)
     cancelAnimationFrame(tween.current)
     // Browsers only let a page make sound once it has been touched.
@@ -694,6 +769,7 @@ export default function TornCorner() {
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
+      prime()
       shape.current = { ...shape.current, lean: 0.3 + Math.random() * 0.4 }
       comeAway()
     }
@@ -710,6 +786,7 @@ export default function TornCorner() {
       cancelAnimationFrame(tween.current)
       window.clearTimeout(timer.current)
       void audio.current?.close()
+      music.current?.pause()
     }
   }, [draw])
 
@@ -721,6 +798,30 @@ export default function TornCorner() {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [state, close])
+
+  // If the browser would not start the music, the next press, tap or key
+  // anywhere on the page is allowed to.
+  useEffect(() => {
+    if (!refused) return
+    const retry = () => playMusic(false)
+    const events = ['pointerup', 'click', 'keydown'] as const
+    events.forEach((name) => window.addEventListener(name, retry))
+    return () => events.forEach((name) => window.removeEventListener(name, retry))
+  }, [refused, playMusic])
+
+  const changeVolume = (next: number) => {
+    setVolume(next)
+    if (music.current) music.current.volume = next
+    try {
+      window.localStorage.setItem(VOLUME_KEY, String(next))
+    } catch {
+      // Not kept for next time, which is fine.
+    }
+  }
+  const toggleMuted = () => {
+    setMuted(!muted)
+    if (music.current) music.current.muted = !muted
+  }
 
   // Put behind the hole, the clip waits on its first frame. It starts to
   // play when the piece comes away (see `rip`) and stops when it is taken
@@ -869,9 +970,32 @@ export default function TornCorner() {
       )}
 
       {state === 'open' && (
-        <button type="button" className={styles.close} onClick={close}>
-          Tape it back
-        </button>
+        <div className={styles.controls}>
+          <button type="button" className={styles.button} onClick={close}>
+            Tape it back
+          </button>
+          {refused ? (
+            <button type="button" className={styles.button} onClick={() => playMusic(false)}>
+              Turn sound on
+            </button>
+          ) : adjustable ? (
+            <label className={styles.volume}>
+              Volume
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={volume}
+                onChange={(event) => changeVolume(Number(event.target.value))}
+              />
+            </label>
+          ) : (
+            <button type="button" className={styles.button} aria-pressed={muted} onClick={toggleMuted}>
+              {muted ? 'Sound is off' : 'Sound is on'}
+            </button>
+          )}
+        </div>
       )}
     </div>
   )
