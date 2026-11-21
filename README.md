@@ -88,6 +88,13 @@ Embellishments, all defined at the end of `globals.css`:
   screens and for reduced motion.
 - The dates beside the work titles are set on their side, and the footer
   sentence is outlined with its two links inked in.
+- The sheet reads as an old print: a grain layer over everything (`.grain`,
+  masked by `public/grain.png`), uneven exposure in the background
+  (`.sheet`), worn ink on the stamps and flecks in the solid poster lines (two
+  SVG filters in `src/app/layout.tsx`).
+- The About portrait is a halftone, `public/headshot-halftone.png`. After
+  replacing `public/headshot.jpg`, rebuild it with
+  `python3 scripts/build-print-assets.py` (needs Pillow and NumPy).
 
 ## Deployment
 

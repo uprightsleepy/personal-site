@@ -144,6 +144,28 @@ export default function RootLayout({
               </main>
               <Footer />
               <SheetFrame />
+              {/* Print grain over the whole sheet (see .grain in globals.css) */}
+              <div className="grain" aria-hidden="true" />
+              {/*
+                Worn ink (see .stamp and .poster-line). In the first filter,
+                one pair of steps wobbles the edges and the next knocks out
+                specks where the stamp did not take.
+              */}
+              <svg className="sr-only" aria-hidden="true" focusable="false">
+                <filter id="worn-ink" x="-10%" y="-20%" width="120%" height="140%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="warp" />
+                  <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" result="warped" />
+                  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="11" result="speck" />
+                  <feColorMatrix in="speck" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  5 0 0 0 -1.4" result="holes" />
+                  <feComposite in="warped" in2="holes" operator="in" />
+                </filter>
+                {/* A lighter version for the poster: no wobble, fewer specks */}
+                <filter id="pressed-ink" x="0" y="0" width="100%" height="100%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.32" numOctaves="3" seed="23" result="speck" />
+                  <feColorMatrix in="speck" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  16 0 0 0 -3.1" result="holes" />
+                  <feComposite in="SourceGraphic" in2="holes" operator="in" />
+                </filter>
+              </svg>
             </div>
           </ThemeProvider>
         </PlausibleProvider>
