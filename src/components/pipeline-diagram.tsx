@@ -2,11 +2,12 @@
 // (src/app/case-studies/cicd-platform/page.tsx), in the sheet's one ink.
 //
 // There are two kinds of object. Outlined boxes are pipeline steps, in two
-// lanes that share the same columns. Solid boxes are the cloud resources the
-// steps call, drawn on their own in the band between the lanes: the Cloud
-// KMS key, the Cloud Storage bucket, the plan and apply service accounts,
-// and Workload Identity Federation at the way in. A dotted line joins a step
-// to each resource it calls. A diamond is the merge request's approval:
+// lanes that share the same columns. Solid boxes are the resources the
+// steps call, drawn on their own outside the lanes: the Cloud KMS key, the
+// Cloud Storage bucket and the plan and apply service accounts in the band
+// between the lanes, Workload Identity Federation at the way in, and the
+// self-hosted SonarQube server above the application lane. A dotted line
+// joins a step to each resource it calls. A diamond is the merge request's approval:
 // "yes" carries on to the right, and "no" loops back to the first step.
 //
 // Every object leads with a symbol. They are plain line drawings made for
@@ -34,6 +35,7 @@ type Symbol =
   | 'bucket'
   | 'layers'
   | 'badge'
+  | 'server'
 
 // Line drawings on a 24 by 24 grid.
 const symbols: Record<Symbol, string> = {
@@ -67,6 +69,8 @@ const symbols: Record<Symbol, string> = {
   layers: 'M12 3L21 8L12 13L3 8ZM3 12.500L12 17.500L21 12.500M3 16.500L12 21.500L21 16.500',
   // An identity badge
   badge: 'M4 5.500H20V19.500H4ZM9 9.500A2 2 0 1 0 9 13.500A2 2 0 1 0 9 9.500M6.200 17C6.800 14.800 11.200 14.800 11.800 17M14 10.500H17.500M14 13.500H17.500',
+  // Two units of a server rack
+  server: 'M4 4H20V10.500H4ZM4 13.500H20V20H4ZM7.500 7.250H8.500M7.500 16.750H8.500M12 7.250H16.500M12 16.750H16.500',
 }
 
 type Step = { x: number; symbol: Symbol; lines: string[] }
@@ -74,7 +78,7 @@ type Lane = { top: number; title: string; titleAt: 'top' | 'bottom'; steps: Step
 type Resource = { x: number; y: number; w: number; h: number; symbol: Symbol; lines: string[] }
 
 const WIDTH = 1200
-const HEIGHT = 628
+const HEIGHT = 680
 const STEP_W = 108
 const STEP_H = 92
 const GATE = 672 // the approval diamond's centre, the same in both lanes
@@ -84,7 +88,7 @@ const RIGHT = 1178
 
 const lanes: Lane[] = [
   {
-    top: 24,
+    top: 76,
     title: 'Application pipeline: React, Java, Python, Go',
     titleAt: 'top',
     steps: [
@@ -97,7 +101,7 @@ const lanes: Lane[] = [
     ],
   },
   {
-    top: 368,
+    top: 420,
     title: 'Terraform pipeline',
     titleAt: 'bottom',
     steps: [
@@ -111,32 +115,38 @@ const lanes: Lane[] = [
   },
 ]
 
-// The cloud resources, in the band between the lanes. The key is on the
-// upper row and the others on the lower, so the key's line to "Sign plan"
-// can pass over the bucket.
+// The resources. Most are in the band between the lanes: the key is on the
+// upper row there and the others on the lower, so the key's line to "Sign
+// plan" can pass over the bucket. The SonarQube server is above the upper
+// lane, because a line down from the scan step would cross that lane's "no"
+// loop.
 const resources: Resource[] = [
-  { x: 1, y: 264, w: 149, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
-  { x: 831, y: 250, w: 150, h: 40, symbol: 'key', lines: ['Cloud KMS key'] },
-  { x: 609, y: 304, w: 150, h: 40, symbol: 'bucket', lines: ['Storage bucket'] },
-  { x: 189, y: 304, w: 150, h: 40, symbol: 'badge', lines: ['Plan service', 'account'] },
-  { x: 1029, y: 304, w: 150, h: 40, symbol: 'badge', lines: ['Apply service', 'account'] },
+  { x: 453, y: 1, w: 150, h: 40, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
+  { x: 1, y: 316, w: 149, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
+  { x: 831, y: 302, w: 150, h: 40, symbol: 'key', lines: ['Cloud KMS key'] },
+  { x: 609, y: 356, w: 150, h: 40, symbol: 'bucket', lines: ['Storage bucket'] },
+  { x: 189, y: 356, w: 150, h: 40, symbol: 'badge', lines: ['Plan service', 'account'] },
+  { x: 1029, y: 356, w: 150, h: 40, symbol: 'badge', lines: ['Apply service', 'account'] },
 ]
 
 // A dotted line from each step to the resource it calls. Step tops and
-// bottoms: the application steps end at 160, the Terraform steps start at 412.
+// bottoms: the application steps run from 120 to 212, and the Terraform
+// steps start at 464.
 const calls = [
+  // The scan step sends the build to the SonarQube server
+  'M528 41V120',
   // Sign build output, and verify signature, use the key
-  'M840 160V250',
-  'M972 160V250',
+  'M840 212V302',
+  'M972 212V302',
   // The key again: sign plan, and check signature
-  'M831 270H396V412',
-  'M972 290V412',
+  'M831 322H396V464',
+  'M972 342V464',
   // Store plan and read plan use the bucket
-  'M609 324H528V412',
-  'M759 324H840V412',
+  'M609 376H528V464',
+  'M759 376H840V464',
   // Plan and apply each run as their own service account
-  'M264 344V412',
-  'M1104 344V412',
+  'M264 396V464',
+  'M1104 396V464',
 ]
 
 // One symbol, drawn at a size, with its top left corner at a point.
@@ -194,7 +204,7 @@ function LaneDrawing({ lane }: { lane: Lane }) {
       </text>
 
       {/* In from Workload Identity Federation */}
-      <path className="pd-arrow" d={`M170 297V${mid}H${first.x - 2}`} markerEnd="url(#pd-head)" />
+      <path className="pd-arrow" d={`M170 349V${mid}H${first.x - 2}`} markerEnd="url(#pd-head)" />
 
       {before.map((step, index) => {
         const next = before[index + 1]
@@ -252,7 +262,7 @@ export default function PipelineDiagram() {
         <svg
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
-          aria-label="Diagram of the two pipelines and the cloud resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation, a build and a SonarQube scan. If the merge request is approved, the build output is signed and its signature verified, both using the Cloud KMS key, and it is deployed to production. The Terraform pipeline makes a plan as the plan service account, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+          aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation, a build and a scan by the self-hosted SonarQube server. If the merge request is approved, the build output is signed and its signature verified, both using the Cloud KMS key, and it is deployed to production. The Terraform pipeline makes a plan as the plan service account, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
         >
           <defs>
             <marker id="pd-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
@@ -261,11 +271,11 @@ export default function PipelineDiagram() {
           </defs>
 
           {/* Where both pipelines start */}
-          <rect className="pd-step" x={1} y={68} width={149} height={92} />
-          <Glyph symbol="merge" x={61} y={80} />
-          <Label x={75} y={134} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
-          <path className="pd-arrow" d="M75 160V262" markerEnd="url(#pd-head)" />
-          <path className="pd-arrow" d="M150 297H170" />
+          <rect className="pd-step" x={1} y={120} width={149} height={92} />
+          <Glyph symbol="merge" x={61} y={132} />
+          <Label x={75} y={186} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
+          <path className="pd-arrow" d="M75 212V314" markerEnd="url(#pd-head)" />
+          <path className="pd-arrow" d="M150 349H170" />
 
           {lanes.map((lane) => (
             <LaneDrawing key={lane.title} lane={lane} />
@@ -291,22 +301,22 @@ export default function PipelineDiagram() {
           ))}
 
           {/* What the three kinds of mark mean */}
-          <rect className="pd-step" x={204} y={592} width={26} height={16} />
-          <text className="pd-small" x={240} y={600} dominantBaseline="central">
+          <rect className="pd-step" x={204} y={644} width={26} height={16} />
+          <text className="pd-small" x={240} y={652} dominantBaseline="central">
             Pipeline step
           </text>
-          <rect className="pd-solid" x={364} y={592} width={26} height={16} />
-          <text className="pd-small" x={400} y={600} dominantBaseline="central">
-            Cloud resource
+          <rect className="pd-solid" x={364} y={644} width={26} height={16} />
+          <text className="pd-small" x={400} y={652} dominantBaseline="central">
+            Platform resource
           </text>
-          <path className="pd-call" d="M534 600H566" />
-          <text className="pd-small" x={576} y={600} dominantBaseline="central">
+          <path className="pd-call" d="M534 652H566" />
+          <text className="pd-small" x={576} y={652} dominantBaseline="central">
             A step calling a resource
           </text>
         </svg>
       </div>
       <figcaption className="caption">
-        Fig. 1. The two pipelines and the cloud resources they call. Each team&rsquo;s pipelines
+        Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
         run as Cloud Run jobs in that team&rsquo;s own GCP project.
       </figcaption>
     </figure>
