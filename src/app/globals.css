@@ -30,6 +30,12 @@
     color-mix(in srgb, var(--ink) 7%, transparent);
   /* Width of the drawing frame's zone band. Zero until the frame shows. */
   --band: 0rem;
+  /*
+    An old print is never evenly exposed: some patches come out lighter and
+    some deeper. These are the two tints the sheet is mottled with.
+  */
+  --exposure-light: rgb(255 255 255 / 0.05);
+  --exposure-deep: rgb(6 10 110 / 0.3);
   color-scheme: dark;
 }
 
@@ -46,6 +52,8 @@
   --soft: #5a5fe0;
   --rule: #c9cbf5;
   --grid: transparent;
+  --exposure-light: rgb(27 34 210 / 0.035);
+  --exposure-deep: transparent;
   color-scheme: light;
 }
 
@@ -174,13 +182,13 @@
     text-decoration-line: underline;
   }
 
-  /* Photographs print in the same ink: darks go blue, lights stay white. */
+  /* Photographs print in the same ink: lights are ink, darks are the sheet. */
   .one-ink {
     background: var(--blue);
   }
 
+  /* The portrait file is white halftone dots on black; screen drops the black. */
   .one-ink img {
-    filter: grayscale(1) contrast(1.15) brightness(1.05);
     mix-blend-mode: screen;
   }
 
@@ -250,9 +258,29 @@
     overflow-x: clip;
     background-image:
       linear-gradient(var(--grid) 1px, transparent 1px),
-      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
-    background-size: 2.5rem 2.5rem;
-    background-position: -1px -1px;
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+      radial-gradient(70rem 46rem at 12% 22rem, var(--exposure-light), transparent 70%),
+      radial-gradient(60rem 50rem at 96% 70rem, var(--exposure-deep), transparent 70%),
+      radial-gradient(64rem 44rem at 4% 150rem, var(--exposure-deep), transparent 70%),
+      radial-gradient(70rem 50rem at 88% 210rem, var(--exposure-light), transparent 70%),
+      radial-gradient(70rem 50rem at 30% 100%, var(--exposure-deep), transparent 70%);
+    background-size:
+      2.5rem 2.5rem,
+      2.5rem 2.5rem,
+      auto,
+      auto,
+      auto,
+      auto,
+      auto;
+    background-position:
+      -1px -1px,
+      -1px -1px,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
+    background-repeat: repeat, repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;
   }
 
   /*
@@ -382,9 +410,24 @@
   }
 
   .tint-strip span {
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 1rem;
+    height: 1rem;
     background: var(--ink);
+  }
+
+  /* The three tints are screened with halftone dots, as a press would. */
+  .tint-strip span:nth-child(n + 2) {
+    --dot: 1.9px;
+    background: radial-gradient(circle, var(--ink) var(--dot), transparent calc(var(--dot) + 0.5px)) 0 0 /
+      4px 4px;
+  }
+
+  .tint-strip span:nth-child(3) {
+    --dot: 1.45px;
+  }
+
+  .tint-strip span:nth-child(4) {
+    --dot: 0.95px;
   }
 
   /* Figure captions. */
@@ -542,6 +585,8 @@
     text-transform: uppercase;
     white-space: nowrap;
     transform: rotate(-5deg);
+    /* Uneven, slightly blotchy ink, like a real stamp (filter is in layout.tsx). */
+    filter: url(#worn-ink);
   }
 
   /*
@@ -882,5 +927,90 @@ html.theme-wipe::view-transition-new(root) {
 
   .lens-letter {
     transition: font-stretch 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+/*
+  Fifth round: the sheet as an old print. Grain over everything, uneven
+  exposure in the blue (see .sheet), halftone dots, chipped display type,
+  hand-drawn outlines and worn ink on the stamps.
+*/
+@layer components {
+  /*
+    Print grain. A tile of noise masks a layer of ink, so the specks are a
+    tint of the one ink in either theme. It sits over the whole viewport,
+    under the drawing frame, and ignores the pointer.
+  */
+  /*
+    Large solid type prints like wood type, with chips where the ink missed.
+    One tile of chips (public/flecks.png) masks every display size on the
+    site. A mask clips to the element's box, so type that overhangs its line
+    box gets padding to stay whole, taken back with a negative margin.
+  */
+  .poster-line:not(.poster-outline),
+  .title:not(.drawn),
+  .drawn a,
+  .entry,
+  .lens {
+    -webkit-mask-image: url("/flecks.png");
+    mask-image: url("/flecks.png");
+    -webkit-mask-size: 256px 256px;
+    mask-size: 256px 256px;
+  }
+
+  .title:not(.drawn),
+  .entry {
+    padding-block: 0.14em;
+    margin-block: -0.14em;
+  }
+
+  /* Smaller type gets a finer tile, so the chips stay in scale with it. */
+  .entry {
+    -webkit-mask-size: 144px 144px;
+    mask-size: 144px 144px;
+  }
+
+  /* Shift the tile on alternate lines so the chips do not repeat in step. */
+  .poster-line:nth-child(odd),
+  .work-row:nth-child(even) .lens {
+    -webkit-mask-position: 97px 61px;
+    mask-position: 97px 61px;
+  }
+
+  /* Outlined type is drawn by hand, so its lines wander a little. */
+  .poster-outline,
+  .drawn {
+    filter: url(#hand-drawn);
+  }
+
+  /*
+    A band of halftone dots at the foot of every page, growing until they
+    nearly close up at the bottom edge of the sheet. It runs the full width.
+  */
+  .halftone-fade {
+    height: 126px;
+    margin-top: 2.5rem;
+    margin-inline: calc(50% - 50vw);
+    background: var(--ink);
+    opacity: 0.9;
+    -webkit-mask-image: url("/halftone-fade.png");
+    mask-image: url("/halftone-fade.png");
+    -webkit-mask-size: 112px 126px;
+    mask-size: 112px 126px;
+    -webkit-mask-repeat: repeat-x;
+    mask-repeat: repeat-x;
+  }
+
+  .grain {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    pointer-events: none;
+    background: var(--ink);
+    opacity: 0.1;
+    -webkit-mask-image: url("/grain.png");
+    mask-image: url("/grain.png");
+    -webkit-mask-size: 256px 256px;
+    mask-size: 256px 256px;
   }
 }

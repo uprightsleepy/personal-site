@@ -71,11 +71,12 @@ export default function About() {
           {/* The four <i> elements are crop marks (see .crop in globals.css) */}
           <div className="crop w-full max-w-sm md:max-w-none">
             <div className="one-ink aspect-[4/5] overflow-hidden">
+              {/* A halftone of headshot.jpg, built by scripts/build-print-assets.py */}
               <Image
-                src="/headshot.jpg"
-                alt="Portrait of Henry Phillips"
-                width={480}
-                height={600}
+                src="/headshot-halftone.png"
+                alt="Portrait of Henry Phillips, printed as a halftone"
+                width={800}
+                height={1000}
                 className="h-full w-full object-cover"
                 priority
               />
@@ -85,7 +86,9 @@ export default function About() {
             <i aria-hidden="true" />
             <i aria-hidden="true" />
           </div>
-          <p className="caption">Fig. 1. Henry Phillips, printed in one ink. Not to scale.</p>
+          <p className="caption">
+            Fig. 1. Henry Phillips, printed in one ink through a halftone screen. Not to scale.
+          </p>
         </div>
       </section>
 

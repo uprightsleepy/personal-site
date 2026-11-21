@@ -144,6 +144,27 @@ export default function RootLayout({
               </main>
               <Footer />
               <SheetFrame />
+              {/* Print grain over the whole sheet (see .grain in globals.css) */}
+              <div className="grain" aria-hidden="true" />
+              {/*
+                Worn ink for the rubber stamps (see .stamp): one pair of steps
+                wobbles the edges and the next knocks out specks where the
+                stamp did not take.
+              */}
+              <svg className="sr-only" aria-hidden="true" focusable="false">
+                <filter id="worn-ink" x="-10%" y="-20%" width="120%" height="140%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="warp" />
+                  <feDisplacementMap in="SourceGraphic" in2="warp" scale="2.4" result="warped" />
+                  <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="2" seed="11" result="speck" />
+                  <feColorMatrix in="speck" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  5 0 0 0 -1.4" result="holes" />
+                  <feComposite in="warped" in2="holes" operator="in" />
+                </filter>
+                {/* A slight wobble for outlined type, so it reads as drawn by hand */}
+                <filter id="hand-drawn" x="-2%" y="-10%" width="104%" height="120%">
+                  <feTurbulence type="fractalNoise" baseFrequency="0.011" numOctaves="1" seed="7" result="warp" />
+                  <feDisplacementMap in="SourceGraphic" in2="warp" scale="2" />
+                </filter>
+              </svg>
             </div>
           </ThemeProvider>
         </PlausibleProvider>
