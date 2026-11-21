@@ -33,8 +33,14 @@ import {
 // revokes the Vault reader role's access, and the reader role reads from
 // Vault. Words on those two links say so. A small loop under Vault stands
 // for the retries its authentication gets. The AWS side is below: the
-// helper Lambda that validates, the metadata engine, Secrets Manager and
-// the logs, with the queue at the left of the same row.
+// helper Lambda that validates, the metadata engine, Secrets Manager, the
+// dead-letter queue and the logs, with the queue at the left of the same
+// row.
+//
+// The Lambda waits for a successful response from everything it calls. If
+// anything fails, the message goes to the dead-letter queue. That is not a
+// call made by a step but another way out of the lane, so it is a dashed
+// arrow from the lane itself, like a "no" on the CI/CD diagram.
 //
 // It is laid out by hand so that no two lines cross. The admin role is
 // called by the first step from below, and by the last two over the top of
@@ -84,6 +90,7 @@ const resources: Resource[] = [
   { id: 'helper', x: 420, y: 312, w: 150, h: 44, symbol: 'shield', lines: ['Helper Lambda'] },
   { id: 'meta', x: 590, y: 312, w: 150, h: 44, symbol: 'tag', lines: ['Metadata engine'] },
   { id: 'sm', x: 760, y: 312, w: 150, h: 44, symbol: 'key', lines: ['AWS Secrets', 'Manager'] },
+  { id: 'dlq', x: 930, y: 312, w: 150, h: 44, symbol: 'queue', lines: ['Dead-letter', 'queue'] },
   { id: 'logs', x: 1105, y: 312, w: 150, h: 44, symbol: 'plan', lines: ['CloudWatch logs'] },
 ]
 
@@ -148,7 +155,7 @@ export default function SecretsDiagram() {
       width={WIDTH}
       height={HEIGHT}
       name="Migration diagram"
-      label="Diagram of how one secret is migrated. A user provides the secret's Vault path and metadata for it, such as the team name and a secret type chosen from a provided list, through a migration endpoint on a React service that runs on ECS. The endpoint adds a message to an SQS queue, and the message starts the migration Lambda, which works through one secret at a time in six steps. First the Vault admin role grants the Vault reader role access to one Vault path. The Lambda then reads only that secret, as the reader role. It calls a helper Lambda to validate the secret. It copies the secret to AWS Secrets Manager with metadata and tags from the metadata engine. The reader role's access to the path is revoked, and last the admin role revokes its own token. The reader role reads from HashiCorp Vault, and authentication to Vault is retried with exponential backoff. Every step is logged to CloudWatch."
+      label="Diagram of how one secret is migrated. A user provides the secret's Vault path and metadata for it, such as the team name and a secret type chosen from a provided list, through a migration endpoint on a React service that runs on ECS. The endpoint adds a message to an SQS queue, and the message starts the migration Lambda, which works through one secret at a time in six steps. First the Vault admin role grants the Vault reader role access to one Vault path. The Lambda then reads only that secret, as the reader role. It calls a helper Lambda to validate the secret. It copies the secret to AWS Secrets Manager with metadata and tags from the metadata engine. The reader role's access to the path is revoked, and last the admin role revokes its own token. The reader role reads from HashiCorp Vault, and authentication to Vault is retried with exponential backoff. Every step is logged to CloudWatch. The Lambda waits for a successful response from everything it calls, and on any failure the message goes to a dead-letter queue."
       tracing={tracing}
       caption={
         <>
@@ -241,6 +248,13 @@ export default function SecretsDiagram() {
       <Wire dashed d="M715 78V92H755V80" t={AT.retry}>
         <text className="pd-small" x={956} y={124} textAnchor="end" dominantBaseline="central">
           Authentication retried with exponential backoff
+        </text>
+      </Wire>
+
+      {/* A failure anywhere in the Lambda sends the message to the dead-letter queue */}
+      <Wire dashed d={`M1005 ${LAMBDA.top + LAMBDA.h}V310`} t={AT.retry + 60}>
+        <text className="pd-small" x={1016} y={296} dominantBaseline="central">
+          On failure
         </text>
       </Wire>
 
