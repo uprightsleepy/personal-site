@@ -1,0 +1,352 @@
+/*
+  The torn corner (torn-corner.tsx). A box pinned to the bottom right corner
+  of the sheet, sized for a 16:9 video. At rest only a small corner of it
+  shows. The box ignores the pointer except on the corner itself and, once
+  torn open, on the video. The component computes every shape; this file
+  only says how each one is painted.
+*/
+.tear {
+  position: fixed;
+  right: var(--band);
+  bottom: var(--band);
+  z-index: 60;
+  width: min(40rem, calc(100vw - var(--band) * 2 - 1.5rem));
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+}
+
+/* What shows through the tear: the dark of whatever is under the sheet. */
+.hole {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 120% at 100% 100%, #14151f, #07070c);
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
+}
+
+/*
+  The clip, printed like the rest of the sheet: one ink, through a halftone
+  screen. Three layers do the work:
+
+    1. The clip, which is grey already and small, so it is soft when drawn
+       at this size and each dot reads one tone.
+    2. A screen of soft dots at 45 degrees, laid over it at half strength.
+       Each dot is black at its centre and fades to white at its corners.
+    3. A very high contrast on the two together. A point comes out black
+       only where picture and screen together are darker than mid grey, so
+       dark parts of the picture grow big dots and light parts small ones.
+
+  .ink then turns the black into the sheet's blue and leaves white as paper.
+
+  The picture is behind the hole from the moment the sheet starts to tear
+  until it has been taped back. At rest the hole is dark.
+*/
+.print,
+.ink {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}
+
+.tear[data-film='on'] .print,
+.tear[data-film='on'] .ink {
+  opacity: 1;
+}
+
+.print {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  filter: contrast(30);
+}
+
+.print video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+}
+
+.screen {
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle, #000, #fff) 0 0 / 7px 7px;
+  transform: rotate(45deg);
+  opacity: 0.5;
+}
+
+.ink {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  mix-blend-mode: lighten;
+}
+
+@media (max-width: 40rem) {
+  .screen {
+    background-size: 5px 5px;
+  }
+}
+
+.tear[data-state='open'] .hole {
+  pointer-events: auto;
+}
+
+.drawing {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* The shadow the sheet's torn edge casts on what is behind it. */
+.shade {
+  fill: none;
+  stroke: #000008;
+  stroke-opacity: 0.6;
+  stroke-width: 24;
+  stroke-linejoin: round;
+}
+
+/* Lighter over the picture, so it does not dim the picture's edge. */
+.tear[data-film='on'] .shade {
+  stroke-opacity: 0.35;
+  stroke-width: 16;
+}
+
+/* Torn paper shows its white core along the tear. */
+.core {
+  fill: #ffffff;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 30 / 0.4));
+}
+
+.fibres {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.85;
+  stroke-width: 0.8;
+  stroke-linecap: round;
+}
+
+/*
+  The back of the sheet. It is the same stock as the front (--paper), a touch
+  paler where it catches the light and darker in the crease.
+*/
+.curlCrease {
+  stop-color: color-mix(in srgb, var(--paper) 62%, #00001a);
+}
+
+.curlShade {
+  stop-color: color-mix(in srgb, var(--paper) 88%, #00001a);
+}
+
+.curlRidge {
+  stop-color: color-mix(in srgb, var(--paper) 78%, white);
+}
+
+.curlBack {
+  stop-color: color-mix(in srgb, var(--paper) 89%, white);
+}
+
+.curlTip {
+  stop-color: color-mix(in srgb, var(--paper) 95%, #00001a);
+}
+
+/* The print on the front shows through faintly, in reverse. */
+.ghost {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.14;
+  stroke-width: 1;
+}
+
+/* Only wide screens have the frame, so only they have its border to show. */
+.ghostBorder {
+  display: none;
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.34;
+  stroke-width: 3;
+}
+
+@media (min-width: 64rem) {
+  .ghostBorder {
+    display: inline;
+  }
+}
+
+/* A hairline round the flap, so it holds its shape. */
+.flapEdge {
+  fill: none;
+  stroke: var(--ink);
+  stroke-opacity: 0.3;
+  stroke-width: 0.75;
+  stroke-linejoin: round;
+}
+
+/*
+  The shadow of a large flap: two flat copies of its shape, one tight and one
+  wide, in place of a blur.
+*/
+.flapShadow,
+.flapShadowSoft {
+  fill: #00001e;
+  stroke: #00001e;
+  stroke-linejoin: round;
+}
+
+.flapShadow {
+  stroke-width: 3;
+  opacity: 0.16;
+  transform: translate(3px, 5px);
+}
+
+.flapShadowSoft {
+  stroke-width: 12;
+  opacity: 0.1;
+  transform: translate(5px, 9px);
+}
+
+/* The flap's own torn edges show the same white core as the sheet's. */
+.flapTorn {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.85;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Once the piece is torn off it drops away. Taping it back reverses it. */
+.flap {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  transition:
+    transform 0.6s cubic-bezier(0.5, 0, 0.9, 0.4),
+    opacity 0.45s ease-in 0.12s;
+}
+
+.tear[data-state='ripping'] .flap,
+.tear[data-state='open'] .flap,
+.tear[data-state='closing'] .flap {
+  transform: translate(-2.5rem, 8rem) rotate(-42deg) scale(0.92);
+  opacity: 0;
+}
+
+.grab {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 5rem;
+  height: 5.5rem;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  background: transparent;
+}
+
+.tear[data-state='dragging'] .grab {
+  cursor: grabbing;
+  /* Keep catching the pointer wherever the corner has been dragged to. */
+  width: 100vw;
+  height: 100vh;
+}
+
+.grab:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+
+/*
+  The controls, once the piece is off: tape the sheet back, and the volume.
+  They sit on the piece of sheet still covering the picture's top left corner.
+*/
+.controls {
+  position: absolute;
+  left: 0.6rem;
+  top: 0.6rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  pointer-events: auto;
+}
+
+.button,
+.volume {
+  padding: 0.35rem 0.7rem 0.3rem;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.button {
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.volume {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+/*
+  The slider is drawn as a scale bar: a ruled line with a tick at every
+  tenth, and a solid block for the handle.
+*/
+.volume input {
+  appearance: none;
+  width: 6.5rem;
+  height: 1rem;
+  margin: 0;
+  cursor: pointer;
+  background:
+    linear-gradient(var(--ink), var(--ink)) center / 100% 1.5px no-repeat,
+    repeating-linear-gradient(to right, var(--ink) 0 1.5px, transparent 1.5px calc((100% - 1.5px) / 10))
+      center / 100% 0.5rem no-repeat;
+}
+
+.volume input::-webkit-slider-thumb {
+  appearance: none;
+  width: 0.45rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.volume input::-moz-range-thumb {
+  width: 0.45rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: 0 0 0 2px var(--paper);
+}
+
+.volume input::-moz-range-track {
+  background: transparent;
+}
+
+.volume input:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flap,
+  .print,
+  .ink {
+    transition: none;
+  }
+}

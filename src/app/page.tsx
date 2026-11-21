@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { Leader, SheetRef } from '@/components/drafting'
 import LensTitle from '@/components/lens-title'
 import Poster, { type PosterLine } from '@/components/poster'
+import TornCorner from '@/components/torn-corner'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
@@ -167,6 +168,9 @@ export default function Home() {
           ))}
         </ul>
       </section>
+
+      {/* A torn corner of the sheet, with something behind it */}
+      <TornCorner />
     </div>
   )
 }
