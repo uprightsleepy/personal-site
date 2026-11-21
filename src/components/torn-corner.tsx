@@ -14,16 +14,24 @@ import styles from './torn-corner.module.css'
 // like a GIF: no sound, no controls, it loops, and it cannot be clicked. The
 // halftone is done in the stylesheet, on top of the playing clip.
 //
-// The clip is fetched when the pointer first reaches the corner, so it is
-// already there when the sheet starts to tear. Its first frame shows through
-// the hole as it opens, and it starts to play when the piece comes away.
+// The picture is always behind the sheet, so the folded corner gives a peek
+// of it. Until the clip is needed that is a still of its first frame
+// (public/tear-poster.jpg). The clip itself is fetched when the pointer
+// first reaches the corner, so it is already there when the sheet starts to
+// tear. Its first frame shows through the hole as it opens, and it starts to
+// play when the piece comes away.
 //
 // Music starts with it: an 8-bit cover of the song (public/tear-audio.mp3,
 // made by scripts/build-tear-audio.sh). It is fetched when the corner is
 // first pressed. Once the piece is off there is a volume control beside the
-// button that tapes the sheet back. Browsers only let a page start sound in
-// answer to a press, a tap or a key, so if the music is refused it starts on
-// the next one, and the control offers to turn it on.
+// button that tapes the sheet back.
+//
+// The music is played through the same Web Audio context as the tearing
+// sound, with a gain on it, and the slider moves that gain. Setting the
+// player's own volume is not enough: iPhones ignore it. Browsers only let a
+// page start sound in answer to a press, a tap or a key, so if the music is
+// refused, or the context has not been let run yet, it starts on the next
+// one, and the control offers to turn it on.
 //
 // How the tear works. The component owns a 16:9 box pinned to the corner of
 // the sheet, and everything is computed in that box's pixel coordinates.
@@ -52,12 +60,15 @@ import styles from './torn-corner.module.css'
 //     times (hovering, settling back, taping it back) the fronts follow the
 //     fold in both directions, so laying the paper down closes the tear.
 const CLIP = '/tear-video.mp4'
+const POSTER = '/tear-poster.jpg'
 const SONG = '/tear-audio.mp3'
 // Where the volume slider's position is kept between visits.
-const VOLUME_KEY = 'tear-level'
-// The slider starts low. Its position is squared to get the loudness, so
-// the quiet end, where the music is most comfortable, has the most travel.
+const VOLUME_KEY = 'tear-level-2'
+// The slider starts low, and lower still on a phone, whose speaker is close
+// and harsh. Its position is squared to get the loudness, so the quiet end,
+// where the music is most comfortable, has the most travel.
 const QUIET = 0.28
+const QUIET_ON_A_PHONE = 0.2
 const loudness = (position: number) => position * position
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
@@ -89,10 +100,10 @@ type Tear = {
 
 // Where the corner sits at rest, with the pointer over it, and when it is
 // given a tug. Slightly lopsided, so it does not look ruled.
-const REST: Point = [-33, -44]
-const PEEK: Point = [-42, -56]
-const TUG: Point = [-66, -88]
-const REST_LEAN = 33 / 77
+const REST: Point = [-39, -52]
+const PEEK: Point = [-51, -68]
+const TUG: Point = [-72, -96]
+const REST_LEAN = 39 / 91
 // The tear line's control points: along the bottom edge, round the outline,
 // and down the right edge, plus the two nicks.
 const ALONG_BOTTOM = 6
@@ -226,34 +237,53 @@ function sample(controls: Point[], per: number, w: number, h: number): Point[] {
   return curve
 }
 
+// The music player, wired through a gain where the browser allows it.
+function makePlayer(context: AudioContext | null, amount: number) {
+  const song = new Audio(SONG)
+  song.loop = true
+  song.preload = 'auto'
+  let gain: GainNode | null = null
+  if (context) {
+    try {
+      gain = context.createGain()
+      gain.gain.value = amount
+      context.createMediaElementSource(song).connect(gain).connect(context.destination)
+    } catch {
+      // No gain: the slider falls back to the player's own volume.
+      gain = null
+    }
+  }
+  return { song, gain }
+}
+
 export default function TornCorner() {
   const box = useRef<HTMLDivElement>(null)
   const hole = useRef<HTMLDivElement>(null)
   const svg = useRef<SVGSVGElement>(null)
   const [state, setState] = useState<State>('idle')
-  // The clip: whether it has been asked for, whether it has arrived, and
+  // The clip: whether it has been asked for, and
   // whether it is behind the hole at the moment.
   const [fetched, setFetched] = useState(false)
-  const [arrived, setArrived] = useState(false)
   const [showing, setShowing] = useState(false)
   const film = useRef<HTMLVideoElement>(null)
-  // The music: the player, whether it is meant to be playing, whether the
-  // browser refused to start it, and how loud it is.
+  // The music: the player, the gain it plays through, whether it is meant
+  // to be playing, whether the browser has kept it silent, and where the
+  // volume slider is.
   const music = useRef<HTMLAudioElement | null>(null)
+  const level = useRef<GainNode | null>(null)
   const wanted = useRef(false)
   const [refused, setRefused] = useState(false)
-  // Phones made by Apple do not let a page set the volume, only mute it.
-  const [adjustable, setAdjustable] = useState(true)
-  const [muted, setMuted] = useState(false)
   const [volume, setVolume] = useState(() => {
     try {
       const kept = Number(window.localStorage.getItem(VOLUME_KEY) ?? 'none')
       if (kept >= 0 && kept <= 1) return kept
+      if (window.matchMedia('(pointer: coarse)').matches) return QUIET_ON_A_PHONE
     } catch {
       // No storage (or no window, on the server): use the default.
     }
     return QUIET
   })
+  const position = useRef(volume)
   const current = useRef<State>('idle')
   const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
   const line = useRef<Tear | null>(null)
@@ -274,18 +304,37 @@ export default function TornCorner() {
   }, [])
   const hide = useCallback(() => setShowing(false), [])
 
-  // Make the music player, in answer to a press or a key. Playing it muted
-  // for a moment here is what lets it be started later, when the piece comes
-  // away, in browsers that tie sound to the gesture that asked for it.
+  // Sound needs a Web Audio context, and a context only runs once it has been
+  // asked to from inside a press, a tap or a key. This is called from all of
+  // those.
+  const wake = useCallback(() => {
+    try {
+      audio.current ??= new AudioContext()
+      void audio.current.resume()
+    } catch {
+      audio.current = null
+    }
+  }, [])
+
+  const setLoudness = useCallback((amount: number) => {
+    if (level.current) level.current.gain.value = amount
+    else if (music.current) music.current.volume = amount
+  }, [])
+
+  // Make the music player, in answer to a press or a key, and wire it through
+  // a gain. Playing it muted for a moment here is what lets it be started
+  // later, when the piece comes away, in browsers that tie sound to the
+  // gesture that asked for it.
   const prime = useCallback(() => {
-    if (music.current) return
-    const song = new Audio(SONG)
-    song.loop = true
-    song.preload = 'auto'
-    song.volume = 0.5
-    setAdjustable(song.volume === 0.5)
+    wake()
+    if (!music.current) {
+      const made = makePlayer(audio.current, loudness(position.current))
+      music.current = made.song
+      level.current = made.gain
+    }
+    const song = music.current
+    if (wanted.current || !song.paused) return
     song.muted = true
-    music.current = song
     song
       .play()
       .then(() => {
@@ -294,25 +343,28 @@ export default function TornCorner() {
         song.currentTime = 0
       })
       .catch(() => {})
-  }, [])
+  }, [wake])
 
-  // Start the music from the top, pick it up where it was, or stop it.
-  const playMusic = useCallback(
-    (fromTheTop: boolean) => {
-      prime()
-      const song = music.current
-      if (!song) return
-      wanted.current = true
-      if (fromTheTop) song.currentTime = 0
-      song.muted = muted
-      song.volume = loudness(volume)
-      song.play().then(
-        () => setRefused(false),
-        () => setRefused(true),
-      )
-    },
-    [muted, prime, volume],
-  )
+  // Start the music from the top, or stop it.
+  const playMusic = useCallback(() => {
+    prime()
+    const song = music.current
+    if (!song) return
+    wanted.current = true
+    song.currentTime = 0
+    song.muted = false
+    setLoudness(loudness(position.current))
+    song.play().then(
+      () => {
+        // The player is going, but through a gain it is only heard if the
+        // context is running too. Give it a moment to start, then look.
+        window.setTimeout(() => {
+          if (wanted.current) setRefused(Boolean(level.current) && audio.current?.state !== 'running')
+        }, 250)
+      },
+      () => setRefused(true),
+    )
+  }, [prime, setLoudness])
   const stopMusic = useCallback(() => {
     wanted.current = false
     music.current?.pause()
@@ -621,7 +673,7 @@ export default function TornCorner() {
     move('ripping')
     draw()
     film.current?.play().catch(() => {})
-    playMusic(true)
+    playMusic()
     crackle(1)
     navigator.vibrate?.(28)
     window.clearTimeout(timer.current)
@@ -697,13 +749,6 @@ export default function TornCorner() {
     prime()
     event.currentTarget.setPointerCapture(event.pointerId)
     cancelAnimationFrame(tween.current)
-    // Browsers only let a page make sound once it has been touched.
-    try {
-      audio.current ??= new AudioContext()
-      void audio.current.resume()
-    } catch {
-      audio.current = null
-    }
     drag.current = {
       x: event.clientX,
       y: event.clientY,
@@ -748,6 +793,8 @@ export default function TornCorner() {
   }
 
   const onPointerUp = () => {
+    // Lifting a finger counts as a tap where pressing down does not.
+    prime()
     const origin = drag.current
     drag.current = null
     if (current.current !== 'dragging') return
@@ -807,7 +854,7 @@ export default function TornCorner() {
   // anywhere on the page is allowed to.
   useEffect(() => {
     if (!refused) return
-    const retry = () => playMusic(false)
+    const retry = () => playMusic()
     const events = ['pointerup', 'click', 'keydown'] as const
     events.forEach((name) => window.addEventListener(name, retry))
     return () => events.forEach((name) => window.removeEventListener(name, retry))
@@ -815,54 +862,51 @@ export default function TornCorner() {
 
   const changeVolume = (next: number) => {
     setVolume(next)
-    if (music.current) music.current.volume = loudness(next)
+    position.current = next
+    wake()
+    setLoudness(loudness(next))
     try {
       window.localStorage.setItem(VOLUME_KEY, String(next))
     } catch {
       // Not kept for next time, which is fine.
     }
   }
-  const toggleMuted = () => {
-    setMuted(!muted)
-    if (music.current) music.current.muted = !muted
-  }
-
-  // Put behind the hole, the clip waits on its first frame. It starts to
-  // play when the piece comes away (see `rip`) and stops when it is taken
-  // away again.
+  // The clip waits on its first frame. It starts to play when the piece
+  // comes away (see `rip`), and goes back to its first frame when the sheet
+  // has been taped back or the corner let go.
   useEffect(() => {
     const clip = film.current
     if (!clip) return
-    if (showing) clip.currentTime = 0
-    else clip.pause()
+    if (!showing) clip.pause()
+    clip.currentTime = 0
   }, [showing, fetched])
 
 
   return (
-    <div ref={box} className={styles.tear} data-state={state} data-film={showing && arrived ? 'on' : 'off'}>
+    <div ref={box} className={styles.tear} data-state={state}>
       {/* What is behind the sheet */}
       <div ref={hole} className={styles.hole}>
-        {fetched && (
-          <>
-            {/* The picture and the dot screen, which the stylesheet turns into a halftone */}
-            <div className={styles.print}>
-              <video
-                ref={film}
-                src={CLIP}
-                muted
-                loop
-                playsInline
-                preload="auto"
-                disablePictureInPicture
-                tabIndex={-1}
-                aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
-                onLoadedData={() => setArrived(true)}
-              />
-              <div className={styles.screen} />
-            </div>
-            <div className={styles.ink} />
-          </>
-        )}
+        {/*
+          The picture and the dot screen, which the stylesheet turns into a
+          halftone. The still is the picture until the clip is over it.
+        */}
+        <div className={styles.print} style={{ backgroundImage: `url(${POSTER})` }}>
+          {fetched && (
+            <video
+              ref={film}
+              src={CLIP}
+              muted
+              loop
+              playsInline
+              preload="auto"
+              disablePictureInPicture
+              tabIndex={-1}
+              aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
+            />
+          )}
+          <div className={styles.screen} />
+        </div>
+        <div className={styles.ink} />
       </div>
 
       <svg ref={svg} className={styles.drawing} aria-hidden="true" focusable="false">
@@ -979,10 +1023,10 @@ export default function TornCorner() {
             Tape it back
           </button>
           {refused ? (
-            <button type="button" className={styles.button} onClick={() => playMusic(false)}>
+            <button type="button" className={styles.button} onClick={playMusic}>
               Turn sound on
             </button>
-          ) : adjustable ? (
+          ) : (
             <label className={styles.volume}>
               Volume
               <input
@@ -994,10 +1038,6 @@ export default function TornCorner() {
                 onChange={(event) => changeVolume(Number(event.target.value))}
               />
             </label>
-          ) : (
-            <button type="button" className={styles.button} aria-pressed={muted} onClick={toggleMuted}>
-              {muted ? 'Sound is off' : 'Sound is on'}
-            </button>
           )}
         </div>
       )}

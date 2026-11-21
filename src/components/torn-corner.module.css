@@ -15,7 +15,7 @@
   pointer-events: none;
 }
 
-/* What shows through the tear: the dark of whatever is under the sheet. */
+/* What shows through the tear. The dark is only there until the picture loads. */
 .hole {
   position: absolute;
   inset: 0;
@@ -30,32 +30,23 @@
     1. The clip, which is grey already and small, so it is soft when drawn
        at this size and each dot reads one tone.
     2. A screen of soft dots at 45 degrees, laid over it at half strength.
-       Each dot is black at its centre and fades to white at its corners.
+       Each dot is black at its centre and fades to white before it reaches
+       its corners, so even solid black prints with pinholes of paper in it
+       and never as a flat patch.
     3. A very high contrast on the two together. A point comes out black
        only where picture and screen together are darker than mid grey, so
        dark parts of the picture grow big dots and light parts small ones.
 
   .ink then turns the black into the sheet's blue and leaves white as paper.
 
-  The picture is behind the hole from the moment the sheet starts to tear
-  until it has been taped back. At rest the hole is dark.
+  The picture is always there, so the folded corner gives a peek of it. It
+  is a still of the clip's first frame until the clip is drawn over it.
 */
-.print,
-.ink {
-  opacity: 0;
-  transition: opacity 0.2s ease-out;
-}
-
-.tear[data-film='on'] .print,
-.tear[data-film='on'] .ink {
-  opacity: 1;
-}
-
 .print {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: #000;
+  background: #000 center / cover no-repeat;
   filter: contrast(30);
 }
 
@@ -71,7 +62,7 @@
 .screen {
   position: absolute;
   inset: -50%;
-  background: radial-gradient(circle, #000, #fff) 0 0 / 7px 7px;
+  background: radial-gradient(circle, #000, #fff 74%) 0 0 / 7px 7px;
   transform: rotate(45deg);
   opacity: 0.5;
 }
@@ -101,19 +92,16 @@
   overflow: visible;
 }
 
-/* The shadow the sheet's torn edge casts on what is behind it. */
+/*
+  The shadow the sheet's torn edge casts on the picture behind it. Light, so
+  it does not dim the picture's edge.
+*/
 .shade {
   fill: none;
   stroke: #000008;
-  stroke-opacity: 0.6;
-  stroke-width: 24;
-  stroke-linejoin: round;
-}
-
-/* Lighter over the picture, so it does not dim the picture's edge. */
-.tear[data-film='on'] .shade {
   stroke-opacity: 0.35;
   stroke-width: 16;
+  stroke-linejoin: round;
 }
 
 /* Torn paper shows its white core along the tear. */
@@ -338,15 +326,31 @@
   background: transparent;
 }
 
+/* On a touch screen the slider is longer and its handle is big enough to hold. */
+@media (pointer: coarse) {
+  .volume input {
+    width: 8.5rem;
+    height: 1.75rem;
+  }
+
+  .volume input::-webkit-slider-thumb {
+    width: 0.9rem;
+    height: 1.6rem;
+  }
+
+  .volume input::-moz-range-thumb {
+    width: 0.9rem;
+    height: 1.6rem;
+  }
+}
+
 .volume input:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flap,
-  .print,
-  .ink {
+  .flap {
     transition: none;
   }
 }

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Builds public/tear-video.mp4, the clip that plays behind the torn corner of
-# the home page (src/components/torn-corner.tsx).
+# the home page (src/components/torn-corner.tsx), and public/tear-poster.jpg,
+# its first frame.
 #
 #   scripts/build-tear-video.sh path/to/source.mp4 [start seconds] [length seconds]
 #
@@ -26,4 +27,9 @@ ffmpeg -v error -y -ss "$start" -t "$length" -i "$source" -an \
   -c:v libx264 -preset veryslow -crf 30 -profile:v main -g 50 \
   -movflags +faststart "$out"
 
-ls -l "$out"
+# The clip's first frame, as a still. The page shows it behind the folded
+# corner before the clip has been fetched.
+poster="$(dirname "$0")/../public/tear-poster.jpg"
+ffmpeg -v error -y -i "$out" -frames:v 1 -q:v 5 "$poster"
+
+ls -l "$out" "$poster"
