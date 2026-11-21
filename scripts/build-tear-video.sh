@@ -9,10 +9,10 @@
 # It is not kept in the repository. The defaults take its opening, from the
 # first frame to the cut where the first verse starts.
 #
-# The page prints the clip through a halftone screen whose dots are about
-# 7px apart, so very little of the picture survives. The clip is made to
-# match: no sound, grey, 320x180, 12.5 frames a second. That keeps it small
-# enough to be ready the moment the corner is pulled.
+# The page redraws the clip as pixel art 80 pixels wide, so very little of
+# the picture survives. The clip is made to match: no sound, grey, 320x180,
+# 12.5 frames a second. That keeps it small enough to be ready the moment
+# the corner is pulled.
 set -euo pipefail
 
 source="${1:?usage: build-tear-video.sh source.mp4 [start] [length]}"
@@ -21,7 +21,7 @@ length="${3:-18.16}"
 out="$(dirname "$0")/../public/tear-video.mp4"
 
 # crop: a 16:9 window on the 4:3 picture, a little above centre to keep heads in.
-# eq:   more contrast, because a halftone flattens the pale tones of the film.
+# eq:   more contrast, because four shades flatten the pale tones of the film.
 ffmpeg -v error -y -ss "$start" -t "$length" -i "$source" -an \
   -vf "crop=960:540:160:70,fps=12.5,scale=320:-2:flags=area,format=gray,eq=contrast=1.2,format=yuv420p" \
   -c:v libx264 -preset veryslow -crf 30 -profile:v main -g 50 \

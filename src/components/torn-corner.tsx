@@ -7,12 +7,15 @@ import styles from './torn-corner.module.css'
 // torn a little and folded back. Drag the corner up and to the left and the
 // sheet tears after it, a bit at a time, in the direction it is pulled. Tear
 // far enough and the piece comes away, leaving a music video behind the hole,
-// printed through a halftone screen in the sheet's one ink.
+// drawn the way an 8-bit console would: big square pixels in four shades of
+// the sheet's one ink.
 //
 // The video is a short silent clip served from this site
 // (public/tear-video.mp4, made by scripts/build-tear-video.sh). It behaves
 // like a GIF: no sound, no controls, it loops, and it cannot be clicked. The
-// halftone is done in the stylesheet, on top of the playing clip.
+// clip itself is never shown. Each frame is copied onto a canvas 80 pixels
+// wide, every pixel is moved to the nearest of the four shades, and the
+// canvas is stretched over the hole with its pixels left hard-edged.
 //
 // The picture is always behind the sheet, so the folded corner gives a peek
 // of it. Until the clip is needed that is a still of its first frame
@@ -66,6 +69,15 @@ import styles from './torn-corner.module.css'
 //     fold in both directions, so laying the paper down closes the tear.
 const CLIP = '/tear-video.mp4'
 const POSTER = '/tear-poster.jpg'
+// The picture's size in pixels, and its four shades from ink to paper.
+const PIXELS_WIDE = 80
+const PIXELS_HIGH = 45
+const SHADES = [
+  [0x1b, 0x22, 0xd2],
+  [0x67, 0x6c, 0xe1],
+  [0xb3, 0xb5, 0xf0],
+  [0xff, 0xff, 0xff],
+]
 const SONG = '/tear-audio.mp3'
 // Where the volume slider's position is kept between visits.
 const VOLUME_KEY = 'tear-level-2'
@@ -274,6 +286,8 @@ export default function TornCorner() {
   const [fetched, setFetched] = useState(false)
   const [showing, setShowing] = useState(false)
   const film = useRef<HTMLVideoElement>(null)
+  const pixels = useRef<HTMLCanvasElement>(null)
+  const still = useRef<HTMLImageElement | null>(null)
   // The music: the player, the gain it plays through, whether it is meant
   // to be playing, whether the browser has kept it silent, whether this is
   // a touch screen, where the volume slider is, and whether it is muted.
@@ -315,6 +329,32 @@ export default function TornCorner() {
   const move = useCallback((next: State) => {
     current.current = next
     setState(next)
+  }, [])
+
+  // Draw the picture: the clip's current frame once the clip has one, and
+  // the still of its first frame until then.
+  const paint = useCallback(() => {
+    const canvas = pixels.current
+    const context = canvas?.getContext('2d', { willReadFrequently: true })
+    if (!canvas || !context) return
+    const clip = film.current
+    const poster = still.current
+    const source = clip && clip.readyState >= 2 ? clip : poster?.complete && poster.naturalWidth ? poster : null
+    if (!source) return
+    context.drawImage(source, 0, 0, canvas.width, canvas.height)
+    const image = context.getImageData(0, 0, canvas.width, canvas.height)
+    const data = image.data
+    for (let i = 0; i < data.length; i += 4) {
+      // The clip is grey, so one channel is its tone. A little more contrast,
+      // then the nearest shade.
+      const tone = clamp(((data[i] / 255 - 0.5) * 1.15 + 0.5))
+      const shade = SHADES[Math.min(SHADES.length - 1, Math.floor(tone * (SHADES.length - 1) + 0.5))]
+      data[i] = shade[0]
+      data[i + 1] = shade[1]
+      data[i + 2] = shade[2]
+      data[i + 3] = 255
+    }
+    context.putImageData(image, 0, 0)
   }, [])
 
   // Put the clip behind the hole, from its first frame, or take it away.
@@ -926,6 +966,27 @@ export default function TornCorner() {
       // Not kept for next time, which is fine.
     }
   }
+  // The still is fetched with the page, so there is a picture under the
+  // folded corner from the start.
+  useEffect(() => {
+    const image = new Image()
+    image.onload = paint
+    image.src = POSTER
+    still.current = image
+  }, [paint])
+
+  // While the clip is behind the hole, the picture is redrawn every frame.
+  useEffect(() => {
+    if (!showing) return
+    let frame = 0
+    const loop = () => {
+      paint()
+      frame = requestAnimationFrame(loop)
+    }
+    frame = requestAnimationFrame(loop)
+    return () => cancelAnimationFrame(frame)
+  }, [showing, paint])
+
   // The clip waits on its first frame. It starts to play when the piece
   // comes away (see `rip`), and goes back to its first frame when the sheet
   // has been taped back or the corner let go.
@@ -940,28 +1001,36 @@ export default function TornCorner() {
   return (
     <div ref={box} className={styles.tear} data-state={state}>
       {/* What is behind the sheet */}
-      <div ref={hole} className={styles.hole}>
-        {/*
-          The picture and the dot screen, which the stylesheet turns into a
-          halftone. The still is the picture until the clip is over it.
-        */}
-        <div className={styles.print} style={{ backgroundImage: `url(${POSTER})` }}>
-          {fetched && (
-            <video
-              ref={film}
-              src={CLIP}
-              muted
-              loop
-              playsInline
-              preload="auto"
-              disablePictureInPicture
-              tabIndex={-1}
-              aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video. A silent loop."
-            />
-          )}
-          <div className={styles.screen} />
-        </div>
-        <div className={styles.ink} />
+      <div
+        ref={hole}
+        className={styles.hole}
+        style={{ '--wide': PIXELS_WIDE, '--high': PIXELS_HIGH } as React.CSSProperties}
+      >
+        {/* The picture. The clip only feeds it and is never seen itself. */}
+        <canvas
+          ref={pixels}
+          className={styles.pixels}
+          width={PIXELS_WIDE}
+          height={PIXELS_HIGH}
+          role="img"
+          aria-label="Rick Astley singing and dancing in the opening of the Never Gonna Give You Up music video, as pixel art. A silent loop."
+        />
+        {fetched && (
+          <video
+            ref={film}
+            className={styles.film}
+            src={CLIP}
+            muted
+            loop
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            tabIndex={-1}
+            aria-hidden="true"
+            onLoadedData={paint}
+            onSeeked={paint}
+          />
+        )}
       </div>
 
       <svg ref={svg} className={styles.drawing} aria-hidden="true" focusable="false">
