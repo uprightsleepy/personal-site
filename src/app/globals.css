@@ -5,7 +5,7 @@
 /*
   One ink. The site is a blueprint by default: white ink on a single blue.
   "Paper" (the light theme, class .light on <html>) swaps the two, the way a
-  one-color print job would run the same blue on an eggshell stock. Hierarchy comes from
+  one-color print job would run the same blue on an unbleached stock. Hierarchy comes from
   size, weight and width, never from a second color.
 */
 :root {
@@ -48,9 +48,13 @@
 
 .light {
   --ink: var(--blue);
-  /* Eggshell, not white: an uncoated drawing paper, easier on the eye. */
-  --paper: #f2efe4;
-  --soft: #5a5fe0;
+  /*
+    Not white: an unbleached drawing paper, well short of white so a full
+    screen of it is easy on the eye. Secondary text is the ink let down with
+    a little of the paper, dark enough to read on this stock.
+  */
+  --paper: #ddd7c6;
+  --soft: color-mix(in srgb, var(--blue) 82%, var(--paper));
   --rule: color-mix(in srgb, var(--blue) 24%, var(--paper));
   --grid: transparent;
   --exposure-light: rgb(27 34 210 / 0.035);
