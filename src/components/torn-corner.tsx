@@ -25,8 +25,9 @@ import styles from './torn-corner.module.css'
 //   - The edge of the hole is not the straight fold line but a ragged path
 //     that wanders around it, with a band of white fibre where the paper
 //     split, a few loose fibres, and a shadow cast into the hole.
-//   - When the sheet rips, the ends of the tear run along the box's edges to
-//     its far corners and the flap drops away.
+//   - When the sheet rips, the tear spreads from the fold to an uneven
+//     outline (TORN) that leaves the video partly tucked behind the sheet,
+//     and the flap drops away.
 const VIDEO = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0'
 
 type State = 'idle' | 'dragging' | 'ripping' | 'open' | 'closing'
@@ -37,7 +38,28 @@ type Point = [number, number]
 const REST: Point = [-27, -36]
 const PEEK: Point = [-40, -54]
 const RIP_AT = 0.78 // rip once the corner is pulled this share of the box height
-const RIP_MS = 700
+const RIP_MS = 760
+
+// The shape of the finished tear, as fractions of the box, from its end on
+// the bottom edge to its end on the right edge. It is deliberately uneven:
+// the sheet comes away in a ragged piece, and the video stays partly tucked
+// behind what is left, most of all at the top left corner.
+// The bottom left stays clear, because that is where the player's controls
+// are.
+const TORN: Point[] = [
+  [0.012, 1],
+  [0.03, 0.83],
+  [0.1, 0.63],
+  [0.04, 0.44],
+  [0.13, 0.3],
+  [0.22, 0.13],
+  [0.37, 0.16],
+  [0.5, 0.045],
+  [0.66, 0.11],
+  [0.82, 0.03],
+  [0.93, 0.09],
+  [1, 0.06],
+]
 
 const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount
 const mix = (from: Point, to: Point, amount: number): Point => [
@@ -138,61 +160,87 @@ export default function TornCorner() {
     if (ends.length < 2) return
     const positions = ends.map((point) => outlinePosition(point, w, h)).sort((x, y) => x - y)
     // `upper` is on the top or right edge, `lower` on the bottom or left.
-    // As the sheet rips they run to the top right and bottom left corners.
-    const upperAt = lerp(positions[0], w, rip)
-    const lowerAt = lerp(positions[1], 2 * w + h, rip)
+    // As the sheet rips they slide along the outline to where the finished
+    // tear ends.
+    const last = TORN.length - 1
+    const upperAt = lerp(positions[0], w + TORN[last][1] * h, rip)
+    const lowerAt = lerp(positions[1], w + h + (1 - TORN[0][0]) * w, rip)
     const upper = onOutline(upperAt, w, h)
     const lower = onOutline(lowerAt, w, h)
-    const middle = mix(mix(ends[0], ends[1], 0.5), [0, 0], rip)
+    const foldLower = onOutline(positions[1], w, h)
+    const foldUpper = onOutline(positions[0], w, h)
+    // The tear's path: a row of points that start out spaced along the
+    // straight fold and travel to the uneven outline in TORN. The middle of
+    // the tear runs ahead of its ends, so the rip opens from the corner.
+    const controls: Point[] = TORN.map((target, index) => {
+      if (index === 0) return lower
+      if (index === last) return upper
+      const along = index / last
+      const lead = Math.max(0, Math.min(1, rip * 1.35 - 0.35 * Math.abs(along - 0.5) * 2))
+      return mix(mix(foldLower, foldUpper, along), [target[0] * w, target[1] * h], lead)
+    })
 
     // --- The ragged edge -------------------------------------------------
-    // Walk the tear from `lower` through `middle` to `upper`, a few pixels
-    // at a time. `centre` is the edge of the hole. `sheet` and `core` are
+    // Walk a smooth curve through those points a few pixels at a time, and
+    // roughen it. `centre` is the edge of the hole. `sheet` and `core` are
     // the two sides of the band of white fibre.
     const centre: Point[] = []
     const sheet: Point[] = []
     const core: Point[] = []
     const fibres: string[] = []
+    const curve: Point[] = []
+    for (let i = 0; i < last; i++) {
+      const p0 = controls[Math.max(0, i - 1)]
+      const p1 = controls[i]
+      const p2 = controls[i + 1]
+      const p3 = controls[Math.min(last, i + 2)]
+      const steps = Math.max(1, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 3.5))
+      for (let j = i === 0 ? 0 : 1; j <= steps; j++) {
+        const t = j / steps
+        // Catmull-Rom: a curve that passes through every control point.
+        const at = (k: 0 | 1) =>
+          0.5 *
+          (2 * p1[k] +
+            (p2[k] - p0[k]) * t +
+            (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t +
+            (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t * t * t)
+        curve.push([at(0), at(1)])
+      }
+    }
     let travelled = 0
-    const legs: [Point, Point][] = [
-      [lower, middle],
-      [middle, upper],
-    ]
-    for (const [from, to] of legs) {
-      const length = Math.hypot(to[0] - from[0], to[1] - from[1])
-      if (length < 0.5) continue
-      const steps = Math.max(1, Math.round(length / 3.5))
+    for (let i = 0; i < curve.length; i++) {
+      const [x, y] = curve[i]
+      const before = curve[Math.max(0, i - 1)]
+      const after = curve[Math.min(curve.length - 1, i + 1)]
+      const length = Math.hypot(after[0] - before[0], after[1] - before[1]) || 1
+      if (i > 0) travelled += Math.hypot(x - before[0], y - before[1])
+      const s = travelled
       // Normal pointing away from the hole, into the sheet.
-      let ax = -(to[1] - from[1]) / length
-      let ay = (to[0] - from[0]) / length
-      if (ax * (corner[0] - from[0]) + ay * (corner[1] - from[1]) > 0) {
+      let ax = -(after[1] - before[1]) / length
+      let ay = (after[0] - before[0]) / length
+      if (ax * (corner[0] - x) + ay * (corner[1] - y) > 0) {
         ax = -ax
         ay = -ay
       }
-      for (let i = 0; i <= steps; i++) {
-        const s = travelled + (length * i) / steps
-        const [x, y] = mix(from, to, i / steps)
-        // The ends are pinned to the outline; the wander fades in from them.
-        const pinned = Math.min(1, i / 3, (steps - i) / 3)
-        const wander =
-          (noise(s / 16, 1) * 3.4 + noise(s / 5.5, 2) * 1.7 + noise(s / 2.2, 3) * 0.7) * pinned
-        const tuft = hash(Math.floor(s / 9) + 9) > 0.78 ? 2.6 : 0
-        const outer = 1.1 + (noise(s / 7, 4) + 1) * 1.4
-        const inner = 1.3 + (noise(s / 6, 5) + 1) * 2.1 + tuft
-        centre.push([x + ax * wander, y + ay * wander])
-        sheet.push([x + ax * (wander + outer), y + ay * (wander + outer)])
-        core.push([x + ax * (wander - inner), y + ay * (wander - inner)])
-        // Now and then a loose fibre hangs into the hole.
-        if (i % 5 === 2 && hash(Math.floor(s / 17) + 31) > 0.45) {
-          const long = 3 + hash(s) * 7
-          const lean = (hash(s + 3) - 0.5) * 5
-          fibres.push(
-            `M${fmt([x + ax * (wander - inner + 0.5), y + ay * (wander - inner + 0.5)])}` +
-              `l${(-ax * long - ay * lean).toFixed(1)} ${(-ay * long + ax * lean).toFixed(1)}`,
-          )
-        }
+      // The ends are pinned to the outline; the wander fades in from them.
+      const pinned = Math.min(1, i / 3, (curve.length - 1 - i) / 3)
+      const wander =
+        (noise(s / 16, 1) * 3.4 + noise(s / 5.5, 2) * 1.7 + noise(s / 2.2, 3) * 0.7) * pinned
+      const tuft = hash(Math.floor(s / 9) + 9) > 0.78 ? 2.6 : 0
+      const outer = 1.1 + (noise(s / 7, 4) + 1) * 1.4
+      const inner = 1.3 + (noise(s / 6, 5) + 1) * 2.1 + tuft
+      centre.push([x + ax * wander, y + ay * wander])
+      sheet.push([x + ax * (wander + outer), y + ay * (wander + outer)])
+      core.push([x + ax * (wander - inner), y + ay * (wander - inner)])
+      // Now and then a loose fibre hangs into the hole.
+      if (i % 5 === 2 && hash(Math.floor(s / 17) + 31) > 0.45) {
+        const long = 3 + hash(i * 7.3) * 7
+        const lean = (hash(i * 3.1 + 3) - 0.5) * 5
+        fibres.push(
+          `M${fmt([x + ax * (wander - inner + 0.5), y + ay * (wander - inner + 0.5)])}` +
+            `l${(-ax * long - ay * lean).toFixed(1)} ${(-ay * long + ax * lean).toFixed(1)}`,
+        )
       }
-      travelled += length
     }
 
     // --- The hole --------------------------------------------------------

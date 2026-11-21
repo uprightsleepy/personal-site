@@ -168,10 +168,11 @@
   outline-offset: -3px;
 }
 
+/* Sits on the piece of sheet still covering the video's top left corner. */
 .close {
   position: absolute;
-  left: 0;
-  bottom: calc(100% + 1rem);
+  left: 0.6rem;
+  top: 0.6rem;
   pointer-events: auto;
   cursor: pointer;
   padding: 0.35rem 0.7rem 0.3rem;
