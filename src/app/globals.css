@@ -410,9 +410,24 @@
   }
 
   .tint-strip span {
-    width: 0.95rem;
-    height: 0.95rem;
+    width: 1rem;
+    height: 1rem;
     background: var(--ink);
+  }
+
+  /* The three tints are screened with halftone dots, as a press would. */
+  .tint-strip span:nth-child(n + 2) {
+    --dot: 1.9px;
+    background: radial-gradient(circle, var(--ink) var(--dot), transparent calc(var(--dot) + 0.5px)) 0 0 /
+      4px 4px;
+  }
+
+  .tint-strip span:nth-child(3) {
+    --dot: 1.45px;
+  }
+
+  .tint-strip span:nth-child(4) {
+    --dot: 0.95px;
   }
 
   /* Figure captions. */
@@ -917,8 +932,8 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   Fifth round: the sheet as an old print. Grain over everything, uneven
-  exposure in the blue (see .sheet), a halftone portrait and worn ink on the
-  stamps.
+  exposure in the blue (see .sheet), halftone dots, chipped display type,
+  hand-drawn outlines and worn ink on the stamps.
 */
 @layer components {
   /*
@@ -926,9 +941,64 @@ html.theme-wipe::view-transition-new(root) {
     tint of the one ink in either theme. It sits over the whole viewport,
     under the drawing frame, and ignores the pointer.
   */
-  /* Solid poster lines print like wood type, with flecks where ink missed. */
-  .poster-line:not(.poster-outline) {
-    filter: url(#pressed-ink);
+  /*
+    Large solid type prints like wood type, with chips where the ink missed.
+    One tile of chips (public/flecks.png) masks every display size on the
+    site. A mask clips to the element's box, so type that overhangs its line
+    box gets padding to stay whole, taken back with a negative margin.
+  */
+  .poster-line:not(.poster-outline),
+  .title:not(.drawn),
+  .drawn a,
+  .entry,
+  .lens {
+    -webkit-mask-image: url("/flecks.png");
+    mask-image: url("/flecks.png");
+    -webkit-mask-size: 256px 256px;
+    mask-size: 256px 256px;
+  }
+
+  .title:not(.drawn),
+  .entry {
+    padding-block: 0.14em;
+    margin-block: -0.14em;
+  }
+
+  /* Smaller type gets a finer tile, so the chips stay in scale with it. */
+  .entry {
+    -webkit-mask-size: 144px 144px;
+    mask-size: 144px 144px;
+  }
+
+  /* Shift the tile on alternate lines so the chips do not repeat in step. */
+  .poster-line:nth-child(odd),
+  .work-row:nth-child(even) .lens {
+    -webkit-mask-position: 97px 61px;
+    mask-position: 97px 61px;
+  }
+
+  /* Outlined type is drawn by hand, so its lines wander a little. */
+  .poster-outline,
+  .drawn {
+    filter: url(#hand-drawn);
+  }
+
+  /*
+    A band of halftone dots at the foot of every page, growing until they
+    nearly close up at the bottom edge of the sheet. It runs the full width.
+  */
+  .halftone-fade {
+    height: 126px;
+    margin-top: 2.5rem;
+    margin-inline: calc(50% - 50vw);
+    background: var(--ink);
+    opacity: 0.9;
+    -webkit-mask-image: url("/halftone-fade.png");
+    mask-image: url("/halftone-fade.png");
+    -webkit-mask-size: 112px 126px;
+    mask-size: 112px 126px;
+    -webkit-mask-repeat: repeat-x;
+    mask-repeat: repeat-x;
   }
 
   .grain {

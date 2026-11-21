@@ -14,7 +14,7 @@ export default function Footer() {
   })
 
   return (
-    <footer className="gutter pb-8 pt-28 md:pt-40">
+    <footer className="gutter pt-28 md:pt-40">
       <DimensionLine className="mb-16 md:mb-24" />
       <p className="title drawn max-w-[14em]">
         Find me on{' '}
@@ -51,6 +51,8 @@ export default function Footer() {
         <p>© {new Date().getFullYear()} Henry Phillips</p>
         <p>Built under duress.</p>
       </div>
+      {/* Halftone dots gathering at the foot of the sheet (see .halftone-fade) */}
+      <div className="halftone-fade" aria-hidden="true" />
     </footer>
   )
 }

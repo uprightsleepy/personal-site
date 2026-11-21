@@ -88,13 +88,19 @@ Embellishments, all defined at the end of `globals.css`:
   screens and for reduced motion.
 - The dates beside the work titles are set on their side, and the footer
   sentence is outlined with its two links inked in.
-- The sheet reads as an old print: a grain layer over everything (`.grain`,
-  masked by `public/grain.png`), uneven exposure in the background
-  (`.sheet`), worn ink on the stamps and flecks in the solid poster lines (two
-  SVG filters in `src/app/layout.tsx`).
-- The About portrait is a halftone, `public/headshot-halftone.png`. After
-  replacing `public/headshot.jpg`, rebuild it with
-  `python3 scripts/build-print-assets.py` (needs Pillow and NumPy).
+- The sheet reads as an old print. A grain layer sits over everything
+  (`.grain`, masked by `public/grain.png`) and the background is unevenly
+  exposed (`.sheet`).
+- Large solid type is chipped like worn wood type: one tile,
+  `public/flecks.png`, masks the poster lines, page titles, entry headings,
+  work titles and footer links. Outlined type wanders slightly, as if drawn
+  by hand, and the stamps print with worn ink (two SVG filters in
+  `src/app/layout.tsx`).
+- Halftone dots: the About portrait (`public/headshot-halftone.png`), the
+  tints in the title block's ink strip, and a band at the foot of every page
+  (`.halftone-fade`, masked by `public/halftone-fade.png`).
+- `python3 scripts/build-print-assets.py` rebuilds those images (needs Pillow
+  and NumPy). Run it after replacing `public/headshot.jpg`.
 
 ## Deployment
 

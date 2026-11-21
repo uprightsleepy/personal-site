@@ -61,9 +61,9 @@ export default function TitleBlock({
           <span className="hidden paper:inline">One, blue</span>
           <span className="tint-strip" aria-hidden="true">
             <span />
-            <span style={{ opacity: 0.75 }} />
-            <span style={{ opacity: 0.5 }} />
-            <span style={{ opacity: 0.25 }} />
+            <span />
+            <span />
+            <span />
           </span>
         </dd>
       </div>
