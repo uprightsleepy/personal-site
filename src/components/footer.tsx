@@ -1,5 +1,5 @@
 import DimensionLine from '@/components/dimension-line'
-import { Neck, NorthArrow, Tie, Typed } from '@/components/drafting'
+import { NorthArrow, Tie, Typed } from '@/components/drafting'
 import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
@@ -31,10 +31,10 @@ export default function Footer() {
           {/* Each link has something that happens to it on hover: see .hung */}
           <span className="hung neck">
             <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-              <Neck text="LinkedIn" />
-              <span className="sr-only">LinkedIn (opens in a new tab)</span>
+              <span className="neck-word">LinkedIn</span>
+              <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            {/* The link's underline, drawn here because split letters lose theirs */}
+            {/* The link's underline, drawn here so it can turn into the tie's loop */}
             <span className="neck-rule" />
             <Tie />
           </span>{' '}

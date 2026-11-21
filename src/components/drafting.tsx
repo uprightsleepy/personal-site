@@ -50,48 +50,27 @@ export function NorthArrow() {
 }
 
 // The LinkedIn link in the footer gets a necktie on hover, and the word is
-// the neck. A band of tie goes round the middle of the word and is pulled
-// tight, the letters pinch in at the waist (see Neck below), and the knot and
-// blade hang underneath. At rest none of it shows. The drawing is 0.5em wide
-// in the word's own type size, so 100 units here is 1em: the capitals run
-// from about 10 to 79, and the band is drawn tight and loosened by the
-// stylesheet (see .tie in globals.css).
+// the neck. The tie goes round the word the long way: a loop right round it,
+// which is pulled tight and squeezes the word in from both sides, with the
+// knot at the front and the blade hanging down. At rest none of it shows
+// (see .tie in globals.css). This is the knot and the blade; the loop is a
+// plain box drawn by the stylesheet. The drawing is 0.5em wide in the word's
+// own type size, so 100 units here is 1em. Like the north arrow, the blade's
+// left half is inked in and its right half is outline.
 export function Tie() {
   return (
-    <svg className="tie" viewBox="0 0 50 170" aria-hidden="true" focusable="false">
-      {/* The band round the word. Paper inside, so it shows against the letters. */}
-      <rect className="tie-band" x="19.5" y="20" width="11" height="49" rx="5.5" />
-      <g className="tie-hang">
-        {/* The blade: left half inked, right half outline, like the north arrow */}
-        <g className="tie-blade">
-          <path className="tie-paper" d="M25 79H29L35.5 146L25 162Z" />
-          <path className="tie-fill" d="M25 79H21L14.5 146L25 162Z" />
+    <>
+      <span className="tie-loop" aria-hidden="true" />
+      <svg className="tie" viewBox="0 0 50 100" aria-hidden="true" focusable="false">
+        <g className="tie-hang">
+          <g className="tie-blade">
+            <path className="tie-paper" d="M25 15H29L36 82L25 98Z" />
+            <path className="tie-fill" d="M25 15H21L14 82L25 98Z" />
+          </g>
+          <path className="tie-fill" d="M16.6 1H33.4L29.6 16.5H20.4Z" />
         </g>
-        <path className="tie-fill" d="M17.2 65.5H32.8L29.4 80H20.6Z" />
-      </g>
-    </svg>
-  )
-}
-
-// A word whose letters can pinch in at the middle, for the tie above. Each
-// letter carries how far it is squeezed: the middle ones most, the ends not
-// at all. The letters are hidden from screen readers; the caller supplies
-// the text.
-export function Neck({ text }: { text: string }) {
-  const letters = Array.from(text)
-  const middle = (letters.length - 1) / 2
-  return (
-    <span aria-hidden="true">
-      {letters.map((letter, index) => {
-        const away = Math.abs(index - middle) / middle
-        const squeeze = 1 - 0.42 * Math.exp(-Math.pow(away / 0.42, 2))
-        return (
-          <span key={index} className="neck-letter" style={{ '--squeeze': squeeze.toFixed(3) } as React.CSSProperties}>
-            {letter}
-          </span>
-        )
-      })}
-    </span>
+      </svg>
+    </>
   )
 }
 
