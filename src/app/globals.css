@@ -1561,9 +1561,9 @@ html.theme-wipe::view-transition-new(root) {
 
 /*
   The pipeline diagram on the CI/CD case study (pipeline-diagram.tsx). It is
-  drawn in the sheet's ink: outlined steps, and inked steps for the ones that
-  use the signing key. It is wider than the text column, and on a narrow
-  screen it keeps a readable size and scrolls sideways.
+  drawn in the sheet's ink: outlined steps, each with a line-drawn symbol.
+  It is wider than the text column, and on a narrow screen it keeps a
+  readable size and scrolls sideways.
 */
 .diagram {
   max-width: 70rem;
@@ -1599,8 +1599,17 @@ html.theme-wipe::view-transition-new(root) {
   stroke-linejoin: miter;
 }
 
-.pd-inked {
-  fill: var(--ink);
+.pd-glyph {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pd-small.pd-strong {
+  font-weight: 650;
 }
 
 .pd-text,
@@ -1618,10 +1627,6 @@ html.theme-wipe::view-transition-new(root) {
 .pd-small {
   font-size: 11.5px;
   font-weight: 500;
-}
-
-.pd-on-ink {
-  fill: var(--paper);
 }
 
 .pd-arrow {

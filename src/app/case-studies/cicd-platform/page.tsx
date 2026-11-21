@@ -83,7 +83,7 @@ const terraformSteps = [
   ['Plan', 'A plan service account, which can read the environment but not change it, produces the plan.'],
   [
     'Sign',
-    'The pipeline signs the plan with a key held in Cloud KMS, so there is a record of exactly what was planned.',
+    'The pipeline signs the plan with a key held in Cloud KMS and stores it in a Cloud Storage bucket, so there is a record of exactly what was planned.',
   ],
   [
     'Approve',
@@ -91,7 +91,7 @@ const terraformSteps = [
   ],
   [
     'Validate',
-    'Before anything is applied, the pipeline checks the signature and checks that the environment has not drifted since the plan was made.',
+    'Before anything is applied, the pipeline reads the stored plan back from the bucket, checks its signature, and checks that the environment has not drifted since the plan was made.',
   ],
   [
     'Apply',
