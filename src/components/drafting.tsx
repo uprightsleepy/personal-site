@@ -92,19 +92,38 @@ export function CommitGraph() {
   )
 }
 
-// A line typed out at a prompt, under the commit graph. Each character is
-// its own span so the stylesheet can bring them in one after another (see
-// .typed in globals.css), and a block cursor waits at the end.
-export function Typed({ text }: { text: string }) {
-  const characters = Array.from(text)
+// A command typed out at a prompt, under the commit graph. The prompt is a
+// small inked block and the command is set after it, one line for each
+// entry in `lines`. A line may also break after a slash, and nowhere else,
+// so the whole thing always fits inside the width of the word above it.
+// Each character is its own span so the stylesheet can bring them in one
+// after another (see .typed in globals.css). A block cursor waits at the
+// end, in the same unbreakable piece as the last word, so it is never left
+// on a line of its own.
+export function Typed({ prompt, lines }: { prompt: string; lines: string[] }) {
+  let typed = 0
+  const total = lines.reduce((sum, line) => sum + Array.from(line).length, 0)
   return (
-    <span className="typed" style={{ '--count': characters.length } as React.CSSProperties}>
-      {characters.map((character, index) => (
-        <span key={index} style={{ '--at': index } as React.CSSProperties}>
-          {character}
-        </span>
-      ))}
-      <i />
+    <span className="typed" style={{ '--count': total } as React.CSSProperties}>
+      <b>{prompt}</b>
+      {lines.map((line, row) => {
+        // "owner/name" becomes the pieces "owner/" and "name".
+        const pieces = line.split(/(?<=\/)/)
+        return (
+          <span key={row} className="typed-line">
+            {pieces.map((piece, place) => (
+              <span key={place} className="typed-piece">
+                {Array.from(piece).map((character, index) => (
+                  <span key={index} style={{ '--at': typed++ } as React.CSSProperties}>
+                    {character}
+                  </span>
+                ))}
+                {row === lines.length - 1 && place === pieces.length - 1 ? <i /> : null}
+              </span>
+            ))}
+          </span>
+        )
+      })}
     </span>
   )
 }
