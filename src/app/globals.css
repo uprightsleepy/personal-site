@@ -1014,3 +1014,201 @@ html.theme-wipe::view-transition-new(root) {
     mask-size: 256px 256px;
   }
 }
+
+/*
+  Footer reveal. The first time the foot of the sheet is scrolled to, it is
+  drawn in the order a drafter would finish a sheet: the dimension line, the
+  lettering, the notes, the north arrow, and the stamp last.
+
+  There are three groups: the line and the sentence, the notes and the north
+  arrow, and the stamp. src/components/reveal.tsx sets data-reveal on each:
+  "wait" before it has been seen, "go" when it is. On a wide screen all three
+  are seen together, and the delays below run them as one sequence of about
+  two seconds. On a phone they are more than a screen apart, so each starts
+  promptly when it is reached.
+
+  With no scripts, or with reduced motion asked for, data-reveal stays "off"
+  and everything is simply there.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  /* Held back until seen. Each animation below starts from the same state. */
+  .footer-reveal[data-reveal="wait"] :is(.dim-line, .dim i, .dim-label, .drawn, .section-heading, .notes li, .north),
+  .stamp-reveal[data-reveal="wait"] .stamp {
+    opacity: 0;
+  }
+
+  /* 1. The dimension line is drawn outward from its label, then its ends are ticked. */
+  .footer-reveal[data-reveal="go"] .dim-line {
+    animation: dim-draw 0.75s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  }
+
+  .footer-reveal[data-reveal="go"] .dim-line:first-of-type {
+    transform-origin: right center;
+  }
+
+  .footer-reveal[data-reveal="go"] .dim-line:last-of-type {
+    transform-origin: left center;
+  }
+
+  .footer-reveal[data-reveal="go"] .dim-label {
+    animation: reveal-fade 0.2s ease-out backwards;
+  }
+
+  .footer-reveal[data-reveal="go"] .dim i {
+    animation: reveal-fade 0.15s ease-out 0.65s backwards;
+  }
+
+  /*
+    2. The sentence is plotted from left to right, as outline. The clip
+    reaches past the box so the strokes and descenders are not trimmed.
+  */
+  .footer-reveal[data-reveal="go"] .drawn {
+    animation: plot 0.9s cubic-bezier(0.4, 0, 0.6, 1) 0.25s backwards;
+  }
+
+  /* 3. Then its two links are inked in. */
+  .footer-reveal[data-reveal="go"] .drawn a {
+    animation: ink-in 0.4s ease-out 1.05s backwards;
+  }
+
+  /* 4. The notes are lettered, a line at a time. --after is when they start. */
+  .footer-reveal {
+    --after: 0s;
+  }
+
+  .footer-reveal[data-reveal="go"] :is(.section-heading, .notes li) {
+    animation: letter-in 0.35s ease-out calc(var(--after) + var(--line, 0) * 0.1s) backwards;
+  }
+
+  .footer-reveal .notes li:nth-child(1) {
+    --line: 1;
+  }
+
+  .footer-reveal .notes li:nth-child(2) {
+    --line: 2;
+  }
+
+  .footer-reveal .notes li:nth-child(3) {
+    --line: 3;
+  }
+
+  .footer-reveal .notes li:nth-child(4) {
+    --line: 4;
+  }
+
+  .footer-reveal .notes li:nth-child(n + 5) {
+    --line: 5;
+  }
+
+  /* 5. The north arrow swings in and settles, the way a compass needle does. */
+  .footer-reveal[data-reveal="go"] .north {
+    animation: reveal-fade 0.25s ease-out calc(var(--after) + 0.4s) backwards;
+  }
+
+  .footer-reveal[data-reveal="go"] .north svg {
+    transform-origin: 50% 55%;
+    animation: needle 1.3s cubic-bezier(0.3, 0, 0.3, 1) calc(var(--after) + 0.4s) backwards;
+  }
+
+  /* 6. The stamp comes down last, hard, and gives a little as it lands. */
+  .stamp-reveal {
+    --after: 0.3s;
+  }
+
+  .stamp-reveal[data-reveal="go"] .stamp {
+    animation: stamp-down 0.32s cubic-bezier(0.6, 0, 0.9, 0.5) var(--after) backwards;
+  }
+
+  /* On a wide screen the groups follow the sentence instead of starting with it. */
+  @media (min-width: 48rem) {
+    .footer-reveal {
+      --after: 0.45s;
+    }
+
+    .stamp-reveal {
+      --after: 1.2s;
+    }
+  }
+}
+
+@keyframes reveal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes dim-draw {
+  from {
+    opacity: 1;
+    transform: scaleX(0);
+  }
+}
+
+@keyframes plot {
+  from {
+    opacity: 1;
+    clip-path: inset(-0.2em 100% -0.2em -0.1em);
+  }
+
+  to {
+    clip-path: inset(-0.2em -0.1em -0.2em -0.1em);
+  }
+}
+
+@keyframes ink-in {
+  from {
+    color: transparent;
+    -webkit-text-stroke: max(1px, 0.018em) var(--ink);
+  }
+
+  to {
+    color: var(--ink);
+    -webkit-text-stroke: max(1px, 0.018em) var(--ink);
+  }
+}
+
+@keyframes letter-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35rem);
+  }
+}
+
+@keyframes needle {
+  0% {
+    transform: rotate(-70deg);
+  }
+
+  40% {
+    transform: rotate(14deg);
+  }
+
+  65% {
+    transform: rotate(-6deg);
+  }
+
+  85% {
+    transform: rotate(2deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes stamp-down {
+  0% {
+    opacity: 0;
+    transform: rotate(-12deg) scale(2);
+  }
+
+  70% {
+    opacity: 1;
+    transform: rotate(-5deg) scale(0.95);
+  }
+
+  100% {
+    transform: rotate(-5deg) scale(1);
+  }
+}
+

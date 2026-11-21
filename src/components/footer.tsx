@@ -1,5 +1,6 @@
 import DimensionLine from '@/components/dimension-line'
 import { NorthArrow } from '@/components/drafting'
+import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
 import { profile } from '@/lib/site'
@@ -15,35 +16,47 @@ export default function Footer() {
 
   return (
     <footer className="gutter pt-28 md:pt-40">
-      <DimensionLine className="mb-16 md:mb-24" />
-      <p className="title drawn max-w-[14em]">
-        Find me on{' '}
-        <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-          LinkedIn
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>{' '}
-        and{' '}
-        <a href={profile.github} target="_blank" rel="noopener noreferrer">
-          GitHub
-          <span className="sr-only"> (opens in a new tab)</span>
-        </a>
-        .
-      </p>
+      {/*
+        Everything down to the stamp is drawn the first time it is scrolled
+        to: the dimension line is drawn out, the sentence is plotted and its
+        links inked in, the notes are lettered, the north arrow settles, and
+        the stamp comes down last (see "Footer reveal" in globals.css). There
+        are three groups, each waiting until it is on screen itself, because
+        on a phone they are more than a screen apart.
+      */}
+      <Reveal className="footer-reveal">
+        <DimensionLine className="mb-16 md:mb-24" />
+        <p className="title drawn max-w-[14em]">
+          Find me on{' '}
+          <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+            LinkedIn
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>{' '}
+          and{' '}
+          <a href={profile.github} target="_blank" rel="noopener noreferrer">
+            GitHub
+            <span className="sr-only"> (opens in a new tab)</span>
+          </a>
+          .
+        </p>
+      </Reveal>
       {/* The margin of the drawing: notes, a north arrow and a stamp */}
-      <div className="mt-16 flex flex-wrap items-end justify-between gap-x-16 gap-y-12 md:mt-24">
+      <Reveal className="footer-reveal mt-16 flex flex-wrap items-end justify-between gap-x-16 gap-y-12 md:mt-24">
         <div>
           <h2 className="section-heading mb-4">General notes</h2>
           <ol className="notes">
-            <li>All dimensions are in pixels.</li>
-            <li>Do not scale from this drawing.</li>
-            <li>Verify all dimensions on site.</li>
+            <li>All dimensions are in pixels. The line above measures itself.</li>
             <li>Built to code: Go, Python, Java and Terraform.</li>
-            <li>Drawn in one ink. Color by others.</li>
+            <li>Every revision is checked by CodeQL before issue.</li>
+            <li>Drawn in one ink and set in one typeface.</li>
+            <li>Do not tear the corner of sheet 1.</li>
           </ol>
         </div>
         <NorthArrow />
-        <p className="stamp mb-3 ml-auto mr-2 md:mr-6">Not for construction</p>
-      </div>
+        <Reveal className="stamp-reveal mb-3 ml-auto mr-2 md:mr-6">
+          <p className="stamp">Not for construction</p>
+        </Reveal>
+      </Reveal>
       <div className="mt-16 md:mt-24">
         <TitleBlock printed={printed} revision={buildRevision()} repo={profile.repo} />
       </div>
