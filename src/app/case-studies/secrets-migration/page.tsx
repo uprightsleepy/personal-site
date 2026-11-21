@@ -50,7 +50,7 @@ const components = [
   ['Reader role', 'Received temporary path-specific read access to HashiCorp Vault secrets.'],
   [
     'User intake system',
-    'A migration endpoint on a React service running on ECS, where users provided metadata. The endpoint added a message to an SQS queue, and the message started the Lambda. White glove support helped with validation.',
+    'A migration endpoint on a React service running on ECS, where a user provided the Vault path and metadata for the secret, such as the team name and a secret type chosen from a provided list. The endpoint added a message to an SQS queue, and the message started the Lambda. White glove support helped with validation.',
   ],
   [
     'Metadata engine',
