@@ -1,5 +1,5 @@
 import DimensionLine from '@/components/dimension-line'
-import { NorthArrow, Tie, Typed } from '@/components/drafting'
+import { CommitGraph, NorthArrow, Tie, Typed } from '@/components/drafting'
 import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
@@ -28,14 +28,12 @@ export default function Footer() {
         <DimensionLine className="mb-16 md:mb-24" />
         <p className="title drawn max-w-[14em]">
           Find me on{' '}
-          {/* Each link has something that happens to it on hover: see .hung */}
+          {/* Neither link is underlined. Each has something that happens to it on hover: see .hung */}
           <span className="hung neck">
             <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
               <span className="neck-word">LinkedIn</span>
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            {/* The link's underline, drawn here so it stays put while the word is squeezed */}
-            <span className="neck-rule" />
             <Tie />
           </span>{' '}
           and{' '}
@@ -44,7 +42,10 @@ export default function Footer() {
               GitHub
               <span className="sr-only"> (opens in a new tab)</span>
             </a>
-            <Typed text={`$ gh repo clone ${profile.repo.replace('https://github.com/', '')}`} />
+            <span className="commits" aria-hidden="true">
+              <CommitGraph />
+              <Typed text={`$ gh repo clone ${profile.repo.replace('https://github.com/', '')}`} />
+            </span>
           </span>
           .
         </p>

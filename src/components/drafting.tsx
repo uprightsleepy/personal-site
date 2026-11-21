@@ -71,13 +71,34 @@ export function Tie() {
   )
 }
 
-// A line typed out at a prompt, under the GitHub link in the footer. Each
-// character is its own span so the stylesheet can bring them in one after
-// another (see .typed in globals.css), and a block cursor waits at the end.
+// The GitHub link in the footer gets a commit graph on hover, drawn under
+// the word where an underline would be: a main line with a branch that forks
+// off, takes two commits and merges back, ending in a ring for the latest
+// commit. The stylesheet draws the lines and pops the commits on in order
+// (see .commits in globals.css). The drawing is exactly as wide as the word:
+// 100 units here is 1em, and "GitHub" is 2.636em wide in the footer's type.
+export function CommitGraph() {
+  return (
+    <svg className="graph" viewBox="0 0 263.6 44" aria-hidden="true" focusable="false">
+      <path className="graph-main" pathLength={1} d="M8 9H256" />
+      <path className="graph-branch" pathLength={1} d="M52 9C72 9 70 35 92 35H158C180 35 178 9 198 9" />
+      <circle cx="8" cy="9" r="6.5" style={{ '--at': 0 } as React.CSSProperties} />
+      <circle cx="52" cy="9" r="6.5" style={{ '--at': 1 } as React.CSSProperties} />
+      <circle cx="106" cy="35" r="6.5" style={{ '--at': 2.4 } as React.CSSProperties} />
+      <circle cx="146" cy="35" r="6.5" style={{ '--at': 3.3 } as React.CSSProperties} />
+      <circle cx="198" cy="9" r="6.5" style={{ '--at': 4.6 } as React.CSSProperties} />
+      <circle className="graph-head" cx="254" cy="9" r="8" style={{ '--at': 5.8 } as React.CSSProperties} />
+    </svg>
+  )
+}
+
+// A line typed out at a prompt, under the commit graph. Each character is
+// its own span so the stylesheet can bring them in one after another (see
+// .typed in globals.css), and a block cursor waits at the end.
 export function Typed({ text }: { text: string }) {
   const characters = Array.from(text)
   return (
-    <span className="typed" aria-hidden="true" style={{ '--count': characters.length } as React.CSSProperties}>
+    <span className="typed" style={{ '--count': characters.length } as React.CSSProperties}>
       {characters.map((character, index) => (
         <span key={index} style={{ '--at': index } as React.CSSProperties}>
           {character}
@@ -87,4 +108,3 @@ export function Typed({ text }: { text: string }) {
     </span>
   )
 }
-

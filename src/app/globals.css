@@ -1213,21 +1213,29 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /*
-  The two footer links each have something that happens on hover or keyboard
-  focus: a tie is pulled tight under LinkedIn, squeezing the word, and a
-  command is typed under GitHub. Both are decoration, hidden from screen readers, and they do not
-  take the pointer. Touch screens have no hover, so they never show.
+  The two footer links are not underlined. They are the only inked words in
+  an outlined sentence, which marks them, and each has something that
+  happens on hover or keyboard focus: a tie is pulled tight under LinkedIn,
+  squeezing the word, and a commit graph is drawn under GitHub with a
+  command typed beneath it. Both are decoration, hidden from screen readers,
+  and they do not take the pointer. Touch screens have no hover, so they
+  never show.
 */
 .hung {
   position: relative;
   display: inline-block;
 }
 
+.hung a {
+  text-decoration-line: none;
+}
+
 .tie,
-.typed {
+.commits {
   position: absolute;
   pointer-events: none;
   opacity: 0;
+  transition: opacity 0.15s ease-out;
 }
 
 /*
@@ -1245,7 +1253,6 @@ html.theme-wipe::view-transition-new(root) {
   stroke: var(--ink);
   stroke-width: 1.5;
   stroke-linejoin: round;
-  transition: opacity 0.15s ease-out;
 }
 
 .tie path {
@@ -1272,31 +1279,57 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /* The neck: the word is a block so it can be squeezed. */
-.neck a {
-  text-decoration-line: none;
-}
-
 .neck-word {
   display: inline-block;
   transform-origin: 50% 85%;
   transition: transform 0.2s ease-in;
 }
 
-.neck-rule {
-  position: absolute;
+/*
+  Under GitHub: the commit graph, as wide as the word, and the typed command
+  below it.
+*/
+.commits {
   left: 0;
   right: 0;
-  top: 0.954em;
-  height: 0.07em;
-  background: var(--ink);
-  pointer-events: none;
+  top: 0.9em;
+}
+
+.graph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+/* Not drawn yet: each line is one dash, pushed entirely out of sight. */
+.graph path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.graph circle {
+  fill: var(--ink);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(0);
+}
+
+/* The latest commit is a ring. */
+.graph .graph-head {
+  fill: var(--paper);
+  stroke: var(--ink);
 }
 
 /* The command is set small and narrow, in the one typeface. */
 .typed {
-  left: 0.05em;
-  top: 100%;
-  margin-top: 0.95rem;
+  display: block;
+  margin-top: 0.6rem;
   white-space: pre;
   color: var(--ink);
   -webkit-text-stroke: 0;
@@ -1323,8 +1356,8 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 @media (hover: hover) {
-  .hung a:hover ~ :is(.tie, .typed),
-  .hung a:focus-visible ~ :is(.tie, .typed) {
+  .hung a:hover ~ :is(.tie, .commits),
+  .hung a:focus-visible ~ :is(.tie, .commits) {
     opacity: 1;
   }
 
@@ -1355,30 +1388,53 @@ html.theme-wipe::view-transition-new(root) {
     animation: tie-swing 0.7s ease-out 0.4s;
   }
 
-  .neck a:hover ~ .neck-rule,
-  .neck a:focus-visible ~ .neck-rule {
-    height: 0.14em;
+  /*
+    Committed. The main line is drawn from left to right, the branch forks
+    off and comes back, and each commit pops on as its line reaches it
+    (--at is its place in that order).
+  */
+  .hung a:hover ~ .commits .graph path,
+  .hung a:focus-visible ~ .commits .graph path {
+    stroke-dashoffset: 0;
   }
 
-  /* Typed: each character arrives in turn, then the cursor blinks. */
-  .hung a:hover + .typed span,
-  .hung a:focus-visible + .typed span {
+  .hung a:hover ~ .commits .graph-main,
+  .hung a:focus-visible ~ .commits .graph-main {
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.4, 1);
+  }
+
+  .hung a:hover ~ .commits .graph-branch,
+  .hung a:focus-visible ~ .commits .graph-branch {
+    transition: stroke-dashoffset 0.38s cubic-bezier(0.4, 0, 0.4, 1) 0.14s;
+  }
+
+  .hung a:hover ~ .commits .graph circle,
+  .hung a:focus-visible ~ .commits .graph circle {
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.3, 2.2, 0.5, 1) calc(var(--at) * 0.1s);
+  }
+
+  /* Then the command is typed, a character at a time, and the cursor blinks. */
+  .hung a:hover ~ .commits .typed span,
+  .hung a:focus-visible ~ .commits .typed span {
     opacity: 1;
-    transition: opacity 0s linear calc(var(--at) * 32ms);
+    transition: opacity 0s linear calc(0.55s + var(--at) * 30ms);
   }
 
-  .hung a:hover + .typed i,
-  .hung a:focus-visible + .typed i {
-    animation: cursor-blink 1s steps(1) calc(var(--count) * 32ms) infinite;
+  .hung a:hover ~ .commits .typed i,
+  .hung a:focus-visible ~ .commits .typed i {
+    animation: cursor-blink 1s steps(1) calc(0.55s + var(--count) * 30ms) infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tie,
+  .commits,
   .tie-hang,
   .neck-word,
-  .hung a:hover + .typed span,
-  .hung a:focus-visible + .typed span {
+  .graph path,
+  .graph circle,
+  .typed span {
     transition: none !important;
   }
 
@@ -1387,8 +1443,8 @@ html.theme-wipe::view-transition-new(root) {
     animation: none;
   }
 
-  .hung a:hover + .typed i,
-  .hung a:focus-visible + .typed i {
+  .hung a:hover ~ .commits .typed i,
+  .hung a:focus-visible ~ .commits .typed i {
     animation: none;
     opacity: 1;
   }
