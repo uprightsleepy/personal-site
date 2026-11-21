@@ -24,60 +24,45 @@
 }
 
 /*
-  The clip, printed like the rest of the sheet: one ink, through a halftone
-  screen. Three layers do the work:
-
-    1. The clip, which is grey already and small, so it is soft when drawn
-       at this size and each dot reads one tone.
-    2. A screen of soft dots at 45 degrees, laid over it at half strength.
-       Each dot is black at its centre and fades to white before it reaches
-       its corners, so even solid black prints with pinholes of paper in it
-       and never as a flat patch.
-    3. A very high contrast on the two together. A point comes out black
-       only where picture and screen together are darker than mid grey, so
-       dark parts of the picture grow big dots and light parts small ones.
-
-  .ink then turns the black into the sheet's blue and leaves white as paper.
-
-  The picture is always there, so the folded corner gives a peek of it. It
-  is a still of the clip's first frame until the clip is drawn over it.
+  The picture: a small canvas stretched over the hole. Its pixels are kept
+  hard-edged, so each one shows as a square.
 */
-.print {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  background: #000 center / cover no-repeat;
-  filter: contrast(30);
-}
-
-.print video {
+.pixels {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  pointer-events: none;
+  image-rendering: pixelated;
 }
 
-.screen {
-  position: absolute;
-  inset: -50%;
-  background: radial-gradient(circle, #000, #fff 74%) 0 0 / 7px 7px;
-  transform: rotate(45deg);
-  opacity: 0.5;
-}
-
-.ink {
+/*
+  Fine lines between the pixels, as on a small LCD. They make a flat patch of
+  one shade read as pixels too, which is what the folded corner shows of the
+  picture at rest. The sizes are set by the component from the picture's
+  size in pixels.
+*/
+.hole::after {
+  content: '';
   position: absolute;
   inset: 0;
-  background: var(--blue);
-  mix-blend-mode: lighten;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / calc(100% / var(--wide)) 100%,
+    linear-gradient(to bottom, rgb(255 255 255 / 0.2) 1px, transparent 1px) 0 0 / 100% calc(100% / var(--high));
 }
 
-@media (max-width: 40rem) {
-  .screen {
-    background-size: 5px 5px;
-  }
+/*
+  The clip the picture is copied from. It has to be on the page to play, but
+  it is not what is looked at.
+*/
+.film {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 2px;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .tear[data-state='open'] .hole {
