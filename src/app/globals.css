@@ -975,7 +975,7 @@ html.theme-wipe::view-transition-new(root) {
   .title:not(.drawn),
   .drawn a,
   .entry,
-  .lens {
+  .lens-letter {
     -webkit-mask-image: url("/flecks.png");
     mask-image: url("/flecks.png");
     -webkit-mask-size: 256px 256px;
@@ -995,10 +995,21 @@ html.theme-wipe::view-transition-new(root) {
   }
 
   /* Shift the tile on alternate lines so the chips do not repeat in step. */
-  .poster-line:nth-child(odd),
-  .work-row:nth-child(even) .lens {
+  .poster-line:nth-child(odd) {
     -webkit-mask-position: 97px 61px;
     mask-position: 97px 61px;
+  }
+
+  /*
+    The work index titles move: their letters widen under the pointer. So
+    each letter carries its own chips, which travel with it, instead of the
+    whole title sitting behind one fixed tile. --chip is the letter's place
+    in the title and --row the title's place in the list (lens-title.tsx);
+    together they start every letter at a different spot on the tile.
+  */
+  .lens-letter {
+    -webkit-mask-position: calc(var(--chip) * -47px + var(--row) * -89px) calc(var(--chip) * -71px + var(--row) * -53px);
+    mask-position: calc(var(--chip) * -47px + var(--row) * -89px) calc(var(--chip) * -71px + var(--row) * -53px);
   }
 
   /* Outlined type is drawn by hand, so its lines wander a little. */

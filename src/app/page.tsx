@@ -67,13 +67,14 @@ export default function Home() {
           Work
         </h2>
         <ul className="border-b border-rule">
-          {work.map((item) => (
+          {work.map((item, row) => (
             <li key={item.slug} className="work-row border-t border-rule pb-8 pt-5 md:pb-10 md:pt-6">
               <h3 className="display">
                 <WorkLink item={item} className="nav-link">
                   <span className="sr-only">{item.display}</span>
                   <LensTitle
                     text={item.display}
+                    row={row}
                     redactFirstWord={item.slug === 'secrets-migration'}
                   />
                 </WorkLink>

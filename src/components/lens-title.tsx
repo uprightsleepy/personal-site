@@ -12,11 +12,16 @@ const SPREAD = 0.07 // how far the bulge reaches, as a share of the title's widt
 // typeface. The effect belongs to the whole index row (.work-row), and is
 // skipped on touch screens and for people who ask for reduced motion.
 // The letters are hidden from screen readers; the caller supplies the text.
+// Each letter also carries its place in the title, and the title its place
+// in the list (`row`), which the stylesheet uses to give every letter its
+// own chips of missing ink (see .lens-letter in globals.css).
 export default function LensTitle({
   text,
+  row = 0,
   redactFirstWord = false,
 }: {
   text: string
+  row?: number
   redactFirstWord?: boolean
 }) {
   const title = useRef<HTMLSpanElement>(null)
@@ -73,15 +78,21 @@ export default function LensTitle({
   }, [])
 
   const words = text.split(' ')
+  // Where each word's first letter falls in the whole title.
+  const starts = words.map((_, index) => words.slice(0, index).join('').length)
 
   return (
-    <span ref={title} className="lens" aria-hidden="true">
+    <span ref={title} className="lens" aria-hidden="true" style={{ '--row': row } as React.CSSProperties}>
       {words.map((word, index) => (
         <span key={`${word}-${index}`}>
           {/* The first word of the secrets migration loads redacted (see .redact) */}
           <span className={index === 0 && redactFirstWord ? 'lens-word redact' : 'lens-word'}>
             {Array.from(word).map((letter, position) => (
-              <span key={position} className="lens-letter">
+              <span
+                key={position}
+                className="lens-letter"
+                style={{ '--chip': starts[index] + position } as React.CSSProperties}
+              >
                 {letter}
               </span>
             ))}
