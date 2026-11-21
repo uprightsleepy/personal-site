@@ -1212,3 +1212,177 @@ html.theme-wipe::view-transition-new(root) {
   }
 }
 
+/*
+  The two footer links each have something that happens under them on hover
+  or keyboard focus: a tie is cinched under LinkedIn, and a command is typed
+  under GitHub. Both are decoration, hidden from screen readers, and they do
+  not take the pointer. Touch screens have no hover, so they never show.
+*/
+.hung {
+  position: relative;
+  display: inline-block;
+}
+
+.tie,
+.typed {
+  position: absolute;
+  top: 100%;
+  pointer-events: none;
+  opacity: 0;
+}
+
+/* The tie hangs from the middle of the word, just under its underline. */
+.tie {
+  left: 50%;
+  width: 2.9rem;
+  height: 5.22rem;
+  margin: 0.5rem 0 0 -1.45rem;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+  transition: opacity 0.15s ease-out;
+}
+
+.tie path {
+  vector-effect: non-scaling-stroke;
+}
+
+.tie .tie-fill {
+  fill: var(--ink);
+}
+
+/* Loose: the knot hangs low and the collar is open. */
+.tie-hang {
+  transform: translateY(0.95rem);
+  transition: transform 0.2s ease-in;
+}
+
+.tie-collar {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transform: scale(1.35, 0.7);
+  transition: transform 0.2s ease-in;
+}
+
+.tie-blade {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+
+/* The command is set small and narrow, in the one typeface. */
+.typed {
+  left: 0.05em;
+  margin-top: 0.95rem;
+  white-space: pre;
+  color: var(--ink);
+  -webkit-text-stroke: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-stretch: 84%;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.typed span {
+  opacity: 0;
+}
+
+/* The cursor: a block after the last character. */
+.typed i {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.12em;
+  background: var(--ink);
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .hung a:hover + :is(.tie, .typed),
+  .hung a:focus-visible + :is(.tie, .typed) {
+    opacity: 1;
+  }
+
+  /* Cinched: the knot is pulled up to the collar, past it, and settles. */
+  .hung a:hover + .tie .tie-hang,
+  .hung a:focus-visible + .tie .tie-hang {
+    transform: translateY(0);
+    transition: transform 0.42s cubic-bezier(0.3, 1.9, 0.5, 1) 0.12s;
+  }
+
+  .hung a:hover + .tie .tie-collar,
+  .hung a:focus-visible + .tie .tie-collar {
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.3, 1.4, 0.5, 1) 0.16s;
+  }
+
+  .hung a:hover + .tie .tie-blade,
+  .hung a:focus-visible + .tie .tie-blade {
+    animation: tie-swing 0.7s ease-out 0.3s;
+  }
+
+  /* Typed: each character arrives in turn, then the cursor blinks. */
+  .hung a:hover + .typed span,
+  .hung a:focus-visible + .typed span {
+    opacity: 1;
+    transition: opacity 0s linear calc(var(--at) * 32ms);
+  }
+
+  .hung a:hover + .typed i,
+  .hung a:focus-visible + .typed i {
+    animation: cursor-blink 1s steps(1) calc(var(--count) * 32ms) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tie,
+  .tie-hang,
+  .tie-collar,
+  .hung a:hover + .typed span,
+  .hung a:focus-visible + .typed span {
+    transition: none !important;
+  }
+
+  .hung a:hover + .tie .tie-blade,
+  .hung a:focus-visible + .tie .tie-blade {
+    animation: none;
+  }
+
+  .hung a:hover + .typed i,
+  .hung a:focus-visible + .typed i {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes tie-swing {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  30% {
+    transform: rotate(5deg);
+  }
+
+  60% {
+    transform: rotate(-3deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes cursor-blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+

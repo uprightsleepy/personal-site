@@ -48,3 +48,40 @@ export function NorthArrow() {
     </a>
   )
 }
+
+// A necktie that hangs under the LinkedIn link in the footer. At rest it is
+// not there. On hover it drops in loose and the knot is pulled up to the
+// collar (see .tie in globals.css). Like the north arrow, its left half is
+// inked in and its right half is outline.
+export function Tie() {
+  return (
+    <svg className="tie" viewBox="0 0 40 72" aria-hidden="true" focusable="false">
+      <path className="tie-collar" d="M5 1L20 11.5L35 1" />
+      <g className="tie-hang">
+        <g className="tie-blade">
+          <path className="tie-fill" d="M20 18H17.4L12 55L20 67Z" />
+          <path d="M20 18H22.6L28 55L20 67" />
+        </g>
+        <path className="tie-fill" d="M15.4 9H24.6L22.6 18.5H17.4Z" />
+      </g>
+    </svg>
+  )
+}
+
+// A line typed out at a prompt, under the GitHub link in the footer. Each
+// character is its own span so the stylesheet can bring them in one after
+// another (see .typed in globals.css), and a block cursor waits at the end.
+export function Typed({ text }: { text: string }) {
+  const characters = Array.from(text)
+  return (
+    <span className="typed" aria-hidden="true" style={{ '--count': characters.length } as React.CSSProperties}>
+      {characters.map((character, index) => (
+        <span key={index} style={{ '--at': index } as React.CSSProperties}>
+          {character}
+        </span>
+      ))}
+      <i />
+    </span>
+  )
+}
+

@@ -1,5 +1,5 @@
 import DimensionLine from '@/components/dimension-line'
-import { NorthArrow } from '@/components/drafting'
+import { NorthArrow, Tie, Typed } from '@/components/drafting'
 import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
@@ -28,15 +28,22 @@ export default function Footer() {
         <DimensionLine className="mb-16 md:mb-24" />
         <p className="title drawn max-w-[14em]">
           Find me on{' '}
-          <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
-            LinkedIn
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>{' '}
+          {/* Each link has something that happens under it on hover: see .hung */}
+          <span className="hung">
+            <a href={profile.linkedin} target="_blank" rel="noopener noreferrer">
+              LinkedIn
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <Tie />
+          </span>{' '}
           and{' '}
-          <a href={profile.github} target="_blank" rel="noopener noreferrer">
-            GitHub
-            <span className="sr-only"> (opens in a new tab)</span>
-          </a>
+          <span className="hung">
+            <a href={profile.github} target="_blank" rel="noopener noreferrer">
+              GitHub
+              <span className="sr-only"> (opens in a new tab)</span>
+            </a>
+            <Typed text={`$ gh repo clone ${profile.repo.replace('https://github.com/', '')}`} />
+          </span>
           .
         </p>
       </Reveal>
