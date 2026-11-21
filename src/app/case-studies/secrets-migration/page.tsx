@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SheetRef } from '@/components/drafting'
+import SecretsDiagram from '@/components/secrets-diagram'
 
 export const metadata: Metadata = {
   title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
@@ -242,7 +243,11 @@ export default function SecretsMigration() {
             </Row>
           ))}
         </dl>
+      </div>
 
+      <SecretsDiagram />
+
+      <div className="longform">
         <h3>Security model</h3>
         <h4>Zero standing privileges architecture</h4>
         <ol>
