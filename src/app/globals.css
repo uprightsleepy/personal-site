@@ -1563,8 +1563,9 @@ html.theme-wipe::view-transition-new(root) {
   The pipeline diagram on the CI/CD case study (pipeline-diagram.tsx). It is
   drawn in the sheet's ink: outlined boxes for pipeline steps, solid boxes
   for the resources they call, dotted lines for the calls, and a
-  line-drawn symbol on each. It is wider than the text column, and on a
-  narrow screen it keeps a readable size and scrolls sideways.
+  line-drawn symbol on each. It is wider than the text column. On a screen
+  too narrow for it, it keeps a readable size inside a framed window and is
+  dragged around; the script marks the figure data-pannable when that is so.
 
   Its motion is at the end of this block. It is drawn in once, the first
   time it is seen. At rest its dotted and dashed lines march the way they
@@ -1576,20 +1577,98 @@ html.theme-wipe::view-transition-new(root) {
   margin-block: 2.5rem 3.5rem;
 }
 
+.diagram-box {
+  position: relative;
+}
+
+/* The window. It scrolls both ways and shows no scrollbars. */
 .diagram-scroll {
-  overflow-x: auto;
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.diagram-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The drawing never gets narrower than this, so its words stay readable. */
+.diagram-sheet {
+  width: max(100%, 70rem);
 }
 
 .diagram svg {
   display: block;
   width: 100%;
-  min-width: 62rem;
   height: auto;
   font-stretch: 90%;
 }
 
-.diagram .caption {
+/* Too big for its window: frame the window and let the drawing be dragged. */
+.diagram[data-pannable] .diagram-scroll {
+  max-height: 80svh;
+  border: 1px solid var(--ink);
+  cursor: grab;
+  /* A sideways drag that reaches the edge should not turn into a page swipe. */
+  overscroll-behavior-x: contain;
+}
+
+.diagram[data-pannable] .diagram-scroll[data-dragging] {
+  cursor: grabbing;
+}
+
+.diagram-scroll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.diagram[data-pannable] .diagram-sheet {
+  padding: 1rem;
+}
+
+.diagram[data-pannable] svg {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/*
+  The key plan, beside the caption: the whole drawing in outline, with
+  the part in view filled in. The script keeps --x, --y, --w and --h (where
+  the window is, as shares of the drawing) and --shape (its proportions).
+*/
+.diagram-key {
+  display: none;
+}
+
+.diagram[data-pannable] .diagram-key {
+  display: block;
+  position: relative;
+  flex: none;
+  width: 4.5rem;
+  aspect-ratio: var(--shape, 2 / 1);
+  margin-top: 0.3rem;
+  border: 1px solid var(--ink);
+}
+
+.diagram-key i {
+  position: absolute;
+  left: var(--x, 0%);
+  top: var(--y, 0%);
+  width: var(--w, 100%);
+  height: var(--h, 100%);
+  background: var(--ink);
+}
+
+/* Under the window: the caption, and beside it the key plan when there is one. */
+.diagram-foot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
   margin-top: 0.9rem;
+}
+
+.diagram .caption {
+  margin-top: 0;
   text-wrap: pretty;
 }
 

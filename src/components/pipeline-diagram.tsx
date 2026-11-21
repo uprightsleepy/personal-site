@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Reveal from '@/components/reveal'
 
 // A drawing of the CI/CD platform's two pipelines for its case study
@@ -41,6 +41,12 @@ import Reveal from '@/components/reveal'
 // Pointing at a step or a resource (or tapping one) traces its calls: those
 // lines and the things at either end stay at full strength, their dots run
 // from the caller to the resource, and the rest of the drawing steps back.
+//
+// On a screen too narrow for it, the drawing keeps a readable size inside a
+// framed window and is moved around by dragging. A finger drags it through
+// the browser's own scrolling; a mouse drags it through the handlers here.
+// There are no scrollbars, so a small key plan beside the caption shows
+// which part of the drawing is in view.
 
 type Symbol =
   | 'merge'
@@ -389,9 +395,80 @@ export default function PipelineDiagram() {
     }),
   })
 
+  // The window the drawing is seen through, and whether the drawing is too
+  // big for it and so can be dragged around.
+  const scroller = useRef<HTMLDivElement>(null)
+  const keyPlan = useRef<HTMLDivElement>(null)
+  const [pannable, setPannable] = useState(false)
+  const drag = useRef<{ x: number; y: number; left: number; top: number } | null>(null)
+
+  useEffect(() => {
+    const el = scroller.current
+    if (!el) return
+    // Where the window is over the drawing, as shares of the drawing, for
+    // the key plan.
+    const place = () => {
+      const plan = keyPlan.current
+      if (!plan) return
+      plan.style.setProperty('--x', `${(el.scrollLeft / el.scrollWidth) * 100}%`)
+      plan.style.setProperty('--y', `${(el.scrollTop / el.scrollHeight) * 100}%`)
+      plan.style.setProperty('--w', `${(el.clientWidth / el.scrollWidth) * 100}%`)
+      plan.style.setProperty('--h', `${(el.clientHeight / el.scrollHeight) * 100}%`)
+      plan.style.setProperty('--shape', `${el.scrollWidth} / ${el.scrollHeight}`)
+    }
+    // The observer reports once when it starts, and again on any resize.
+    const sizes = new ResizeObserver(() => {
+      setPannable(el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)
+      place()
+    })
+    sizes.observe(el)
+    if (el.firstElementChild) sizes.observe(el.firstElementChild)
+    el.addEventListener('scroll', place, { passive: true })
+    return () => {
+      sizes.disconnect()
+      el.removeEventListener('scroll', place)
+    }
+  }, [])
+
+  // Dragging with a mouse. It only counts as a drag once it has moved a
+  // little, so a click is still a click.
+  const startDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current
+    if (!el || !pannable || event.pointerType !== 'mouse' || event.button !== 0) return
+    drag.current = { x: event.clientX, y: event.clientY, left: el.scrollLeft, top: el.scrollTop }
+  }
+  const moveDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current
+    const from = drag.current
+    if (!el || !from) return
+    const dx = event.clientX - from.x
+    const dy = event.clientY - from.y
+    if (Math.abs(dx) + Math.abs(dy) > 3) el.dataset.dragging = ''
+    el.scrollLeft = from.left - dx
+    el.scrollTop = from.top - dy
+  }
+  const endDrag = () => {
+    drag.current = null
+    if (scroller.current) delete scroller.current.dataset.dragging
+  }
+
   return (
-    <figure className="diagram">
-      <Reveal className="diagram-scroll">
+    <figure className="diagram" data-pannable={pannable || undefined}>
+      <Reveal className="diagram-box">
+        <div
+          ref={scroller}
+          className="diagram-scroll"
+          // Reachable by keyboard when there is something to scroll.
+          tabIndex={pannable ? 0 : undefined}
+          role={pannable ? 'group' : undefined}
+          aria-label={pannable ? 'Pipeline diagram. Scroll to see all of it.' : undefined}
+          onPointerDown={startDrag}
+          onPointerMove={moveDrag}
+          onPointerUp={endDrag}
+          onPointerLeave={endDrag}
+          onPointerCancel={endDrag}
+        >
+          <div className="diagram-sheet">
         <svg
           data-tracing={live.length > 0 || undefined}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
@@ -471,12 +548,21 @@ export default function PipelineDiagram() {
             </text>
           </g>
         </svg>
+          </div>
+        </div>
       </Reveal>
-      <figcaption className="caption">
-        Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
-        run as Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or
-        a resource to trace its calls.
-      </figcaption>
+      <div className="diagram-foot">
+        <figcaption className="caption">
+          Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines
+          run as Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or
+          a resource to trace its calls.
+          {pannable && ' Drag the drawing to move around it.'}
+        </figcaption>
+        {/* Key plan: the whole drawing, with the part in view marked on it */}
+        <div ref={keyPlan} className="diagram-key" aria-hidden="true">
+          <i />
+        </div>
+      </div>
     </figure>
   )
 }
