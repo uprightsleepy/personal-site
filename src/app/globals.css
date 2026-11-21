@@ -1559,3 +1559,338 @@ html.theme-wipe::view-transition-new(root) {
   }
 }
 
+/*
+  The pipeline diagram on the CI/CD case study (pipeline-diagram.tsx). It is
+  drawn in the sheet's ink: outlined boxes for pipeline steps, solid boxes
+  for the resources they call, dotted lines for the calls, and a
+  line-drawn symbol on each. It is wider than the text column. On a screen
+  too narrow for it, it keeps a readable size inside a framed window and is
+  dragged around; the script marks the figure data-pannable when that is so.
+
+  Its motion is at the end of this block. It is drawn in once, the first
+  time it is seen. At rest its dotted and dashed lines march the way they
+  point and its resources breathe. Pointing at a step or resource traces
+  its calls.
+*/
+.diagram {
+  max-width: 84rem;
+  margin-block: 2.5rem 3.5rem;
+}
+
+.diagram-box {
+  position: relative;
+}
+
+/* The window. It scrolls both ways and shows no scrollbars. */
+.diagram-scroll {
+  overflow: auto;
+  scrollbar-width: none;
+}
+
+.diagram-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* The drawing never gets narrower than this, so its words stay readable. */
+.diagram-sheet {
+  width: max(100%, 70rem);
+}
+
+.diagram svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  font-stretch: 90%;
+}
+
+/*
+  Too big for its window: frame the window and let the drawing be dragged.
+  The frame is a drawing border, a heavy line with a fine one outside it,
+  the same pair the stamp is ruled with. The margin makes room for the
+  outer line.
+*/
+.diagram[data-pannable] .diagram-frame {
+  margin: 5px;
+  border: 2.5px solid var(--ink);
+  outline: 1.5px solid var(--ink);
+  outline-offset: 3px;
+}
+
+.diagram[data-pannable] .diagram-scroll {
+  max-height: 74svh;
+  cursor: grab;
+  /* A sideways drag that reaches the edge should not turn into a page swipe. */
+  overscroll-behavior-x: contain;
+}
+
+.diagram[data-pannable] .diagram-scroll[data-dragging] {
+  cursor: grabbing;
+}
+
+.diagram-scroll:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -4px;
+}
+
+.diagram[data-pannable] .diagram-sheet {
+  padding: 1rem;
+}
+
+.diagram[data-pannable] svg {
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/*
+  The title strip along the bottom of the frame, ruled into cells like a
+  drawing's title block: what to do on the left, the key plan on the right.
+*/
+.diagram-strip {
+  display: none;
+}
+
+.diagram[data-pannable] .diagram-strip {
+  display: flex;
+  align-items: stretch;
+  border-top: 2.5px solid var(--ink);
+  font-size: 0.8125rem;
+  font-stretch: 90%;
+  font-weight: 650;
+  line-height: 1.2;
+}
+
+.diagram-strip > span {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 0.6rem 0.8rem;
+}
+
+.diagram-key-cell {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.7rem;
+  border-left: 1.5px solid var(--ink);
+}
+
+/*
+  The key plan: the whole drawing in outline, with the part in view filled
+  in. The script keeps --x, --y, --w and --h (where the window is, as shares
+  of the drawing) and --shape (its proportions).
+*/
+.diagram-key {
+  position: relative;
+  width: 4rem;
+  aspect-ratio: var(--shape, 2 / 1);
+  border: 1px solid var(--ink);
+}
+
+.diagram-key i {
+  position: absolute;
+  left: var(--x, 0%);
+  top: var(--y, 0%);
+  width: var(--w, 100%);
+  height: var(--h, 100%);
+  background: var(--ink);
+}
+
+.diagram .caption {
+  margin-top: 0.9rem;
+  text-wrap: pretty;
+}
+
+.pd-lane {
+  fill: none;
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.pd-step {
+  fill: var(--paper);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+
+.pd-glyph {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pd-small.pd-strong {
+  font-weight: 650;
+}
+
+/* A resource: solid ink, with its symbol and words in the paper's colour. */
+.pd-solid {
+  fill: var(--ink);
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.pd-resource .pd-glyph {
+  stroke: var(--paper);
+}
+
+.pd-resource .pd-small {
+  fill: var(--paper);
+}
+
+/* A call from a step to a resource. */
+.pd-call {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-dasharray: 1.5 4;
+  stroke-linecap: round;
+}
+
+.pd-text,
+.pd-title,
+.pd-small {
+  fill: var(--ink);
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.pd-title {
+  font-weight: 750;
+}
+
+.pd-small {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.pd-arrow {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+}
+
+.pd-dashed {
+  stroke-dasharray: 4 4;
+}
+
+.pd-head {
+  fill: var(--ink);
+}
+
+/*
+  Tracing. While something is being traced the svg carries data-tracing, and
+  the calls being traced and the things at their ends carry is-live. The
+  rest steps back.
+*/
+.pd-node,
+.pd-wire,
+.pd-call {
+  transition: opacity 0.2s ease;
+}
+
+.diagram svg[data-tracing] :is(.pd-node:not(.is-live), .pd-wire) {
+  opacity: 0.4;
+}
+
+/* The legend's sample of a call is not a call. */
+.diagram svg[data-tracing] .pd-call:not(.is-live, .pd-sample) {
+  opacity: 0.3;
+}
+
+.pd-call.is-live {
+  stroke-width: 2;
+}
+
+@keyframes pd-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* For a path whose pathLength is 1: its line grows from its start. */
+@keyframes pd-draw {
+  from {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* One step of a call's dots (1.5 on, 4 off), towards the end of its line. */
+@keyframes pd-run {
+  to {
+    stroke-dashoffset: -5.5;
+  }
+}
+
+/* The same for the dashes of a "no" loop (4 on, 4 off). */
+@keyframes pd-run-dashes {
+  to {
+    stroke-dashoffset: -8;
+  }
+}
+
+/* A resource swells a little and settles. It never gets smaller than drawn,
+   so the calls that end on its edge stay covered. */
+@keyframes pd-breathe {
+  50% {
+    transform: scale(1.045);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Not seen yet: hold every piece back. See reveal.tsx for the states. */
+  .diagram [data-reveal="wait"] .pd-in {
+    opacity: 0;
+  }
+
+  /*
+    Seen: each piece comes in at its own time, --t. The fill is backwards
+    only, so that once a piece is in, its opacity is free for tracing.
+  */
+  .diagram [data-reveal="go"] .pd-in {
+    animation: pd-fade 0.4s ease-out backwards;
+    animation-delay: var(--t, 0ms);
+  }
+
+  .diagram [data-reveal="go"] .pd-draw {
+    animation: pd-draw 0.55s ease-out backwards;
+    animation-delay: var(--t, 0ms);
+  }
+
+  .diagram [data-reveal="go"] .pd-wire .pd-draw {
+    animation-duration: 0.3s;
+  }
+
+  /* At rest: calls march slowly towards their resource, and quicken when traced. */
+  .pd-call {
+    animation: pd-run 1.1s linear infinite;
+  }
+
+  .pd-call.is-live {
+    animation-duration: 0.45s;
+  }
+
+  /* A refused merge request marches back to the first step. */
+  .pd-dashed {
+    animation: pd-run-dashes 1.6s linear infinite;
+  }
+
+  /*
+    Each resource breathes about its own centre. They start out of step with
+    one another, by an amount taken from when each was drawn in (--t), so
+    the swell passes across the drawing and they never pulse as one.
+  */
+  .pd-resource {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: pd-breathe 5s ease-in-out infinite;
+    animation-delay: calc(var(--t, 0ms) * -3);
+  }
+}

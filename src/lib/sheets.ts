@@ -4,6 +4,7 @@ export const sheets = [
   { path: '/', title: 'Home' },
   { path: '/case-studies', title: 'Work' },
   { path: '/case-studies/secrets-migration', title: 'Secrets migration' },
+  { path: '/case-studies/cicd-platform', title: 'CI/CD platform' },
   { path: '/about', title: 'About' },
   { path: '/blog', title: 'Writing' },
 ]

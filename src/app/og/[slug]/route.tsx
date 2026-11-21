@@ -82,6 +82,16 @@ const images: Record<string, OgImage> = {
     ],
     stamp: 'As built',
   },
+  'cicd-platform.png': {
+    path: '/case-studies/cicd-platform',
+    lines: [
+      { text: 'CI/CD platform', width: '62' },
+      { text: 'Cloud Run on GCP', width: '125', outline: true },
+      { text: 'Weeks of tickets', width: '100' },
+      { text: 'to five minutes', width: '84', outline: true },
+    ],
+    stamp: 'As built',
+  },
 }
 
 const BLUE = '#1b22d2'

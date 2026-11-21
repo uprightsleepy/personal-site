@@ -47,14 +47,19 @@ export const work: WorkItem[] = [
   },
   {
     slug: 'cicd-platform',
-    kind: 'Platform',
+    kind: 'Case study',
     period: '2025 to 2026',
     years: '2025–26',
     display: 'CI/CD platform',
     title: 'Multi-tenant CI/CD platform on GCP',
     summary:
-      'Architected a CI/CD platform on Cloud Run with self-hosted SonarQube static analysis built in. Twelve teams adopted it voluntarily, and pipeline onboarding dropped from hours to minutes.',
-    tags: ['GCP', 'Cloud Run', 'SonarQube'],
+      'Architected a CI/CD platform on Cloud Run for a company new to GCP, with SonarQube scanning, secret validation and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
+    tags: ['GCP', 'Cloud Run', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
+    link: {
+      href: '/case-studies/cicd-platform',
+      label: 'Read the case study',
+      external: false,
+    },
   },
   {
     slug: 'spawnpointed',
