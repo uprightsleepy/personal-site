@@ -119,7 +119,7 @@
   }
 }
 
-/* A hairline round the folded corner, so it holds its shape. */
+/* A hairline round the flap, so it holds its shape. */
 .flapEdge {
   fill: none;
   stroke: var(--ink);
@@ -128,7 +128,40 @@
   stroke-linejoin: round;
 }
 
-/* Once the sheet rips, the loose corner drops away. Taping it back reverses it. */
+/*
+  The shadow of a large flap: two flat copies of its shape, one tight and one
+  wide, in place of a blur.
+*/
+.flapShadow,
+.flapShadowSoft {
+  fill: #00001e;
+  stroke: #00001e;
+  stroke-linejoin: round;
+}
+
+.flapShadow {
+  stroke-width: 3;
+  opacity: 0.16;
+  transform: translate(3px, 5px);
+}
+
+.flapShadowSoft {
+  stroke-width: 12;
+  opacity: 0.1;
+  transform: translate(5px, 9px);
+}
+
+/* The flap's own torn edges show the same white core as the sheet's. */
+.flapTorn {
+  fill: none;
+  stroke: #ffffff;
+  stroke-opacity: 0.85;
+  stroke-width: 1.6;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+/* Once the piece is torn off it drops away. Taping it back reverses it. */
 .flap {
   transform-box: fill-box;
   transform-origin: 100% 100%;

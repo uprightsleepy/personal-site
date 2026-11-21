@@ -4,57 +4,83 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import styles from './torn-corner.module.css'
 
 // An easter egg for the home page. The bottom right corner of the sheet is
-// torn and folded back a little. Drag the corner up and to the left: it
-// peels after the pointer, then the sheet starts to tear, a little further
-// with every bit of pull, in the direction it is being pulled. Pull far
-// enough and the piece comes away, leaving a music video behind the hole.
+// torn a little and folded back. Drag the corner up and to the left and the
+// sheet tears after it, a bit at a time, in the direction it is pulled. Tear
+// far enough and the piece comes away, leaving a music video behind the hole.
 //
 // The video is a YouTube embed from the no-cookie domain. Nothing is
 // requested from YouTube until the sheet is torn, and public/_headers allows
 // that one domain to be framed.
 //
-// How the drawing works. The component owns a 16:9 box pinned to the corner
-// of the sheet. Everything is computed in that box's pixel coordinates on
-// every frame and written straight to the DOM:
+// How the tear works. The component owns a 16:9 box pinned to the corner of
+// the sheet, and everything is computed in that box's pixel coordinates.
 //
-//   - The corner of the sheet (C) is folded so that it lands on a point P,
-//     which follows the pointer. The fold line is the perpendicular bisector
-//     of C and P. The part of the box on C's side of that line is the hole;
-//     its mirror image across the line is the folded-back flap, which shows
-//     the back of the sheet: the same stock, with the grid and the frame's
-//     border showing through in reverse.
-//   - The edge of the hole is not the straight fold line but a ragged path
-//     that wanders around it, with a band of white fibre where the paper
-//     split, a few loose fibres, and a shadow cast into the hole.
-//   - As the sheet tears, that path spreads from the fold toward an uneven
-//     outline. The outline is different every time (`seed`) and leans the
-//     way the corner is pulled (`lean`): pull left and the tear runs along
-//     the bottom, pull up and it runs up the side.
+//   - Each attempt has a tear line: the path the paper will split along. It
+//     starts as a nick in the bottom edge, runs just inside that edge, goes
+//     round an uneven outline, and comes back down just inside the right
+//     edge to a nick there. `seed` gives it its shape and `lean` (the way
+//     the corner is being pulled) decides how far it reaches along each
+//     edge. The part that has not torn yet keeps adjusting to the pull.
+//   - The line is a row of sample points, and each one holds until the pull
+//     has carried the fold a certain distance past it. Most give after a
+//     pixel or two. Some are knots that hold for much longer and then let
+//     go of everything behind them at once. That is what makes the tear
+//     stick and slip.
+//   - Two tear fronts work inward from the two nicks. A point can only tear
+//     once the one before it has. The white torn edge is drawn along the
+//     points that have torn and nowhere else, so it grows from the edges in
+//     the direction of the pull.
+//   - The straight line between the two fronts is the fold. The hole is the
+//     torn part of the line, the fold, and the corner of the box. The flap
+//     is the hole's own shape turned over across the fold, showing the back
+//     of the sheet. As the tear outruns the hand the flap is drawn shorter,
+//     as if it were being lifted off the page instead of pressed flat.
+//   - While the corner is being dragged a torn point stays torn. At other
+//     times (hovering, settling back, taping it back) the fronts follow the
+//     fold in both directions, so laying the paper down closes the tear.
 const VIDEO = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0'
 
-type State = 'idle' | 'dragging' | 'ripping' | 'open' | 'closing'
+type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
 type Shape = {
-  // Where the folded corner lands, as an offset from the corner.
+  // Where the corner has been pulled to, as an offset from where it belongs.
   tip: Point
-  // 0 to 1 as the tear spreads from the fold to the finished outline.
-  rip: number
-  // Picks this tear's outline. A new one is drawn for every attempt.
-  seed: number
+  // 0 to 1: carries the fold the rest of the way once the hand has let go.
+  boost: number
   // 0 to 1: how much of the pull is sideways (1) as opposed to upward (0).
   lean: number
+  // Picks the tear line. A new one is drawn after the sheet is taped back.
+  seed: number
+}
+type Tear = {
+  w: number
+  h: number
+  seed: number
+  // The direction the outline was laid out for. It follows the pull while
+  // the tear is young and is settled by the time a quarter of it has torn.
+  lean: number
+  controls: Point[]
+  // How far past each sample the fold must travel before it tears.
+  hold: number[]
+  // The two tear fronts: samples 0..lower and upper..end have torn.
+  lower: number
+  upper: number
 }
 
-// Where the corner sits at rest and when the pointer is over it, as offsets
-// of P from the corner. Slightly lopsided, so it does not look ruled.
-const REST: Point = [-27, -36]
-const PEEK: Point = [-40, -54]
-// The pull, as a share of the box's height, at which the sheet starts to
-// tear and at which it has torn right through.
-const TEAR_FROM = 0.5
-const TEAR_TO = 1.2
-const STEPS = 20 // the tear advances in this many small jerks
-const POINTS = 13 // points along the tear's outline
+// Where the corner sits at rest, with the pointer over it, and when it is
+// given a tug. Slightly lopsided, so it does not look ruled.
+const REST: Point = [-33, -44]
+const PEEK: Point = [-42, -56]
+const TUG: Point = [-66, -88]
+const REST_LEAN = 33 / 77
+// The tear line's control points: along the bottom edge, round the outline,
+// and down the right edge, plus the two nicks.
+const ALONG_BOTTOM = 6
+const OUTLINE = 13
+const ALONG_RIGHT = 4
+const CONTROLS = ALONG_BOTTOM + OUTLINE + ALONG_RIGHT
+// The flap is never drawn shorter than this share of its full length.
+const LIFTED = 0.3
 
 const clamp = (value: number, low = 0, high = 1) => Math.min(high, Math.max(low, value))
 const lerp = (from: number, to: number, amount: number) => from + (to - from) * amount
@@ -77,48 +103,37 @@ const noise = (x: number, seed: number) => {
   return lerp(hash(i + seed * 57), hash(i + 1 + seed * 57), u) * 2 - 1
 }
 
-// Keep the part of a polygon where a*x + b*y + c >= 0.
-function clip(polygon: Point[], a: number, b: number, c: number): Point[] {
-  const out: Point[] = []
-  for (let i = 0; i < polygon.length; i++) {
-    const from = polygon[i]
-    const to = polygon[(i + 1) % polygon.length]
-    const fromSide = a * from[0] + b * from[1] + c
-    const toSide = a * to[0] + b * to[1] + c
-    if (fromSide >= 0) out.push(from)
-    if (fromSide >= 0 !== toSide >= 0) out.push(mix(from, to, fromSide / (fromSide - toSide)))
-  }
-  return out
-}
+// Small boxes (phones) get a finer tear: fewer samples and smaller features.
+const scaleFor = (w: number) => clamp(w / 640, 0.55, 1)
+const samplesPerSpan = (w: number) => (w < 420 ? 12 : 20)
 
-// A point on the box's outline, measured clockwise from the top left corner.
-function onOutline(u: number, w: number, h: number): Point {
-  if (u <= w) return [u, 0]
-  if (u <= w + h) return [w, u - w]
-  if (u <= 2 * w + h) return [w - (u - w - h), h]
-  return [0, h - (u - 2 * w - h)]
-}
-function outlinePosition(point: Point, w: number, h: number): number {
-  const [x, y] = point
-  if (Math.abs(y) < 0.01) return x
-  if (Math.abs(x - w) < 0.01) return w + y
-  if (Math.abs(y - h) < 0.01) return w + h + (w - x)
-  return 2 * w + h + (h - y)
-}
-
-// The outline a finished tear settles into, from its end on the bottom edge
-// to its end on the right edge. It bulges away from the corner like a
-// rounded rectangle. `lean` decides how far it reaches along each edge, and
-// `seed` gives it its own lumps and bites.
-function tornOutline(w: number, h: number, seed: number, lean: number): Point[] {
+// The control points of a tear line, from the nick in the bottom edge to
+// the nick in the right edge. Going this way round, the sheet is on the left
+// of the line and the hole on the right.
+function tearLine(w: number, h: number, seed: number, lean: number): Point[] {
+  const k = scaleFor(w)
   const sideways = clamp(lean * 2)
   const upward = clamp((1 - lean) * 2)
   const reachX = (0.52 + 0.47 * sideways) * w
   const reachY = (0.5 + 0.46 * upward) * h
-  const bite = 0.2 + hash(seed + 5) * 0.6 // where along the tear one deep bite falls
-  const points: Point[] = []
-  for (let i = 0; i < POINTS; i++) {
-    const t = i / (POINTS - 1)
+  const nickX = (16 + hash(seed + 71) * 10) * k
+  const nickY = (12 + hash(seed + 73) * 8) * k
+  // How far inside the edge the tear runs. It wanders, and now and then it
+  // all but reaches the edge.
+  const inset = (j: number, salt: number) =>
+    Math.max(1.2, 1.5 + (noise(j * 1.3, seed + salt) + 0.85) * 4.6) * k
+
+  const points: Point[] = [[w - nickX, h]]
+  const spanX = Math.max(40, reachX * 0.9 - nickX)
+  for (let j = 1; j <= ALONG_BOTTOM; j++) {
+    points.push([w - nickX - (spanX * j) / ALONG_BOTTOM, h - inset(j, 61)])
+  }
+
+  // The outline bulges away from the corner like a rounded rectangle, with
+  // its own lumps and one deeper bite.
+  const bite = 0.2 + hash(seed + 5) * 0.6
+  for (let i = 1; i < OUTLINE + 1; i++) {
+    const t = i / (OUTLINE + 1)
     const angle = (t * Math.PI) / 2
     // A squarer curve than a circle, so the opening fills its corner.
     const cx = Math.pow(Math.cos(angle), 0.62)
@@ -132,7 +147,63 @@ function tornOutline(w: number, h: number, seed: number, lean: number): Point[] 
       clamp(h - reachY * cy * scale, h * 0.03, h),
     ])
   }
+
+  const spanY = Math.max(30, reachY * 0.9 - nickY)
+  for (let j = ALONG_RIGHT; j >= 1; j--) {
+    points.push([w - inset(j, 67), h - nickY - (spanY * j) / ALONG_RIGHT])
+  }
+  points.push([w, h - nickY])
   return points
+}
+
+// How long each sample holds. Near the two nicks the paper is already worked
+// loose and gives at once. Further in, most samples give easily and a few
+// are knots.
+function holds(count: number, seed: number, k: number): number[] {
+  const out: number[] = []
+  for (let i = 0; i < count; i++) {
+    const fromEnd = Math.min(i, count - 1 - i)
+    const ramp = clamp((fromEnd - count * 0.05) / (count * 0.11))
+    const knot = hash(i * 3.3 + seed + 53) > 0.84
+    const tough = knot ? 7 + 22 * Math.pow(hash(i + seed + 59), 2) : 0
+    out.push((1.5 + ramp * (1.5 + tough)) * k)
+  }
+  return out
+}
+
+// A smooth curve through the control points, `per` samples to each span.
+// The tangents are scaled to each span's length, so uneven spacing does not
+// make it loop. Both ends cut in from the edge instead of grazing it.
+function sample(controls: Point[], per: number, w: number, h: number): Point[] {
+  const last = controls.length - 1
+  const tangents = controls.map((_, i): Point => {
+    if (i === 0) return [-0.45, -0.89]
+    if (i === last) return [0.89, 0.45]
+    const from = controls[i - 1]
+    const to = controls[i + 1]
+    const span = Math.hypot(to[0] - from[0], to[1] - from[1]) || 1
+    return [(to[0] - from[0]) / span, (to[1] - from[1]) / span]
+  })
+  const curve: Point[] = []
+  for (let i = 0; i < last; i++) {
+    const p0 = controls[i]
+    const p1 = controls[i + 1]
+    const length = Math.hypot(p1[0] - p0[0], p1[1] - p0[1])
+    // The first and last spans leave the edge sharply, then settle.
+    const pull0 = i === 0 ? length * 0.35 : length
+    const pull1 = i === last - 1 ? length * 0.35 : length
+    for (let j = i === 0 ? 0 : 1; j <= per; j++) {
+      const t = j / per
+      const a = 2 * t * t * t - 3 * t * t + 1
+      const b = t * t * t - 2 * t * t + t
+      const c = -2 * t * t * t + 3 * t * t
+      const d = t * t * t - t * t
+      const at = (axis: 0 | 1) =>
+        a * p0[axis] + b * pull0 * tangents[i][axis] + c * p1[axis] + d * pull1 * tangents[i + 1][axis]
+      curve.push([clamp(at(0), 0, w), clamp(at(1), 0, h)])
+    }
+  }
+  return curve
 }
 
 export default function TornCorner() {
@@ -141,9 +212,12 @@ export default function TornCorner() {
   const svg = useRef<SVGSVGElement>(null)
   const [state, setState] = useState<State>('idle')
   const current = useRef<State>('idle')
-  const shape = useRef<Shape>({ tip: REST, rip: 0, seed: 1, lean: 0.5 })
+  const shape = useRef<Shape>({ tip: REST, boost: 0, lean: REST_LEAN, seed: 1 })
+  const line = useRef<Tear | null>(null)
   const tween = useRef(0)
+  const timer = useRef(0)
   const audio = useRef<AudioContext | null>(null)
+  const ticked = useRef(0)
 
   const move = useCallback((next: State) => {
     current.current = next
@@ -175,176 +249,291 @@ export default function TornCorner() {
     source.start()
   }, [])
 
-  const draw = useCallback(() => {
+  // Works out the tear for the current shape and draws it. Returns how far
+  // the tear got on this call and whether the two fronts have met.
+  const draw = useCallback((): { advanced: number; met: boolean } => {
     const el = box.current
     const root = svg.current
-    if (!el || !root || !hole.current) return
+    const nothing = { advanced: 0, met: false }
+    if (!el || !root || !hole.current) return nothing
     const w = el.offsetWidth
     const h = el.offsetHeight
-    const { tip, rip, seed, lean } = shape.current
+    if (!w || !h) return nothing
+    const { tip, boost, lean, seed } = shape.current
+    const mode = current.current
     const part = (name: string) => root.querySelector<SVGElement>(`[data-part="${name}"]`)!
+    const k = scaleFor(w)
+    const per = samplesPerSpan(w)
+    const count = (CONTROLS + 1) * per + 1
 
-    // --- The fold --------------------------------------------------------
-    const corner: Point = [w, h]
-    const p: Point = [clamp(w + tip[0], 8, w - 10), clamp(h + tip[1], 8, h - 10)]
-    const mid = mix(corner, p, 0.5)
-    const reach = Math.hypot(corner[0] - p[0], corner[1] - p[1])
-    // Unit vector across the fold, pointing from the flap toward the corner.
-    const nx = (corner[0] - p[0]) / reach
-    const ny = (corner[1] - p[1]) / reach
-    const c = -(nx * mid[0] + ny * mid[1])
-    const rect: Point[] = [
-      [0, 0],
-      [w, 0],
-      [w, h],
-      [0, h],
-    ]
-    const folded = clip(rect, nx, ny, c)
-    const isCorner = (point: Point) =>
-      rect.some((r) => Math.abs(r[0] - point[0]) < 0.01 && Math.abs(r[1] - point[1]) < 0.01)
-    // The two points where the fold meets the box's outline.
-    const ends = folded.filter((point) => !isCorner(point))
-    if (ends.length < 2) return
-    const positions = ends.map((point) => outlinePosition(point, w, h)).sort((x, y) => x - y)
-    const foldUpper = onOutline(positions[0], w, h)
-    const foldLower = onOutline(positions[1], w, h)
+    // --- The tear line ---------------------------------------------------
+    let tear = line.current
+    if (!tear || tear.w !== w || tear.h !== h || tear.seed !== seed) {
+      // A new line (or a resized box). If the piece is already off, it
+      // stays off.
+      const off = mode === 'ripping' || mode === 'open'
+      const middle = Math.floor(count / 2)
+      const settled = tear && tear.seed === seed ? tear.lean : lean
+      tear = line.current = {
+        w,
+        h,
+        seed,
+        lean: settled,
+        controls: tearLine(w, h, seed, settled),
+        hold: holds(count, seed, k),
+        lower: off ? middle : 0,
+        upper: off ? middle + 1 : count - 1,
+      }
+    } else {
+      // The part that has not torn follows the pull, less and less as the
+      // tear gets going. Points near a tear front stay put, so the torn part
+      // never changes shape.
+      const torn = 1 - (tear.upper - tear.lower) / (count - 1)
+      tear.lean = lerp(tear.lean, lean, clamp(1 - torn / 0.25))
+      const wanted = tearLine(w, h, seed, tear.lean)
+      const from = Math.floor(tear.lower / per) + 3
+      const to = Math.ceil(tear.upper / per) - 3
+      for (let j = from; j <= to; j++) {
+        const next: Point = [wanted[j][0], wanted[j][1]]
+        // Keep the runs along the edges in order as their reach changes.
+        if (j >= 1 && j <= ALONG_BOTTOM) next[0] = Math.min(next[0], tear.controls[j - 1][0] - 12 * k)
+        tear.controls[j] = next
+      }
+      for (let j = Math.min(to, CONTROLS); j >= Math.max(from, CONTROLS - ALONG_RIGHT + 1); j--) {
+        tear.controls[j][1] = Math.min(tear.controls[j][1], tear.controls[j + 1][1] - 12 * k)
+      }
+    }
+    const curve = sample(tear.controls, per, w, h)
+    const end = curve.length - 1
 
-    // --- The tear's path -------------------------------------------------
-    // A row of points that start out spaced along the straight fold and
-    // travel to this tear's outline. Its two ends slide along the box's
-    // edges. The middle runs ahead of the ends, so it opens from the corner.
-    const target = tornOutline(w, h, seed, lean)
-    const last = POINTS - 1
-    const lowerAt = lerp(positions[1], outlinePosition(target[0], w, h), rip)
-    const upperAt = lerp(positions[0], outlinePosition(target[last], w, h), rip)
-    const controls: Point[] = target.map((to, index) => {
-      if (index === 0) return onOutline(lowerAt, w, h)
-      if (index === last) return onOutline(upperAt, w, h)
-      const along = index / last
-      const lead = clamp(rip * 1.35 - 0.35 * Math.abs(along - 0.5) * 2)
-      return mix(mix(foldLower, foldUpper, along), to, lead)
-    })
+    // --- How far the fold has been carried -------------------------------
+    // Distances are measured from the corner along the direction of pull.
+    const size = Math.hypot(lean, 1 - lean)
+    const ux = -lean / size
+    const uy = -(1 - lean) / size
+    const along = curve.map((point) => (point[0] - w) * ux + (point[1] - h) * uy)
+    let farthest = 0
+    let all = 0
+    for (let i = 0; i <= end; i++) {
+      farthest = Math.max(farthest, along[i])
+      all = Math.max(all, along[i] + tear.hold[i])
+    }
+    all += 2
+    // A light pull folds the corner exactly: the fold is halfway between the
+    // corner and where it has been pulled to. Past that the paper is being
+    // lifted more than folded and the tear runs ahead of the hand, so that
+    // it is through by the time the hand has crossed most of the opening.
+    const pull = Math.hypot(tip[0], tip[1])
+    const folding = 0.35 * h
+    const through = Math.max(folding + 60, 0.8 * farthest)
+    const gain = Math.max(0.5, (all - folding / 2) / (through - folding))
+    const carried = pull <= folding ? pull / 2 : folding / 2 + (pull - folding) * gain
+    const fold = lerp(carried, Math.max(carried, all), boost)
+
+    // --- The tear fronts -------------------------------------------------
+    const before = tear.lower + (end - tear.upper)
+    let moved = true
+    while (moved) {
+      moved = false
+      if (tear.lower + 1 < tear.upper && fold - along[tear.lower + 1] > tear.hold[tear.lower + 1]) {
+        tear.lower++
+        moved = true
+      }
+      if (tear.upper - 1 > tear.lower && fold - along[tear.upper - 1] > tear.hold[tear.upper - 1]) {
+        tear.upper--
+        moved = true
+      }
+    }
+    if (mode === 'idle' || mode === 'closing') {
+      // Not being pulled: laying the paper back down closes the tear.
+      while (tear.lower > 0 && fold - along[tear.lower] <= 0) tear.lower--
+      while (tear.upper < end && fold - along[tear.upper] <= 0) tear.upper++
+    }
+    const { lower, upper } = tear
+    const advanced = Math.max(0, lower + (end - upper) - before)
+    const met = upper - lower <= 1
 
     // --- The ragged edge -------------------------------------------------
-    // Walk a smooth curve through those points a few pixels at a time, and
-    // roughen it. `centre` is the edge of the hole. `sheet` and `core` are
-    // the two sides of the band of white fibre.
-    const curve: Point[] = []
-    for (let i = 0; i < last; i++) {
-      const p0 = controls[Math.max(0, i - 1)]
-      const p1 = controls[i]
-      const p2 = controls[i + 1]
-      const p3 = controls[Math.min(last, i + 2)]
-      const steps = Math.max(1, Math.round(Math.hypot(p2[0] - p1[0], p2[1] - p1[1]) / 3.5))
-      for (let j = i === 0 ? 0 : 1; j <= steps; j++) {
-        const t = j / steps
-        // Catmull-Rom: a curve that passes through every control point.
-        const at = (k: 0 | 1) =>
-          0.5 *
-          (2 * p1[k] +
-            (p2[k] - p0[k]) * t +
-            (2 * p0[k] - 5 * p1[k] + 4 * p2[k] - p3[k]) * t * t +
-            (3 * p1[k] - p0[k] - 3 * p2[k] + p3[k]) * t * t * t)
-        curve.push([clamp(at(0), 0, w), clamp(at(1), 0, h)])
-      }
-    }
+    // Only where the sheet has torn. `centre` is the edge of the hole.
+    // `sheet` and `core` are the two sides of the band of white fibre, which
+    // narrows to nothing at each tear front.
     const centre: Point[] = []
-    const sheet: Point[] = []
-    const core: Point[] = []
     const fibres: string[] = []
-    let travelled = 0
-    for (let i = 0; i < curve.length; i++) {
-      const [x, y] = curve[i]
-      const before = curve[Math.max(0, i - 1)]
-      const after = curve[Math.min(curve.length - 1, i + 1)]
-      const length = Math.hypot(after[0] - before[0], after[1] - before[1]) || 1
-      if (i > 0) travelled += Math.hypot(x - before[0], y - before[1])
-      const s = travelled
-      // Normal pointing away from the hole, into the sheet.
-      let ax = -(after[1] - before[1]) / length
-      let ay = (after[0] - before[0]) / length
-      if (ax * (corner[0] - x) + ay * (corner[1] - y) > 0) {
-        ax = -ax
-        ay = -ay
+    const bands: string[] = []
+    const inside = (x: number, y: number): Point => [clamp(x, 0, w), clamp(y, 0, h)]
+    const run = (from: number, to: number) => {
+      const sheet: Point[] = []
+      const core: Point[] = []
+      for (let i = from; i <= to; i++) {
+        const [x, y] = curve[i]
+        const prev = curve[Math.max(0, i - 1)]
+        const next = curve[Math.min(end, i + 1)]
+        const length = Math.hypot(next[0] - prev[0], next[1] - prev[1]) || 1
+        // Unit vector pointing out of the hole, into the sheet.
+        const ax = (next[1] - prev[1]) / length
+        const ay = -(next[0] - prev[0]) / length
+        const fromEnd = Math.min(i, end - i)
+        const fromFront = i <= lower ? lower - i : i - upper
+        const pinned = Math.min(1, fromEnd / 4)
+        const wander =
+          (noise(i * 0.22, seed + 1) * 3.4 + noise(i * 0.64, seed + 2) * 1.7 + noise(i * 1.6, seed + 3) * 0.7) *
+          pinned *
+          k
+        const taper = Math.min(clamp(fromFront / 6, 0.1, 1), 0.25 + 0.75 * clamp(fromEnd / 12)) * k
+        const tuft = hash(Math.floor(i / 2.6) + seed + 9) > 0.78 ? 2.6 : 0
+        const outer = (1.1 + (noise(i * 0.5, seed + 4) + 1) * 1.4) * taper
+        const inner = (1.3 + (noise(i * 0.58, seed + 5) + 1) * 2.1 + tuft) * taper
+        centre.push(inside(x + ax * wander, y + ay * wander))
+        sheet.push(inside(x + ax * (wander + outer), y + ay * (wander + outer)))
+        core.push(inside(x + ax * (wander - inner), y + ay * (wander - inner)))
+        // Now and then a loose fibre hangs into the hole.
+        if (i % 5 === 2 && fromFront > 3 && hash(Math.floor(i / 5) + seed + 31) > 0.45) {
+          const long = (3 + hash(i * 7.3 + seed) * 7) * k
+          const sway = (hash(i * 3.1 + seed + 3) - 0.5) * 5 * k
+          fibres.push(
+            `M${fmt([x + ax * (wander - inner + 0.5), y + ay * (wander - inner + 0.5)])}` +
+              `l${(-ax * long - ay * sway).toFixed(1)} ${(-ay * long + ax * sway).toFixed(1)}`,
+          )
+        }
       }
-      // The ends are pinned to the outline; the wander fades in from them.
-      const pinned = Math.min(1, i / 3, (curve.length - 1 - i) / 3)
-      const wander =
-        (noise(s / 16, seed + 1) * 3.4 + noise(s / 5.5, seed + 2) * 1.7 + noise(s / 2.2, seed + 3) * 0.7) *
-        pinned
-      const tuft = hash(Math.floor(s / 9) + seed + 9) > 0.78 ? 2.6 : 0
-      const outer = 1.1 + (noise(s / 7, seed + 4) + 1) * 1.4
-      const inner = 1.3 + (noise(s / 6, seed + 5) + 1) * 2.1 + tuft
-      centre.push([x + ax * wander, y + ay * wander])
-      sheet.push([x + ax * (wander + outer), y + ay * (wander + outer)])
-      core.push([x + ax * (wander - inner), y + ay * (wander - inner)])
-      // Now and then a loose fibre hangs into the hole.
-      if (i % 5 === 2 && hash(Math.floor(s / 17) + seed + 31) > 0.45) {
-        const long = 3 + hash(i * 7.3 + seed) * 7
-        const sway = (hash(i * 3.1 + seed + 3) - 0.5) * 5
-        fibres.push(
-          `M${fmt([x + ax * (wander - inner + 0.5), y + ay * (wander - inner + 0.5)])}` +
-            `l${(-ax * long - ay * sway).toFixed(1)} ${(-ay * long + ax * sway).toFixed(1)}`,
-        )
+      if (sheet.length > 1) {
+        bands.push(`M${sheet.map(fmt).join('L')}L${[...core].reverse().map(fmt).join('L')}Z`)
       }
     }
+    run(0, lower)
+    const split = centre.length
+    run(upper, end)
 
     // --- The hole --------------------------------------------------------
-    // The ragged edge, then round the box's outline through the corner.
-    const around: Point[] = []
-    if (upperAt < w - 0.01) around.push([w, 0])
-    around.push([w, h])
-    if (lowerAt > 2 * w + h + 0.01) around.push([0, h])
-    const outline = [...centre, ...around]
+    // The torn edge on one side, straight across the fold, the torn edge on
+    // the other side, and round the corner of the box.
+    const corner: Point = [w, h]
+    const outline = [...centre, corner]
     hole.current.style.clipPath = `polygon(${outline
       .map((point) => `${point[0].toFixed(1)}px ${point[1].toFixed(1)}px`)
       .join(',')})`
     part('clip').setAttribute('points', outline.map(fmt).join(' '))
     part('shade').setAttribute('d', `M${centre.map(fmt).join('L')}`)
-    part('core').setAttribute(
-      'd',
-      `M${sheet.map(fmt).join('L')}L${[...core].reverse().map(fmt).join('L')}Z`,
-    )
+    part('core').setAttribute('d', bands.join(''))
     part('fibres').setAttribute('d', fibres.join(''))
 
     // --- The flap --------------------------------------------------------
-    // The folded corner: the fold's straight-edged shape, mirrored across
-    // the fold. Once the piece comes away it keeps its last shape while the
-    // stylesheet drops it.
-    if (current.current === 'idle' || current.current === 'dragging') {
-      const mirror = (point: Point): Point => {
-        const d = nx * point[0] + ny * point[1] + c
-        return [point[0] - 2 * d * nx, point[1] - 2 * d * ny]
+    // The same shape turned over across the fold. Once the piece comes away
+    // it keeps its last shape while the stylesheet drops it.
+    const attached = mode === 'idle' || mode === 'dragging' || mode === 'finishing'
+    const low = centre[split - 1]
+    const high = centre[split]
+    const width = Math.hypot(high[0] - low[0], high[1] - low[1])
+    if (attached && !met && width > 4) {
+      // Unit vector across the fold, pointing toward the corner.
+      let nx = (high[1] - low[1]) / width
+      let ny = -(high[0] - low[0]) / width
+      if (nx * (w - low[0]) + ny * (h - low[1]) < 0) {
+        nx = -nx
+        ny = -ny
       }
-      const points = folded.map(mirror).map(fmt).join(' ')
-      // The sheet's own edges, as opposed to the fold: start just after the
-      // fold and walk round to its other end.
-      const foldStart = folded.findIndex(
-        (point, index) => !isCorner(point) && !isCorner(folded[(index + 1) % folded.length]),
-      )
-      const edges = folded.map((_, index) => folded[(foldStart + 1 + index) % folded.length])
-      part('flap-border').setAttribute('points', edges.map(mirror).map(fmt).join(' '))
+      const c = -(nx * low[0] + ny * low[1])
+      const depth = Math.max(1, nx * w + ny * h + c)
+      // Pressed flat, the corner lands twice as far out as the fold. When the
+      // hand has not gone that far the flap is standing up off the page, and
+      // from above it looks shorter.
+      const reach = -(tip[0] * nx + tip[1] * ny)
+      const over = 1 + clamp(reach / depth - 1, LIFTED, 1)
+      const turn = (point: Point): Point => {
+        const distance = Math.max(0, nx * point[0] + ny * point[1] + c)
+        return [point[0] - over * distance * nx, point[1] - over * distance * ny]
+      }
+      const turned = outline.map(turn)
+      const points = turned.map(fmt).join(' ')
       part('flap').setAttribute('points', points)
       part('flap-edge').setAttribute('points', points)
       part('flap-print').setAttribute('points', points)
+      // Its torn edges show their white core too.
+      part('flap-torn').setAttribute(
+        'd',
+        `M${centre.slice(0, split).map(turn).map(fmt).join('L')}` +
+          `M${centre.slice(split).map(turn).map(fmt).join('L')}`,
+      )
+      // The sheet's own two edges, which carry the frame's border.
+      part('flap-border').setAttribute(
+        'points',
+        [centre[centre.length - 1], corner, centre[0]].map(turn).map(fmt).join(' '),
+      )
       // Shading runs from the crease to the tip of the corner.
+      const mid = mix(low, high, 0.5)
+      const length = (over - 1) * depth
       const shading = part('curl')
       shading.setAttribute('x1', mid[0].toFixed(1))
       shading.setAttribute('y1', mid[1].toFixed(1))
-      shading.setAttribute('x2', p[0].toFixed(1))
-      shading.setAttribute('y2', p[1].toFixed(1))
-      // The back of the sheet shows its print faintly, mirrored.
-      const k = -2 * c
+      shading.setAttribute('x2', (mid[0] - length * nx).toFixed(1))
+      shading.setAttribute('y2', (mid[1] - length * ny).toFixed(1))
+      // The back of the sheet shows its print faintly, turned over with it.
       part('print').setAttribute(
         'transform',
-        `matrix(${1 - 2 * nx * nx} ${-2 * nx * ny} ${-2 * nx * ny} ${1 - 2 * ny * ny} ${k * nx} ${k * ny})`,
+        `matrix(${1 - over * nx * nx} ${-over * nx * ny} ${-over * nx * ny} ${1 - over * ny * ny} ${
+          -over * c * nx
+        } ${-over * c * ny})`,
       )
+      // A blurred shadow and paper grain are costly to filter over a large
+      // area, so only the small flap gets them. A large one casts two plain
+      // offset copies of itself instead.
+      const large = depth > 70
+      const body = part('flap-body')
+      if (large) {
+        body.removeAttribute('filter')
+      } else {
+        // The filter works on a region just big enough for the flap and its
+        // shadow. Left to itself it would take in the whole of the print
+        // behind the flap, which is far larger than what shows.
+        let left = Infinity
+        let top = Infinity
+        let right = -Infinity
+        let bottom = -Infinity
+        for (const [x, y] of turned) {
+          left = Math.min(left, x)
+          top = Math.min(top, y)
+          right = Math.max(right, x)
+          bottom = Math.max(bottom, y)
+        }
+        const region = part('paper')
+        region.setAttribute('x', (left - 20).toFixed(0))
+        region.setAttribute('y', (top - 20).toFixed(0))
+        region.setAttribute('width', (right - left + 48).toFixed(0))
+        region.setAttribute('height', (bottom - top + 52).toFixed(0))
+        body.setAttribute('filter', 'url(#tear-paper)')
+      }
+      part('flap-shadow').setAttribute('points', large ? points : '')
+      part('flap-shadow-soft').setAttribute('points', large ? points : '')
     }
-  }, [])
+
+    // --- What it sounds and feels like -----------------------------------
+    if (advanced > 0 && (mode === 'dragging' || mode === 'finishing')) {
+      const now = performance.now()
+      if (now - ticked.current > 30) {
+        ticked.current = now
+        crackle(clamp(0.08 + advanced * 0.045, 0, 0.7))
+        navigator.vibrate?.(Math.min(16, 3 + advanced))
+      }
+    }
+    return { advanced, met }
+  }, [crackle])
+
+  // The piece is off. The flap drops away and the video starts.
+  const rip = useCallback(() => {
+    if (current.current === 'ripping' || current.current === 'open') return
+    cancelAnimationFrame(tween.current)
+    shape.current = { ...shape.current, boost: 1 }
+    move('ripping')
+    draw()
+    crackle(1)
+    navigator.vibrate?.(28)
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(() => move('open'), 420)
+  }, [crackle, draw, move])
 
   // Ease the shape toward new values, then run `done`.
   const animate = useCallback(
-    (to: { tip?: Point; rip?: number }, ms: number, done?: () => void) => {
+    (to: Partial<Omit<Shape, 'seed'>>, ms: number, done?: () => void) => {
       cancelAnimationFrame(tween.current)
       const from = { ...shape.current }
       const target = { ...from, ...to }
@@ -353,46 +542,49 @@ export default function TornCorner() {
       const frame = (now: number) => {
         const t = reduced ? 1 : Math.min(1, (now - start) / ms)
         const eased = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2
-        // A rip comes in jerks, not one smooth pull.
-        const jerk = to.rip !== undefined && t < 1 ? Math.sin(t * 31) * 0.014 : 0
         shape.current = {
           ...shape.current,
           tip: mix(from.tip, target.tip, eased),
-          rip: clamp(lerp(from.rip, target.rip, eased) + jerk),
+          boost: lerp(from.boost, target.boost, eased),
+          lean: lerp(from.lean, target.lean, eased),
         }
-        draw()
-        if (t < 1) tween.current = requestAnimationFrame(frame)
+        const { met } = draw()
+        if (current.current === 'finishing' && met) rip()
+        else if (t < 1) tween.current = requestAnimationFrame(frame)
         else done?.()
       }
       tween.current = requestAnimationFrame(frame)
     },
-    [draw],
+    [draw, rip],
   )
 
-  // The piece comes away. Whatever is left of the tear finishes on its own,
-  // quicker the further it had already gone.
+  // Let go with enough torn and the rest goes on its own, quicker the less
+  // there is left.
   const comeAway = useCallback(() => {
     if (current.current !== 'idle' && current.current !== 'dragging') return
-    move('ripping')
-    crackle(1)
-    navigator.vibrate?.(28)
-    const left = 1 - shape.current.rip
-    animate({ rip: 1 }, 160 + 520 * left, () => move('open'))
-  }, [animate, crackle, move])
+    move('finishing')
+    const tear = line.current
+    const left = tear ? (tear.upper - tear.lower) / (tear.hold.length - 1) : 1
+    animate({ boost: 1 }, 200 + 620 * left, rip)
+  }, [animate, move, rip])
 
-  // Closing takes the video away at once, lets the tear run back to the
-  // corner, then brings the folded corner back.
+  // Closing takes the video away at once and runs the tear back to the
+  // corner. The folded corner then comes back with a tear line of its own.
   const close = useCallback(() => {
+    window.clearTimeout(timer.current)
     move('closing')
-    animate({ tip: REST, rip: 0 }, 420, () => move('idle'))
-  }, [animate, move])
+    animate({ tip: REST, boost: 0, lean: REST_LEAN }, 460, () => {
+      shape.current = { ...shape.current, seed: Math.random() * 1000 }
+      move('idle')
+      draw()
+    })
+  }, [animate, draw, move])
 
   // Dragging the corner.
   const drag = useRef<{
     x: number
     y: number
     moved: boolean
-    step: number
     at: number
     speed: number
     lastX: number
@@ -414,20 +606,17 @@ export default function TornCorner() {
       x: event.clientX,
       y: event.clientY,
       moved: false,
-      step: 0,
       at: performance.now(),
       speed: 0,
       lastX: event.clientX,
       lastY: event.clientY,
     }
-    // Every attempt tears differently.
-    shape.current = { ...shape.current, rip: 0, seed: Math.random() * 1000 }
     move('dragging')
   }
 
   const onPointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
     const origin = drag.current
-    if (!origin || current.current !== 'dragging' || !box.current) return
+    if (!origin || current.current !== 'dragging') return
     const dx = Math.min(0, event.clientX - origin.x)
     const dy = Math.min(0, event.clientY - origin.y)
     if (Math.hypot(dx, dy) > 4) origin.moved = true
@@ -442,30 +631,14 @@ export default function TornCorner() {
     origin.lastY = event.clientY
 
     const tip: Point = [PEEK[0] + dx, PEEK[1] + dy]
-    const height = box.current.offsetHeight
-    const pull = Math.hypot(tip[0], tip[1]) / height
-    // Past a certain pull the paper tears, and it tears in little jerks: it
-    // holds, then gives. Each time it gives there is a tick and, on phones
-    // that can, a tap of vibration.
-    const raw = clamp((pull - TEAR_FROM) / (TEAR_TO - TEAR_FROM))
-    const step = Math.floor(raw * STEPS)
-    const within = raw * STEPS - step
-    const rip = clamp((step + Math.pow(within, 5)) / STEPS)
-    if (step > origin.step) {
-      crackle(0.15 + 0.35 * Math.random())
-      navigator.vibrate?.(7)
-    }
-    origin.step = step
     // The tear leans the way it is being pulled. It eases toward the new
     // direction, so a change of mind bends the tear instead of jumping it.
     const sideways = Math.abs(tip[0]) / (Math.abs(tip[0]) + Math.abs(tip[1]) || 1)
-    const lean = raw === 0 ? sideways : lerp(shape.current.lean, sideways, 0.18)
-
-    shape.current = { ...shape.current, tip, rip, lean }
-    draw()
-    if (raw >= 1) {
+    const lean = lerp(shape.current.lean, sideways, 0.18)
+    shape.current = { ...shape.current, tip, lean }
+    if (draw().met) {
       drag.current = null
-      comeAway()
+      rip()
     }
   }
 
@@ -473,19 +646,20 @@ export default function TornCorner() {
     const origin = drag.current
     drag.current = null
     if (current.current !== 'dragging') return
-    const { rip } = shape.current
+    const tear = line.current
+    const torn = tear ? 1 - (tear.upper - tear.lower) / (tear.hold.length - 1) : 0
     // Far enough, or let go with a flick, and the piece comes away.
-    if (rip > 0.3 || (rip > 0.08 && origin && origin.speed > 0.9)) {
+    if (torn > 0.3 || (torn > 0.12 && origin && origin.speed > 0.9)) {
       comeAway()
       return
     }
     move('idle')
     if (origin && !origin.moved) {
       // A plain click gives the corner a tug, as a hint that it pulls.
-      animate({ tip: [-84, -96] }, 170, () => animate({ tip: REST }, 300))
+      animate({ tip: TUG }, 170, () => animate({ tip: REST }, 300))
     } else {
-      // Not far enough: the corner settles back.
-      animate({ tip: REST, rip: 0 }, 320)
+      // Not far enough: the corner is laid back down and the tear closes.
+      animate({ tip: REST, lean: REST_LEAN }, 340)
     }
   }
 
@@ -493,21 +667,21 @@ export default function TornCorner() {
   const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault()
-      shape.current = {
-        ...shape.current,
-        seed: Math.random() * 1000,
-        lean: 0.3 + Math.random() * 0.4,
-      }
+      shape.current = { ...shape.current, lean: 0.3 + Math.random() * 0.4 }
       comeAway()
     }
   }
 
   useEffect(() => {
+    // Every visit gets its own tear.
+    shape.current = { ...shape.current, seed: Math.random() * 1000 }
     draw()
-    window.addEventListener('resize', draw)
+    const onResize = () => draw()
+    window.addEventListener('resize', onResize)
     return () => {
-      window.removeEventListener('resize', draw)
+      window.removeEventListener('resize', onResize)
       cancelAnimationFrame(tween.current)
+      window.clearTimeout(timer.current)
       void audio.current?.close()
     }
   }, [draw])
@@ -546,9 +720,9 @@ export default function TornCorner() {
             <feGaussianBlur stdDeviation="7" />
           </filter>
           {/*
-            The folded corner shows the back of the sheet: the same stock as
-            the front, a touch paler, shaded from the crease to the tip. The
-            colours come from the stylesheet so both themes work.
+            The flap shows the back of the sheet: the same stock as the front,
+            a touch paler, shaded from the crease to the tip. The colours come
+            from the stylesheet so both themes work.
           */}
           <linearGradient id="tear-curl" data-part="curl" gradientUnits="userSpaceOnUse">
             <stop offset="0" className={styles.curlCrease} />
@@ -564,8 +738,8 @@ export default function TornCorner() {
           <clipPath id="tear-flap-clip">
             <polygon data-part="flap-print" />
           </clipPath>
-          {/* Paper grain on the flap, and the shadow it casts on the sheet */}
-          <filter id="tear-paper" x="-40%" y="-40%" width="180%" height="180%">
+          {/* The shadow the flap casts on the sheet, and paper grain on the flap */}
+          <filter id="tear-paper" data-part="paper" filterUnits="userSpaceOnUse">
             <feGaussianBlur in="SourceAlpha" stdDeviation="6" result="blur" />
             <feOffset in="blur" dx="4" dy="7" result="offset" />
             <feColorMatrix
@@ -595,9 +769,11 @@ export default function TornCorner() {
           <path data-part="shade" className={styles.shade} filter="url(#tear-soft)" />
         </g>
 
-        {/* The folded-back corner */}
+        {/* The folded-back piece */}
         <g className={styles.flap}>
-          <g filter="url(#tear-paper)">
+          <polygon data-part="flap-shadow-soft" className={styles.flapShadowSoft} />
+          <polygon data-part="flap-shadow" className={styles.flapShadow} />
+          <g data-part="flap-body" filter="url(#tear-paper)">
             <polygon data-part="flap" fill="url(#tear-curl)" />
             <g clipPath="url(#tear-flap-clip)">
               <rect
@@ -608,14 +784,15 @@ export default function TornCorner() {
                 height="4000"
                 fill="url(#tear-grid)"
               />
+              {/* The frame's border, which runs along these two edges on the front */}
+              <polyline data-part="flap-border" className={styles.ghostBorder} />
             </g>
-            {/* The frame's border, which runs along these two edges on the front */}
-            <polyline data-part="flap-border" className={styles.ghostBorder} />
             <polygon data-part="flap-edge" className={styles.flapEdge} />
+            <path data-part="flap-torn" className={styles.flapTorn} />
           </g>
         </g>
 
-        {/* White fibre where the paper split, and a few loose strands */}
+        {/* White fibre where the paper has split, and a few loose strands */}
         <path data-part="core" className={styles.core} />
         <path data-part="fibres" className={styles.fibres} />
       </svg>
