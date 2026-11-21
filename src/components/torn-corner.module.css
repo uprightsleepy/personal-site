@@ -2,7 +2,8 @@
   The torn corner (torn-corner.tsx). A box pinned to the bottom right corner
   of the sheet, sized for a 16:9 video. At rest only a small corner of it
   shows. The box ignores the pointer except on the corner itself and, once
-  torn open, on the video.
+  torn open, on the video. The component computes every shape; this file
+  only says how each one is painted.
 */
 .tear {
   position: fixed;
@@ -14,12 +15,12 @@
   pointer-events: none;
 }
 
-/* What shows through the tear. The component clips it to the torn shape. */
+/* What shows through the tear: the dark of whatever is under the sheet. */
 .hole {
   position: absolute;
   inset: 0;
-  background: #0b0c14;
-  clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%);
+  background: radial-gradient(120% 120% at 100% 100%, #14151f, #07070c);
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
 }
 
 .hole iframe {
@@ -34,52 +35,64 @@
   pointer-events: auto;
 }
 
-/* Torn paper shows its white core along the tear. */
-.edge {
+.drawing {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
+}
+
+/* The shadow the sheet's torn edge casts on what is behind it. */
+.shade {
+  fill: none;
+  stroke: #000008;
+  stroke-opacity: 0.6;
+  stroke-width: 24;
+  stroke-linejoin: round;
+}
+
+/* Lighter once the video is playing, so it does not dim the picture's edge. */
+.tear[data-state='open'] .shade {
+  stroke-opacity: 0.35;
+  stroke-width: 16;
+}
+
+/* Torn paper shows its white core along the tear. */
+.core {
+  fill: #ffffff;
+  filter: drop-shadow(0 1px 1.5px rgb(0 0 30 / 0.4));
+}
+
+.fibres {
   fill: none;
   stroke: #ffffff;
-  stroke-width: 4;
+  stroke-opacity: 0.85;
+  stroke-width: 0.8;
   stroke-linecap: round;
+}
+
+/* A hairline round the folded corner, so it holds its shape on white. */
+.flapEdge {
+  fill: none;
+  stroke: rgb(20 26 120 / 0.28);
+  stroke-width: 0.75;
   stroke-linejoin: round;
-  filter: url(#torn-edge) drop-shadow(0 1px 2px rgb(0 0 30 / 0.45));
 }
 
-/*
-  The folded-back corner. A clip path would cut off its shadow, so the
-  shadow sits on a wrapper.
-*/
-.flapShadow {
-  position: absolute;
-  inset: 0;
-  /* The same roughening as the tear, so the corner's edges are ragged too. */
-  filter: url(#torn-edge) drop-shadow(-2px -2px 5px rgb(0 0 30 / 0.4));
-  transition:
-    transform 0.55s cubic-bezier(0.5, 0, 0.9, 0.4),
-    opacity 0.45s ease-in 0.1s;
-  transform-origin: 100% 100%;
-}
-
-/* The back of the sheet: paler than its face, shaded toward the fold. */
+/* Once the sheet rips, the loose corner drops away. Taping it back reverses it. */
 .flap {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    315deg,
-    color-mix(in srgb, var(--blue) 55%, white) 0%,
-    color-mix(in srgb, var(--blue) 22%, white) 9rem
-  );
-  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  transition:
+    transform 0.6s cubic-bezier(0.5, 0, 0.9, 0.4),
+    opacity 0.45s ease-in 0.12s;
 }
 
-/* Once the sheet rips, the loose corner drops away. */
-.tear[data-state='ripping'] .flapShadow,
-.tear[data-state='open'] .flapShadow {
-  transform: translate(-3rem, 7rem) rotate(-38deg);
+.tear[data-state='ripping'] .flap,
+.tear[data-state='open'] .flap,
+.tear[data-state='closing'] .flap {
+  transform: translate(-2.5rem, 8rem) rotate(-42deg) scale(0.92);
   opacity: 0;
 }
 
@@ -87,8 +100,8 @@
   position: absolute;
   right: 0;
   bottom: 0;
-  width: 4.5rem;
-  height: 4.5rem;
+  width: 5rem;
+  height: 5.5rem;
   pointer-events: auto;
   cursor: grab;
   touch-action: none;
@@ -110,7 +123,7 @@
 .close {
   position: absolute;
   left: 0;
-  bottom: calc(100% + 0.9rem);
+  bottom: calc(100% + 1rem);
   pointer-events: auto;
   cursor: pointer;
   padding: 0.35rem 0.7rem 0.3rem;
@@ -128,7 +141,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flapShadow {
+  .flap {
     transition: none;
   }
 }
