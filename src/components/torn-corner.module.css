@@ -23,12 +23,61 @@
   clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
 }
 
-.hole iframe {
+/*
+  The video, printed like the rest of the sheet: one ink, through a halftone
+  screen. It is still the live embed underneath. Three layers do the work:
+
+    1. The video, in grey and slightly soft so each dot reads one tone.
+    2. A screen of soft dots at 45 degrees, laid over it at half strength.
+       Each dot is black at its centre and fades to white at its corners.
+    3. A very high contrast on the two together. A point comes out black
+       only where picture and screen together are darker than mid grey, so
+       dark parts of the picture grow big dots and light parts small ones.
+
+  .ink then turns the black into the sheet's blue and leaves white as paper.
+*/
+.print {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
+  overflow: hidden;
+  background: #000;
+  filter: contrast(30);
+}
+
+/*
+  The embed is drawn larger than the opening and centred, which pushes the
+  player's title bar and logo out of sight. It takes no clicks or keys.
+*/
+.print iframe {
+  position: absolute;
+  left: -14%;
+  top: -14%;
+  width: 128%;
+  height: 128%;
   border: 0;
+  pointer-events: none;
+  filter: grayscale(1) blur(1.5px) brightness(1.08);
+}
+
+.screen {
+  position: absolute;
+  inset: -50%;
+  background: radial-gradient(circle, #000, #fff) 0 0 / 7px 7px;
+  transform: rotate(45deg);
+  opacity: 0.5;
+}
+
+.ink {
+  position: absolute;
+  inset: 0;
+  background: var(--blue);
+  mix-blend-mode: lighten;
+}
+
+@media (max-width: 40rem) {
+  .screen {
+    background-size: 5px 5px;
+  }
 }
 
 .tear[data-state='open'] .hole {

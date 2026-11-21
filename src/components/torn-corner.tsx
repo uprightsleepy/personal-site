@@ -6,11 +6,14 @@ import styles from './torn-corner.module.css'
 // An easter egg for the home page. The bottom right corner of the sheet is
 // torn a little and folded back. Drag the corner up and to the left and the
 // sheet tears after it, a bit at a time, in the direction it is pulled. Tear
-// far enough and the piece comes away, leaving a music video behind the hole.
+// far enough and the piece comes away, leaving a music video behind the hole,
+// printed through a halftone screen in the sheet's one ink.
 //
 // The video is a YouTube embed from the no-cookie domain. Nothing is
 // requested from YouTube until the sheet is torn, and public/_headers allows
-// that one domain to be framed.
+// that one domain to be framed. It behaves like a GIF: it starts on its own,
+// has no sound and no controls, loops, and cannot be clicked. The halftone
+// is done in the stylesheet, on top of the live embed.
 //
 // How the tear works. The component owns a 16:9 box pinned to the corner of
 // the sheet, and everything is computed in that box's pixel coordinates.
@@ -38,7 +41,12 @@ import styles from './torn-corner.module.css'
 //   - While the corner is being dragged a torn point stays torn. At other
 //     times (hovering, settling back, taping it back) the fronts follow the
 //     fold in both directions, so laying the paper down closes the tear.
-const VIDEO = 'https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0'
+const VIDEO_ID = 'dQw4w9WgXcQ'
+const VIDEO =
+  `https://www.youtube-nocookie.com/embed/${VIDEO_ID}` +
+  // `playlist` with the same id is what makes a single video loop.
+  `?autoplay=1&mute=1&loop=1&playlist=${VIDEO_ID}` +
+  '&controls=0&disablekb=1&fs=0&iv_load_policy=3&playsinline=1&rel=0'
 
 type State = 'idle' | 'dragging' | 'finishing' | 'ripping' | 'open' | 'closing'
 type Point = [number, number]
@@ -702,11 +710,19 @@ export default function TornCorner() {
       {/* What is behind the sheet */}
       <div ref={hole} className={styles.hole}>
         {playing && (
-          <iframe
-            src={VIDEO}
-            title="Rick Astley, Never Gonna Give You Up (music video)"
-            allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
-          />
+          <>
+            {/* The picture and the dot screen, which the stylesheet turns into a halftone */}
+            <div className={styles.print}>
+              <iframe
+                src={VIDEO}
+                title="Rick Astley, Never Gonna Give You Up (music video, silent loop)"
+                allow="autoplay; encrypted-media"
+                tabIndex={-1}
+              />
+              <div className={styles.screen} />
+            </div>
+            <div className={styles.ink} />
+          </>
         )}
       </div>
 
