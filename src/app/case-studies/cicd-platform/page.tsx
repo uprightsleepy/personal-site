@@ -75,7 +75,7 @@ const components = [
   ],
   [
     'Terraform pipeline',
-    'A separate path for infrastructure changes, with different identities for planning and applying, and a Checkov policy check on every plan.',
+    'A separate path for infrastructure changes, with different identities for planning and applying, and Checkov and Snyk checks on every change.',
   ],
   [
     'Binary Authorization',
@@ -87,7 +87,7 @@ const terraformSteps = [
   ['Plan', 'A plan service account, which can read the environment but not change it, produces the plan.'],
   [
     'Check',
-    'Checkov checks the plan against policy, so a plan that breaks a rule fails before a reviewer has to catch it.',
+    'Checkov checks the plan against policy and a self-hosted Snyk instance scans the Terraform for misconfigurations, so a change that breaks a rule fails before a reviewer has to catch it.',
   ],
   [
     'Sign',
@@ -117,7 +117,10 @@ const checks = [
     'Secret validation',
     'The pipeline checks for credentials committed to the repository, using a self-hosted Snyk instance, before a build can go further.',
   ],
-  ['Policy checks', 'Checkov checks every Terraform plan against policy before the plan is signed.'],
+  [
+    'Infrastructure scanning',
+    'Checkov checks every Terraform plan against policy, and Snyk scans the Terraform itself, before the plan is signed.',
+  ],
   [
     'Signing and provenance',
     'After approval the pipeline signs the build with a key held in Cloud KMS. It also signs a provenance record of the commit, the builder and the inputs that produced it.',
@@ -172,7 +175,7 @@ const skillsShown = [
   ],
   [
     'Infrastructure as code',
-    'Terraform for the platform itself, and a plan and apply pipeline with Checkov policy checks, signing and drift validation',
+    'Terraform for the platform itself, and a plan and apply pipeline with Checkov and Snyk checks, signing and drift validation',
   ],
   [
     'Security engineering',

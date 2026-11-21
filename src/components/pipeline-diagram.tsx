@@ -149,8 +149,8 @@ const lanes: Lane[] = [
     steps: [
       { x: 220, symbol: 'plan', lines: ['Plan'] },
       { x: 350, symbol: 'policy', lines: ['Checkov', 'policy check'] },
-      { x: 480, symbol: 'pen', lines: ['Sign plan'] },
-      { x: 610, symbol: 'store', lines: ['Store plan'] },
+      { x: 480, symbol: 'scan', lines: ['Snyk IaC', 'scan'] },
+      { x: 610, symbol: 'pen', lines: ['Sign and', 'store plan'] },
       { x: 928, symbol: 'read', lines: ['Read plan'] },
       { x: 1058, symbol: 'shield', lines: ['Check signature', 'and drift'] },
       { x: 1188, symbol: 'layers', lines: ['Apply'] },
@@ -161,10 +161,13 @@ const lanes: Lane[] = [
 // The resources. Most are in the band between the lanes, in two rows. On
 // the upper row are the Snyk server, the key and Binary Authorization; on
 // the lower are the bucket and the two service accounts. That lets the
-// key's line to "Sign plan" pass over the bucket. The SonarQube server is
-// above the upper lane, because a line down from the scan step would cross
-// that lane's "no" loop. The Snyk server's line avoids the loop by leaving
-// the first step to the left of where the loop arrives.
+// key's line to "Sign and store plan" pass over the bucket. The SonarQube
+// server is above the upper lane, because a line down from the scan step
+// would cross that lane's "no" loop. The Snyk server is called from both
+// lanes: the line from secret validation avoids the loop by leaving that
+// step to the left of where the loop arrives, and the line from the IaC
+// scan comes in from the side, a little lower than the key's line so the
+// two do not read as one.
 const resources: Resource[] = [
   { id: 'sonar', x: 591, y: 1, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
   { id: 'wif', x: 1, y: 327, w: 159, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
@@ -190,11 +193,13 @@ const calls: Call[] = [
   // production, and Binary Authorization checks against the key
   { d: 'M1244 222V310', from: 'a6', to: 'binauth' },
   { d: 'M1172 332H1124', from: 'binauth', to: 'kms' },
-  // The key again: sign plan, and check signature
-  { d: 'M536 480V332H974', from: 't2', to: 'kms' },
+  // The IaC scan asks the Snyk server too
+  { d: 'M536 480V342H350', from: 't2', to: 'snyk' },
+  // The key again: sign the plan, and check its signature
+  { d: 'M646 480V322H974', from: 't3', to: 'kms' },
   { d: 'M1114 480V354', from: 't5', to: 'kms' },
-  // Store plan and read plan use the bucket
-  { d: 'M666 480V388H750', from: 't3', to: 'bucket' },
+  // Storing the plan and reading it back use the bucket
+  { d: 'M686 480V388H750', from: 't3', to: 'bucket' },
   { d: 'M984 480V388H900', from: 't4', to: 'bucket' },
   // Plan and apply each run as their own service account
   { d: 'M276 480V410', from: 't0', to: 'plan-sa' },
@@ -391,7 +396,7 @@ export default function PipelineDiagram() {
           data-tracing={live.length > 0 || undefined}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
-          aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+          aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
         >
           <defs>
             <marker id="pd-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
