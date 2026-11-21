@@ -5,7 +5,7 @@
 /*
   One ink. The site is a blueprint by default: white ink on a single blue.
   "Paper" (the light theme, class .light on <html>) swaps the two, the way a
-  one-color print job would run the same blue on white. Hierarchy comes from
+  one-color print job would run the same blue on an eggshell stock. Hierarchy comes from
   size, weight and width, never from a second color.
 */
 :root {
@@ -48,9 +48,10 @@
 
 .light {
   --ink: var(--blue);
-  --paper: #ffffff;
+  /* Eggshell, not white: an uncoated drawing paper, easier on the eye. */
+  --paper: #f2efe4;
   --soft: #5a5fe0;
-  --rule: #c9cbf5;
+  --rule: color-mix(in srgb, var(--blue) 24%, var(--paper));
   --grid: transparent;
   --exposure-light: rgb(27 34 210 / 0.035);
   --exposure-deep: transparent;
@@ -190,6 +191,25 @@
   /* The portrait file is white halftone dots on black; screen drops the black. */
   .one-ink img {
     mix-blend-mode: screen;
+  }
+
+  /*
+    On paper the dots are the stock showing through the ink, so they take the
+    paper's colour and not white.
+  */
+  .light .one-ink {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .light .one-ink::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--paper);
+    /* Darken leaves the ink as it is and brings white down to the paper. */
+    mix-blend-mode: darken;
+    pointer-events: none;
   }
 
   /* Long-form text on the case study page. */
