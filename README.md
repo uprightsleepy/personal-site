@@ -110,7 +110,10 @@ Things that differ from a server-rendered Next.js app:
 - **Response headers** (Content Security Policy and the other security
   headers) are set in `public/_headers`, not in `next.config.ts`.
 - **Social preview images** are rendered at build time by
-  `src/app/og/[slug]/route.tsx` and exported as `/og/*.png`.
+  `src/app/og/[slug]/route.tsx` and exported as `/og/*.png`. Each is a small
+  blueprint sheet with the page title set as a poster. The fixed-width fonts
+  and character widths it needs live in `src/app/og/fonts` and are rebuilt
+  with `python3 scripts/build-og-fonts.py`.
 - **Node.js version** for Cloudflare builds and CI is pinned in `.node-version`.
 - There is no server, so API routes, server actions and `next/image`
   optimization are not available.
