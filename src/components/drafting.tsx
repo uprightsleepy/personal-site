@@ -48,3 +48,63 @@ export function NorthArrow() {
     </a>
   )
 }
+
+// The LinkedIn link in the footer gets a necktie on hover, and the word is
+// the neck. The tie hangs under the word: the knot is pulled up tight
+// beneath the letters, the word is squeezed in from both sides, and the
+// blade hangs down and swings. At rest none of it shows (see .tie in
+// globals.css). The drawing is 0.5em wide in the word's own type size, so
+// 100 units here is 1em, and the letters stand on a line at about 79. Like
+// the north arrow, the blade's left half is inked in and its right half is
+// outline.
+export function Tie() {
+  return (
+    <svg className="tie" viewBox="0 0 50 172" aria-hidden="true" focusable="false">
+      <g className="tie-hang">
+        <g className="tie-blade">
+          <path className="tie-paper" d="M25 93H29L35.5 152L25 168Z" />
+          <path className="tie-fill" d="M25 93H21L14.5 152L25 168Z" />
+        </g>
+        <path className="tie-fill" d="M17.2 79.5H32.8L29.4 94H20.6Z" />
+      </g>
+    </svg>
+  )
+}
+
+// The GitHub link in the footer gets a commit graph on hover, drawn under
+// the word where an underline would be: a main line with a branch that forks
+// off, takes two commits and merges back, ending in a ring for the latest
+// commit. The stylesheet draws the lines and pops the commits on in order
+// (see .commits in globals.css). The drawing is exactly as wide as the word:
+// 100 units here is 1em, and "GitHub" is 2.636em wide in the footer's type.
+export function CommitGraph() {
+  return (
+    <svg className="graph" viewBox="0 0 263.6 44" aria-hidden="true" focusable="false">
+      <path className="graph-main" pathLength={1} d="M8 9H256" />
+      <path className="graph-branch" pathLength={1} d="M52 9C72 9 70 35 92 35H158C180 35 178 9 198 9" />
+      <circle cx="8" cy="9" r="6.5" style={{ '--at': 0 } as React.CSSProperties} />
+      <circle cx="52" cy="9" r="6.5" style={{ '--at': 1 } as React.CSSProperties} />
+      <circle cx="106" cy="35" r="6.5" style={{ '--at': 2.4 } as React.CSSProperties} />
+      <circle cx="146" cy="35" r="6.5" style={{ '--at': 3.3 } as React.CSSProperties} />
+      <circle cx="198" cy="9" r="6.5" style={{ '--at': 4.6 } as React.CSSProperties} />
+      <circle className="graph-head" cx="254" cy="9" r="8" style={{ '--at': 5.8 } as React.CSSProperties} />
+    </svg>
+  )
+}
+
+// A line typed out at a prompt, under the commit graph. Each character is
+// its own span so the stylesheet can bring them in one after another (see
+// .typed in globals.css), and a block cursor waits at the end.
+export function Typed({ text }: { text: string }) {
+  const characters = Array.from(text)
+  return (
+    <span className="typed" style={{ '--count': characters.length } as React.CSSProperties}>
+      {characters.map((character, index) => (
+        <span key={index} style={{ '--at': index } as React.CSSProperties}>
+          {character}
+        </span>
+      ))}
+      <i />
+    </span>
+  )
+}

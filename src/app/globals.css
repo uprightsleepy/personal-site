@@ -1212,3 +1212,269 @@ html.theme-wipe::view-transition-new(root) {
   }
 }
 
+/*
+  The two footer links are not underlined. They are the only inked words in
+  an outlined sentence, which marks them, and each has something that
+  happens on hover or keyboard focus: a tie is pulled tight under LinkedIn,
+  squeezing the word, and a commit graph is drawn under GitHub with a
+  command typed beneath it. Both are decoration, hidden from screen readers,
+  and they do not take the pointer. Touch screens have no hover, so they
+  never show.
+*/
+.hung {
+  position: relative;
+  display: inline-block;
+}
+
+.hung a {
+  text-decoration-line: none;
+}
+
+.tie,
+.commits {
+  position: absolute;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease-out;
+}
+
+/*
+  The tie hangs under the middle of the word, which is its neck. It is sized
+  in the word's own em, so it fits whatever size the sentence is set at.
+*/
+.tie {
+  left: 50%;
+  top: 0;
+  width: 0.5em;
+  height: 1.72em;
+  margin-left: -0.25em;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.tie path {
+  vector-effect: non-scaling-stroke;
+}
+
+.tie .tie-fill {
+  fill: var(--ink);
+}
+
+.tie .tie-paper {
+  fill: var(--paper);
+}
+
+/* Loose: the knot hangs low. */
+.tie-hang {
+  transform: translateY(14px);
+  transition: transform 0.2s ease-in;
+}
+
+.tie-blade {
+  transform-box: fill-box;
+  transform-origin: 50% 0%;
+}
+
+/* The neck: the word is a block so it can be squeezed. */
+.neck-word {
+  display: inline-block;
+  transform-origin: 50% 85%;
+  transition: transform 0.2s ease-in;
+}
+
+/*
+  Under GitHub: the commit graph, as wide as the word, and the typed command
+  below it.
+*/
+.commits {
+  left: 0;
+  right: 0;
+  top: 0.9em;
+}
+
+.graph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 5;
+  stroke-linecap: round;
+}
+
+/* Not drawn yet: each line is one dash, pushed entirely out of sight. */
+.graph path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.graph circle {
+  fill: var(--ink);
+  stroke: none;
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  transform: scale(0);
+}
+
+/* The latest commit is a ring. */
+.graph .graph-head {
+  fill: var(--paper);
+  stroke: var(--ink);
+}
+
+/* The command is set small and narrow, in the one typeface. */
+.typed {
+  display: block;
+  margin-top: 0.6rem;
+  white-space: pre;
+  color: var(--ink);
+  -webkit-text-stroke: 0;
+  font-size: 1.0625rem;
+  font-weight: 600;
+  font-stretch: 84%;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.typed span {
+  opacity: 0;
+}
+
+/* The cursor: a block after the last character. */
+.typed i {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.12em;
+  background: var(--ink);
+  opacity: 0;
+}
+
+@media (hover: hover) {
+  .hung a:hover ~ :is(.tie, .commits),
+  .hung a:focus-visible ~ :is(.tie, .commits) {
+    opacity: 1;
+  }
+
+  /*
+    Cinched. The knot is pulled up tight under the word and the word is
+    squeezed narrower and a little taller, both on one curve that goes a
+    little too far and settles. Then the blade swings.
+  */
+  .neck a:hover ~ .tie .tie-hang,
+  .neck a:focus-visible ~ .tie .tie-hang,
+  .neck a:hover .neck-word,
+  .neck a:focus-visible .neck-word {
+    transition: transform 0.45s cubic-bezier(0.3, 1.9, 0.5, 1) 0.14s;
+  }
+
+  .neck a:hover ~ .tie .tie-hang,
+  .neck a:focus-visible ~ .tie .tie-hang {
+    transform: translateY(0);
+  }
+
+  .neck a:hover .neck-word,
+  .neck a:focus-visible .neck-word {
+    transform: scale(0.83, 1.06);
+  }
+
+  .neck a:hover ~ .tie .tie-blade,
+  .neck a:focus-visible ~ .tie .tie-blade {
+    animation: tie-swing 0.7s ease-out 0.4s;
+  }
+
+  /*
+    Committed. The main line is drawn from left to right, the branch forks
+    off and comes back, and each commit pops on as its line reaches it
+    (--at is its place in that order).
+  */
+  .hung a:hover ~ .commits .graph path,
+  .hung a:focus-visible ~ .commits .graph path {
+    stroke-dashoffset: 0;
+  }
+
+  .hung a:hover ~ .commits .graph-main,
+  .hung a:focus-visible ~ .commits .graph-main {
+    transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.4, 1);
+  }
+
+  .hung a:hover ~ .commits .graph-branch,
+  .hung a:focus-visible ~ .commits .graph-branch {
+    transition: stroke-dashoffset 0.38s cubic-bezier(0.4, 0, 0.4, 1) 0.14s;
+  }
+
+  .hung a:hover ~ .commits .graph circle,
+  .hung a:focus-visible ~ .commits .graph circle {
+    transform: scale(1);
+    transition: transform 0.3s cubic-bezier(0.3, 2.2, 0.5, 1) calc(var(--at) * 0.1s);
+  }
+
+  /* Then the command is typed, a character at a time, and the cursor blinks. */
+  .hung a:hover ~ .commits .typed span,
+  .hung a:focus-visible ~ .commits .typed span {
+    opacity: 1;
+    transition: opacity 0s linear calc(0.55s + var(--at) * 30ms);
+  }
+
+  .hung a:hover ~ .commits .typed i,
+  .hung a:focus-visible ~ .commits .typed i {
+    animation: cursor-blink 1s steps(1) calc(0.55s + var(--count) * 30ms) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tie,
+  .commits,
+  .tie-hang,
+  .neck-word,
+  .graph path,
+  .graph circle,
+  .typed span {
+    transition: none !important;
+  }
+
+  .neck a:hover ~ .tie .tie-blade,
+  .neck a:focus-visible ~ .tie .tie-blade {
+    animation: none;
+  }
+
+  .hung a:hover ~ .commits .typed i,
+  .hung a:focus-visible ~ .commits .typed i {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+@keyframes tie-swing {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  30% {
+    transform: rotate(5deg);
+  }
+
+  60% {
+    transform: rotate(-3deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes cursor-blink {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
