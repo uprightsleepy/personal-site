@@ -1,0 +1,134 @@
+/*
+  The torn corner (torn-corner.tsx). A box pinned to the bottom right corner
+  of the sheet, sized for a 16:9 video. At rest only a small corner of it
+  shows. The box ignores the pointer except on the corner itself and, once
+  torn open, on the video.
+*/
+.tear {
+  position: fixed;
+  right: var(--band);
+  bottom: var(--band);
+  z-index: 60;
+  width: min(40rem, calc(100vw - var(--band) * 2 - 1.5rem));
+  aspect-ratio: 16 / 9;
+  pointer-events: none;
+}
+
+/* What shows through the tear. The component clips it to the torn shape. */
+.hole {
+  position: absolute;
+  inset: 0;
+  background: #0b0c14;
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%, 100% 100%);
+}
+
+.hole iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.tear[data-state='open'] .hole {
+  pointer-events: auto;
+}
+
+/* Torn paper shows its white core along the tear. */
+.edge {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: url(#torn-edge) drop-shadow(0 1px 2px rgb(0 0 30 / 0.45));
+}
+
+/*
+  The folded-back corner. A clip path would cut off its shadow, so the
+  shadow sits on a wrapper.
+*/
+.flapShadow {
+  position: absolute;
+  inset: 0;
+  /* The same roughening as the tear, so the corner's edges are ragged too. */
+  filter: url(#torn-edge) drop-shadow(-2px -2px 5px rgb(0 0 30 / 0.4));
+  transition:
+    transform 0.55s cubic-bezier(0.5, 0, 0.9, 0.4),
+    opacity 0.45s ease-in 0.1s;
+  transform-origin: 100% 100%;
+}
+
+/* The back of the sheet: paler than its face, shaded toward the fold. */
+.flap {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    315deg,
+    color-mix(in srgb, var(--blue) 55%, white) 0%,
+    color-mix(in srgb, var(--blue) 22%, white) 9rem
+  );
+  clip-path: polygon(100% 100%, 100% 100%, 100% 100%);
+}
+
+/* Once the sheet rips, the loose corner drops away. */
+.tear[data-state='ripping'] .flapShadow,
+.tear[data-state='open'] .flapShadow {
+  transform: translate(-3rem, 7rem) rotate(-38deg);
+  opacity: 0;
+}
+
+.grab {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 4.5rem;
+  height: 4.5rem;
+  pointer-events: auto;
+  cursor: grab;
+  touch-action: none;
+  background: transparent;
+}
+
+.tear[data-state='dragging'] .grab {
+  cursor: grabbing;
+  /* Keep catching the pointer wherever the corner has been dragged to. */
+  width: 100vw;
+  height: 100vh;
+}
+
+.grab:focus-visible {
+  outline: 3px solid var(--ink);
+  outline-offset: -3px;
+}
+
+.close {
+  position: absolute;
+  left: 0;
+  bottom: calc(100% + 0.9rem);
+  pointer-events: auto;
+  cursor: pointer;
+  padding: 0.35rem 0.7rem 0.3rem;
+  border: 1.5px solid var(--ink);
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.close:hover {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flapShadow {
+    transition: none;
+  }
+}
