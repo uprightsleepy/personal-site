@@ -115,7 +115,7 @@ const checks = [
   ],
   [
     'Secret validation',
-    'The pipeline checks for credentials committed to the repository before a build can go further.',
+    'The pipeline checks for credentials committed to the repository, using a self-hosted Snyk instance, before a build can go further.',
   ],
   ['Policy checks', 'Checkov checks every Terraform plan against policy before the plan is signed.'],
   [
@@ -217,7 +217,8 @@ export default function CicdPlatform() {
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
           <Row term="Stack">
-            GCP Cloud Run, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube
+            GCP Cloud Run, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
+            Snyk
           </Row>
           <Row term="Reading time">5 minutes</Row>
         </dl>

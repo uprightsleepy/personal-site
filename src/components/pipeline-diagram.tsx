@@ -10,9 +10,9 @@ import Reveal from '@/components/reveal'
 // lanes that share the same columns. Solid boxes are the resources the
 // steps call, drawn on their own outside the lanes: the Cloud KMS key,
 // Binary Authorization, the Cloud Storage bucket and the plan and apply
-// service accounts in the band between the lanes, Workload Identity
-// Federation at the way in, and the self-hosted SonarQube server above the
-// application lane. A dotted line joins a step to each resource it calls,
+// service accounts and the self-hosted Snyk server in the band between the
+// lanes, Workload Identity Federation at the way in, and the self-hosted
+// SonarQube server above the application lane. A dotted line joins a step to each resource it calls,
 // and joins Binary Authorization to the key it checks signatures against.
 // A diamond is the merge request's approval: "yes" carries on to the right,
 // and "no" loops back to the first step.
@@ -112,86 +112,93 @@ type Resource = { id: string; x: number; y: number; w: number; h: number; symbol
 // step's name is its lane's letter and its place in the lane, from 0.
 type Call = { d: string; from: string; to: string }
 
-const WIDTH = 1272
-const HEIGHT = 680
-const STEP_W = 102
-const STEP_H = 92
-const GATE = 770 // the approval diamond's centre, the same in both lanes
-const GATE_W = 128
-const GATE_H = 92
-const RIGHT = 1252
+const WIDTH = 1340
+const HEIGHT = 696
+const STEP_W = 112
+const STEP_H = 96
+const GATE = 812 // the approval diamond's centre, the same in both lanes
+const GATE_W = 144
+const GATE_H = 96
+const LANE_X = 200
+const LANE_H = 206
+const RIGHT = 1320
 
 // Four steps before the approval and three after, on the same columns in
-// both lanes. Step centres: 261, 385, 509, 633, then 931, 1055, 1179.
+// both lanes. Step centres: 276, 406, 536, 666, then 984, 1114, 1244.
 const lanes: Lane[] = [
   {
     id: 'a',
-    top: 76,
+    top: 80,
     title: 'Application pipeline: React, Java, Python, Go',
     titleAt: 'top',
     steps: [
-      { x: 210, symbol: 'lock', lines: ['Secret', 'validation'] },
-      { x: 334, symbol: 'box', lines: ['Build'] },
-      { x: 458, symbol: 'test', lines: ['Test'] },
-      { x: 582, symbol: 'scan', lines: ['SonarQube', 'scan'] },
-      { x: 880, symbol: 'pen', lines: ['Sign build and', 'provenance'] },
-      { x: 1004, symbol: 'deploy', lines: ['Deploy to', 'pre-production'] },
-      { x: 1128, symbol: 'rollout', lines: ['Roll out to', 'production'] },
+      { x: 220, symbol: 'lock', lines: ['Secret', 'validation'] },
+      { x: 350, symbol: 'box', lines: ['Build'] },
+      { x: 480, symbol: 'test', lines: ['Test'] },
+      { x: 610, symbol: 'scan', lines: ['SonarQube', 'scan'] },
+      { x: 928, symbol: 'pen', lines: ['Sign build and', 'provenance'] },
+      { x: 1058, symbol: 'deploy', lines: ['Deploy to', 'pre-production'] },
+      { x: 1188, symbol: 'rollout', lines: ['Roll out to', 'production'] },
     ],
   },
   {
     id: 't',
-    top: 420,
+    top: 434,
     title: 'Terraform pipeline',
     titleAt: 'bottom',
     steps: [
-      { x: 210, symbol: 'plan', lines: ['Plan'] },
-      { x: 334, symbol: 'policy', lines: ['Checkov', 'policy check'] },
-      { x: 458, symbol: 'pen', lines: ['Sign plan'] },
-      { x: 582, symbol: 'store', lines: ['Store plan'] },
-      { x: 880, symbol: 'read', lines: ['Read plan'] },
-      { x: 1004, symbol: 'shield', lines: ['Check signature', 'and drift'] },
-      { x: 1128, symbol: 'layers', lines: ['Apply'] },
+      { x: 220, symbol: 'plan', lines: ['Plan'] },
+      { x: 350, symbol: 'policy', lines: ['Checkov', 'policy check'] },
+      { x: 480, symbol: 'pen', lines: ['Sign plan'] },
+      { x: 610, symbol: 'store', lines: ['Store plan'] },
+      { x: 928, symbol: 'read', lines: ['Read plan'] },
+      { x: 1058, symbol: 'shield', lines: ['Check signature', 'and drift'] },
+      { x: 1188, symbol: 'layers', lines: ['Apply'] },
     ],
   },
 ]
 
-// The resources. Most are in the band between the lanes. The key and Binary
-// Authorization are on the upper row there and the others on the lower, so
-// the key's line to "Sign plan" can pass over the bucket. The SonarQube
-// server is above the upper lane, because a line down from the scan step
-// would cross that lane's "no" loop.
+// The resources. Most are in the band between the lanes, in two rows. On
+// the upper row are the Snyk server, the key and Binary Authorization; on
+// the lower are the bucket and the two service accounts. That lets the
+// key's line to "Sign plan" pass over the bucket. The SonarQube server is
+// above the upper lane, because a line down from the scan step would cross
+// that lane's "no" loop. The Snyk server's line avoids the loop by leaving
+// the first step to the left of where the loop arrives.
 const resources: Resource[] = [
-  { id: 'sonar', x: 558, y: 1, w: 150, h: 40, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
-  { id: 'wif', x: 1, y: 316, w: 149, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
-  { id: 'kms', x: 918, y: 302, w: 150, h: 40, symbol: 'key', lines: ['Cloud KMS key'] },
-  { id: 'binauth', x: 1104, y: 302, w: 148, h: 40, symbol: 'shield', lines: ['Binary', 'Authorization'] },
-  { id: 'bucket', x: 707, y: 356, w: 150, h: 40, symbol: 'bucket', lines: ['Storage bucket'] },
-  { id: 'plan-sa', x: 190, y: 356, w: 150, h: 40, symbol: 'badge', lines: ['Plan service', 'account'] },
-  { id: 'apply-sa', x: 1104, y: 356, w: 148, h: 40, symbol: 'badge', lines: ['Apply service', 'account'] },
+  { id: 'sonar', x: 591, y: 1, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
+  { id: 'wif', x: 1, y: 327, w: 159, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
+  { id: 'snyk', x: 200, y: 310, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'Snyk'] },
+  { id: 'kms', x: 974, y: 310, w: 150, h: 44, symbol: 'key', lines: ['Cloud KMS key'] },
+  { id: 'binauth', x: 1172, y: 310, w: 148, h: 44, symbol: 'shield', lines: ['Binary', 'Authorization'] },
+  { id: 'plan-sa', x: 200, y: 366, w: 150, h: 44, symbol: 'badge', lines: ['Plan service', 'account'] },
+  { id: 'bucket', x: 750, y: 366, w: 150, h: 44, symbol: 'bucket', lines: ['Storage bucket'] },
+  { id: 'apply-sa', x: 1172, y: 366, w: 148, h: 44, symbol: 'badge', lines: ['Apply service', 'account'] },
 ]
 
 // A dotted line for each call, drawn from the caller to the resource so the
 // dots can run that way. Step tops and bottoms: the application steps run
-// from 120 to 212, and the Terraform steps start at 464.
+// from 126 to 222, and the Terraform steps start at 480.
 const calls: Call[] = [
   // The scan step sends the build to the SonarQube server
-  { d: 'M633 120V41', from: 'a3', to: 'sonar' },
+  { d: 'M666 126V45', from: 'a3', to: 'sonar' },
+  // Secret validation asks the Snyk server
+  { d: 'M246 222V310', from: 'a0', to: 'snyk' },
   // Signing the build and its provenance uses the key
-  { d: 'M931 212V302', from: 'a4', to: 'kms' },
+  { d: 'M984 222V310', from: 'a4', to: 'kms' },
   // Cloud Run asks Binary Authorization before it runs a new revision in
   // production, and Binary Authorization checks against the key
-  { d: 'M1179 212V302', from: 'a6', to: 'binauth' },
-  { d: 'M1104 322H1068', from: 'binauth', to: 'kms' },
+  { d: 'M1244 222V310', from: 'a6', to: 'binauth' },
+  { d: 'M1172 332H1124', from: 'binauth', to: 'kms' },
   // The key again: sign plan, and check signature
-  { d: 'M509 464V322H918', from: 't2', to: 'kms' },
-  { d: 'M1055 464V342', from: 't5', to: 'kms' },
+  { d: 'M536 480V332H974', from: 't2', to: 'kms' },
+  { d: 'M1114 480V354', from: 't5', to: 'kms' },
   // Store plan and read plan use the bucket
-  { d: 'M633 464V376H707', from: 't3', to: 'bucket' },
-  { d: 'M931 464V376H857', from: 't4', to: 'bucket' },
+  { d: 'M666 480V388H750', from: 't3', to: 'bucket' },
+  { d: 'M984 480V388H900', from: 't4', to: 'bucket' },
   // Plan and apply each run as their own service account
-  { d: 'M261 464V396', from: 't0', to: 'plan-sa' },
-  { d: 'M1179 464V396', from: 't6', to: 'apply-sa' },
+  { d: 'M276 480V410', from: 't0', to: 'plan-sa' },
+  { d: 'M1244 480V410', from: 't6', to: 'apply-sa' },
 ]
 
 // Everything that makes or takes a call, and so can be traced.
@@ -247,11 +254,11 @@ function Label({
   className?: string
   anchor?: 'start' | 'middle'
 }) {
-  const first = y - ((lines.length - 1) * 15) / 2
+  const first = y - ((lines.length - 1) * 17) / 2
   return (
     <text x={x} y={first} className={className} textAnchor={anchor} dominantBaseline="central">
       {lines.map((line, index) => (
-        <tspan key={line} x={x} dy={index === 0 ? 0 : 15}>
+        <tspan key={line} x={x} dy={index === 0 ? 0 : 17}>
           {line}
         </tspan>
       ))}
@@ -263,7 +270,7 @@ function Label({
 const box = (x: number, y: number, w: number, h: number) => `M${x} ${y}h${w}v${h}h${-w}Z`
 
 function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
-  const boxTop = lane.top + 44
+  const boxTop = lane.top + 46
   const mid = boxTop + STEP_H / 2
   const loop = boxTop + STEP_H + 26
   const first = lane.steps[0]
@@ -275,8 +282,12 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
   return (
     <g>
       <g className="pd-in" style={at(AT.lanes)}>
-        <rect className="pd-lane" x={190} y={lane.top} width={RIGHT - 190} height={200} />
-        <text className="pd-title" x={204} y={lane.titleAt === 'top' ? lane.top + 24 : lane.top + 184}>
+        <rect className="pd-lane" x={LANE_X} y={lane.top} width={RIGHT - LANE_X} height={LANE_H} />
+        <text
+          className="pd-title"
+          x={LANE_X + 14}
+          y={lane.titleAt === 'top' ? lane.top + 27 : lane.top + LANE_H - 16}
+        >
           {lane.title}
         </text>
       </g>
@@ -286,7 +297,7 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
         <path
           className="pd-arrow pd-draw"
           pathLength={1}
-          d={`M170 349V${mid}H${first.x - 2}`}
+          d={`M180 360V${mid}H${first.x - 2}`}
           markerEnd="url(#pd-head)"
         />
       </g>
@@ -316,7 +327,7 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
               markerEnd="url(#pd-head)"
             />
             {index === 0 && (
-              <text className="pd-small" x={(gateRight + step.x) / 2} y={mid - 10} textAnchor="middle">
+              <text className="pd-small" x={(gateRight + step.x) / 2} y={mid - 11} textAnchor="middle">
                 Yes
               </text>
             )}
@@ -331,7 +342,7 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
           d={`M${GATE} ${mid + GATE_H / 2}V${loop}H${first.x + STEP_W / 2}V${boxTop + STEP_H + 2}`}
           markerEnd="url(#pd-head)"
         />
-        <text className="pd-small" x={(GATE + first.x + STEP_W / 2) / 2} y={loop + 18} textAnchor="middle">
+        <text className="pd-small" x={(GATE + first.x + STEP_W / 2) / 2} y={loop + 20} textAnchor="middle">
           No: back to the developer
         </text>
       </g>
@@ -340,7 +351,7 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
         <g key={step.x} style={at(stepAt(index))} {...trace(`${lane.id}${index}`)}>
           <path className="pd-step pd-draw" pathLength={1} d={box(step.x, boxTop, STEP_W, STEP_H)} />
           <Glyph symbol={step.symbol} x={step.x + STEP_W / 2 - 14} y={boxTop + 12} />
-          <Label x={step.x + STEP_W / 2} y={boxTop + 66} lines={step.lines} className="pd-small pd-strong" />
+          <Label x={step.x + STEP_W / 2} y={boxTop + 68} lines={step.lines} className="pd-small pd-strong" />
         </g>
       ))}
 
@@ -380,7 +391,7 @@ export default function PipelineDiagram() {
           data-tracing={live.length > 0 || undefined}
           viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
           role="img"
-          aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+          aria-label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, signs it with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
         >
           <defs>
             <marker id="pd-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto">
@@ -390,15 +401,15 @@ export default function PipelineDiagram() {
 
           {/* Where both pipelines start */}
           <g style={at(AT.trigger)} {...trace('trigger')}>
-            <path className="pd-step pd-draw" pathLength={1} d={box(1, 120, 149, 92)} />
-            <Glyph symbol="merge" x={61} y={132} />
-            <Label x={75} y={186} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
+            <path className="pd-step pd-draw" pathLength={1} d={box(1, 126, 159, 96)} />
+            <Glyph symbol="merge" x={66} y={138} />
+            <Label x={80} y={194} lines={['Merge request', 'in Bitbucket']} className="pd-small pd-strong" />
           </g>
           <g className="pd-in pd-wire" style={at(AT.toWayIn)}>
-            <path className="pd-arrow pd-draw" pathLength={1} d="M75 212V314" markerEnd="url(#pd-head)" />
+            <path className="pd-arrow pd-draw" pathLength={1} d="M80 222V325" markerEnd="url(#pd-head)" />
           </g>
           <g className="pd-in pd-wire" style={at(AT.intoLanes)}>
-            <path className="pd-arrow" d="M150 349H170" />
+            <path className="pd-arrow" d="M160 360H180" />
           </g>
 
           {lanes.map((lane) => (
@@ -441,16 +452,16 @@ export default function PipelineDiagram() {
 
           {/* What the three kinds of mark mean */}
           <g className="pd-in" style={at(AT.legend)}>
-            <rect className="pd-step" x={204} y={644} width={26} height={16} />
-            <text className="pd-small" x={240} y={652} dominantBaseline="central">
+            <rect className="pd-step" x={214} y={660} width={26} height={16} />
+            <text className="pd-small" x={250} y={668} dominantBaseline="central">
               Pipeline step
             </text>
-            <rect className="pd-solid" x={364} y={644} width={26} height={16} />
-            <text className="pd-small" x={400} y={652} dominantBaseline="central">
+            <rect className="pd-solid" x={376} y={660} width={26} height={16} />
+            <text className="pd-small" x={412} y={668} dominantBaseline="central">
               Platform resource
             </text>
-            <path className="pd-call pd-sample" d="M534 652H566" />
-            <text className="pd-small" x={576} y={652} dominantBaseline="central">
+            <path className="pd-call pd-sample" d="M566 668H598" />
+            <text className="pd-small" x={608} y={668} dominantBaseline="central">
               A call to a resource
             </text>
           </g>
