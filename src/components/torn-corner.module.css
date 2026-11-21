@@ -338,6 +338,24 @@
   background: transparent;
 }
 
+/* On a touch screen the slider is longer and its handle is big enough to hold. */
+@media (pointer: coarse) {
+  .volume input {
+    width: 8.5rem;
+    height: 1.75rem;
+  }
+
+  .volume input::-webkit-slider-thumb {
+    width: 0.9rem;
+    height: 1.6rem;
+  }
+
+  .volume input::-moz-range-thumb {
+    width: 0.9rem;
+    height: 1.6rem;
+  }
+}
+
 .volume input:focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
