@@ -59,7 +59,7 @@ const components = [
   ],
   [
     'Cloud Run jobs',
-    'The build, scan and deploy steps run as Cloud Run jobs. Each team has its own set, created in its own GCP project.',
+    'The build, test, scan and deploy steps run as Cloud Run jobs. Each team has its own set, created in its own GCP project.',
   ],
   [
     'Service accounts',
@@ -75,23 +75,31 @@ const components = [
   ],
   [
     'Terraform pipeline',
-    'A separate path for infrastructure changes, with different identities for planning and applying.',
+    'A separate path for infrastructure changes, with different identities for planning and applying, and a Checkov policy check on every plan.',
+  ],
+  [
+    'Binary Authorization',
+    'Cloud Run checks an image against a policy before it runs it. An image without a valid signature from the pipeline’s Cloud KMS key is refused, however it was deployed.',
   ],
 ]
 
 const terraformSteps = [
   ['Plan', 'A plan service account, which can read the environment but not change it, produces the plan.'],
   [
+    'Check',
+    'Checkov checks the plan against policy, so a plan that breaks a rule fails before a reviewer has to catch it.',
+  ],
+  [
     'Sign',
-    'The pipeline signs the plan with a key held in Cloud KMS and stores it in a Cloud Storage bucket, so there is a record of exactly what was planned.',
+    'The pipeline signs the plan with a key held in Cloud KMS, ties it to the commit it was made from, and stores it in a Cloud Storage bucket, so there is a record of exactly what was planned.',
   ],
   [
     'Approve',
-    'The merge request is reviewed with the signed plan attached. Nothing is applied until it is approved, and a request that is not approved goes back to the developer.',
+    'The plan is posted on the merge request for review. Approval has to come from someone other than the author, and a new commit clears it. Nothing is applied until the request is approved, and a request that is not approved goes back to the developer.',
   ],
   [
     'Validate',
-    'Before anything is applied, the pipeline reads the stored plan back from the bucket, checks its signature, and checks that the environment has not drifted since the plan was made.',
+    'Before anything is applied, the pipeline reads the stored plan back from the bucket, checks its signature and the commit it belongs to, and checks that the environment has not drifted since the plan was made.',
   ],
   [
     'Apply',
@@ -100,6 +108,7 @@ const terraformSteps = [
 ]
 
 const checks = [
+  ['Tests', 'Each application pipeline runs the team’s tests, and a failing test stops the build.'],
   [
     'SonarQube scanning',
     'Every build is scanned by a self-hosted SonarQube instance, so code quality and security findings show up in the pipeline and not in a later audit.',
@@ -108,9 +117,14 @@ const checks = [
     'Secret validation',
     'The pipeline checks for credentials committed to the repository before a build can go further.',
   ],
+  ['Policy checks', 'Checkov checks every Terraform plan against policy before the plan is signed.'],
   [
-    'Deploy signing',
-    'The pipeline signs what it builds with a key held in Cloud KMS, and a production deploy checks that signature first. Only files built by the pipeline can be deployed.',
+    'Signing and provenance',
+    'After approval the pipeline signs the build with a key held in Cloud KMS. It also signs a provenance record of the commit, the builder and the inputs that produced it.',
+  ],
+  [
+    'Enforcement at deploy',
+    'The signature is checked by Cloud Run itself, through Binary Authorization, and not by a step in the pipeline. An image without a valid signature is refused, so a deploy made outside the pipeline fails as well.',
   ],
 ]
 
@@ -158,11 +172,15 @@ const skillsShown = [
   ],
   [
     'Infrastructure as code',
-    'Terraform for the platform itself, and a plan and apply pipeline with signing and drift validation',
+    'Terraform for the platform itself, and a plan and apply pipeline with Checkov policy checks, signing and drift validation',
   ],
   [
     'Security engineering',
-    'Static analysis, secret validation and Cloud KMS signing built into the delivery path',
+    'Static analysis, secret validation, and Cloud KMS signing with provenance, enforced at deploy by Binary Authorization',
+  ],
+  [
+    'Release engineering',
+    'One build promoted by digest through a lower environment, gradual rollout on Cloud Run and automatic rollback',
   ],
   [
     'Delivery',
@@ -198,7 +216,9 @@ export default function CicdPlatform() {
         <dl className="mt-12 max-w-[68ch] border-b border-rule">
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
-          <Row term="Stack">GCP Cloud Run, Cloud KMS, Terraform, Bitbucket, SonarQube</Row>
+          <Row term="Stack">
+            GCP Cloud Run, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube
+          </Row>
           <Row term="Reading time">5 minutes</Row>
         </dl>
       </header>
@@ -210,9 +230,10 @@ export default function CicdPlatform() {
           cloud environment before it. The platform is a set of <strong>Cloud Run jobs</strong>,
           started from Bitbucket through Workload Identity Federation and created for each team
           inside that team&rsquo;s own GCP project, with everything defined in Terraform. It builds
-          React, Java, Python and Go applications and runs Terraform. Every pipeline includes
-          SonarQube scanning and secret validation, and build outputs are signed with Cloud KMS so
-          that only what the pipeline built can be deployed to production. A team could be onboarded in{' '}
+          React, Java, Python and Go applications and runs Terraform. Every application pipeline
+          includes tests, SonarQube scanning and secret validation. Builds are signed with Cloud
+          KMS, and Cloud Run refuses anything without that signature, so only what the pipeline
+          built can run in production. A team could be onboarded in{' '}
           <strong>about five minutes</strong>, where provisioning by ticket had taken several
           weeks. Twelve teams adopted it during my contract, and to my knowledge it now serves all
           of the company&rsquo;s development teams.
@@ -258,9 +279,11 @@ export default function CicdPlatform() {
 
         <h3>How a change moves through it</h3>
         <p>
-          Both pipelines run on a merge request. The checks run first. The steps that change
-          anything, signing a build for production or applying a Terraform plan, wait until the
-          merge request is approved. A request that is not approved goes back to the developer.
+          Both pipelines run on a merge request. The checks run first: tests and scans for an
+          application, and a plan checked by Checkov for Terraform. The steps that change
+          anything, signing and deploying a build or applying a Terraform plan, wait until the
+          merge request is approved by someone other than its author. A new commit clears an
+          approval already given, and a request that is not approved goes back to the developer.
         </p>
       </div>
 
@@ -276,6 +299,15 @@ export default function CicdPlatform() {
             project
           </strong>
           . The project is the boundary, and it is one GCP already enforces.
+        </p>
+
+        <h3>Releasing an application</h3>
+        <p>
+          An application is built once. After approval the pipeline signs the build and its
+          provenance, and the same build, identified by its digest, is deployed to a lower
+          environment and then promoted to production. Nothing is rebuilt between the two.
+          Production traffic moves to the new revision a share at a time, and if a health check
+          fails the pipeline rolls back to the previous revision without anyone stepping in.
         </p>
 
         <h3>The Terraform pipeline</h3>
@@ -295,7 +327,7 @@ export default function CicdPlatform() {
           planned for.
         </p>
 
-        <h3>Security checks in every pipeline</h3>
+        <h3>Checks built into the pipelines</h3>
         <dl className="border-b border-rule">
           {checks.map(([term, detail]) => (
             <Row key={term} term={term}>
@@ -355,8 +387,8 @@ export default function CicdPlatform() {
           I would split that ownership. The platform team should own the CI/CD architecture: the
           pipelines, the checks and the guardrails. Each team should own what runs in its own
           environment and change it directly, through the same Terraform pipeline, without a ticket.
-          The plan and apply separation, the signing and the drift validation were built to make
-          that safe.
+          The plan and apply separation, the policy checks, the signing and the drift validation
+          were built to make that safe.
         </p>
 
         <h3>Technical skills demonstrated</h3>

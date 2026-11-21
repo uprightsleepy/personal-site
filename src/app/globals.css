@@ -1578,7 +1578,7 @@ html.theme-wipe::view-transition-new(root) {
 .diagram svg {
   display: block;
   width: 100%;
-  min-width: 56rem;
+  min-width: 60rem;
   height: auto;
   font-stretch: 90%;
 }
