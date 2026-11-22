@@ -5,6 +5,7 @@ import LensTitle from '@/components/lens-title'
 import Poster, { type PosterLine } from '@/components/poster'
 import TornCorner from '@/components/torn-corner'
 import WhiteRabbit from '@/components/white-rabbit'
+import WorkScene from '@/components/work-scene'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
@@ -48,7 +49,7 @@ export default function Home() {
     <div className="gutter">
       {/* Opening statement, set as a poster */}
       <section className="pb-14 pt-6 md:pb-24 md:pt-10">
-        {/* The rabbit's window sits on top of the first line's letters (see .rabbit-perch) */}
+        {/* The rabbit comes up out of the hole in the P of the first line (see .rabbit-perch) */}
         <div className="rabbit-perch">
           <h1>
             <Poster
@@ -86,6 +87,8 @@ export default function Home() {
                 <span className="years">{item.years}</span>
               </h3>
               <div className="mt-5 grid gap-x-10 md:mt-6 md:grid-cols-12">
+                {/* A small moving drawing of the work, shown under a mouse */}
+                <WorkScene slug={item.slug} />
                 <div className="max-w-[58ch] md:col-span-6 md:col-start-7">
                   <p>{item.summary}</p>
                   {item.link && (

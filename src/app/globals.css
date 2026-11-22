@@ -2413,11 +2413,17 @@ html {
 /*
   The white rabbit (white-rabbit.tsx), on the home page.
 
-  Its perch is the poster. The rabbit's window is a small box whose bottom
-  edge lies along the tops of the first line's letters, so that when the
-  rabbit rises into the window it seems to come up from behind them. The
-  first line's type is 99.7cqw / 8.6585 high (page.tsx), and its capitals'
-  tops are 0.118 of that below the top of the poster.
+  It lives in the P of the poster's first line, and the hole in that letter
+  is its rabbit hole. Its window is a box as wide as the hole, with its
+  bottom edge on the hole's bottom edge and nothing above it, so the rabbit
+  rises out of the bottom of the hole and its ears go up over the top of
+  the letter.
+
+  The poster fills its measure, so the hole is always at the same place as
+  a share of the poster's width: 47.548% across, 2.7354% wide, with its
+  bottom edge 4.9459% of the width down from the top (measured from the
+  font). The rabbit is 11 of its own pixels wide, outline included, and 18
+  high.
 */
 .rabbit-perch {
   position: relative;
@@ -2425,11 +2431,11 @@ html {
 }
 
 .rabbit {
-  --pixel: max(2px, 0.26cqw);
+  --pixel: calc(2.7354cqw / 11);
   position: absolute;
-  left: 63.5%;
-  bottom: calc(100% - 99.7cqw / 8.6585 * 0.118);
-  width: calc(var(--pixel) * 16);
+  left: 47.548cqw;
+  top: calc(4.9459cqw - var(--pixel) * 18);
+  width: calc(var(--pixel) * 11);
   height: calc(var(--pixel) * 18);
   overflow: hidden;
   cursor: pointer;
@@ -2444,12 +2450,12 @@ html {
   visibility: hidden;
 }
 
-/* The sitting rabbit. Held still, it is up as far as its eye. */
+/* The rabbit in its hole. Held still, it is up as far as its eyes. */
 .rabbit-sitter {
   display: block;
   width: 100%;
   height: 100%;
-  transform: translateY(54%);
+  transform: translateY(50%);
 }
 
 .rabbit svg,
@@ -2482,25 +2488,30 @@ html {
 }
 
 /*
-  Up for a look, and down again. It comes up as far as its eye, looks,
-  comes right up, and ducks, in steps like a short loop of film.
+  Up for a look, and down again: first the ears, then as far as the eyes,
+  then the whole head with the ears over the top of the letter, in steps
+  like a short loop of film.
 */
 @keyframes rabbit-look {
   0%,
   14% {
-    transform: translateY(102%);
+    transform: translateY(101%);
   }
   17%,
-  30% {
-    transform: translateY(54%);
+  22% {
+    transform: translateY(73%);
   }
-  33%,
-  50% {
-    transform: translateY(8%);
+  25%,
+  34% {
+    transform: translateY(50%);
   }
-  53%,
+  37%,
+  52% {
+    transform: translateY(22%);
+  }
+  55%,
   100% {
-    transform: translateY(102%);
+    transform: translateY(101%);
   }
 }
 
@@ -2513,7 +2524,270 @@ html {
   @media (hover: hover) {
     .rabbit:hover .rabbit-sitter {
       animation: none;
-      transform: translateY(8%);
+      transform: translateY(22%);
     }
+  }
+}
+
+/*
+  The work index's scenes (work-scene.tsx): a small moving drawing in the
+  empty half of each row, under its title. It shows while the row is under
+  a mouse or holds the keyboard's focus, and its motion starts over each
+  time. Narrow screens, which stack the row, do not have it.
+*/
+.work-scene {
+  display: none;
+}
+
+@media (min-width: 48rem) {
+  .work-scene {
+    display: block;
+    grid-column: 1 / span 5;
+    grid-row: 1;
+    align-self: start;
+    max-width: 26.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+  }
+}
+
+.work-row:has(a:focus-visible) .work-scene {
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .work-row:hover .work-scene {
+    opacity: 1;
+  }
+}
+
+.work-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-stretch: 90%;
+}
+
+.work-scene text {
+  fill: var(--ink);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.work-scene .ws-strong {
+  font-weight: 700;
+}
+
+.ws-box,
+.ws-line,
+.ws-glyph,
+.ws-flow,
+.ws-road,
+.ws-page,
+.ws-tile,
+.ws-pin path,
+.ws-ring {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+
+.ws-glyph,
+.ws-page {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.ws-box {
+  fill: var(--paper);
+}
+
+/* A dotted line that things travel along, like a call on the diagrams. */
+.ws-flow {
+  stroke-dasharray: 1.5 4;
+  stroke-linecap: round;
+}
+
+.ws-token,
+.ws-pin circle {
+  fill: var(--ink);
+}
+
+.ws-tile {
+  stroke: var(--rule);
+  stroke-width: 1;
+}
+
+.ws-pin path {
+  fill: var(--paper);
+}
+
+/* A step of the pipeline: its box takes the group's fill, its symbol the group's colour. */
+.ws-step {
+  color: var(--ink);
+  fill: var(--paper);
+}
+
+.ws-step .ws-box {
+  fill: inherit;
+}
+
+.ws-step .ws-glyph {
+  stroke: currentColor;
+}
+
+@keyframes ws-go {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(var(--run));
+    opacity: 0;
+  }
+}
+
+/* The pipeline's steps come on one after another, hold, and start again. */
+@keyframes ws-step-1 {
+  8%,
+  100% {
+    color: var(--paper);
+    fill: var(--ink);
+  }
+}
+
+@keyframes ws-step-2 {
+  0%,
+  27% {
+    color: var(--ink);
+    fill: var(--paper);
+  }
+  28%,
+  100% {
+    color: var(--paper);
+    fill: var(--ink);
+  }
+}
+
+@keyframes ws-step-3 {
+  0%,
+  47% {
+    color: var(--ink);
+    fill: var(--paper);
+  }
+  48%,
+  100% {
+    color: var(--paper);
+    fill: var(--ink);
+  }
+}
+
+@keyframes ws-step-4 {
+  0%,
+  67% {
+    color: var(--ink);
+    fill: var(--paper);
+  }
+  68%,
+  100% {
+    color: var(--paper);
+    fill: var(--ink);
+  }
+}
+
+@keyframes ws-appear {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes ws-drop {
+  0% {
+    transform: translateY(-46px);
+    opacity: 0;
+  }
+  55% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  72% {
+    transform: translateY(-7px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes ws-ring {
+  from {
+    transform: scale(0.2);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.ws-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+}
+
+/* Motion only while the row is in use, so it starts over each time. */
+@media (prefers-reduced-motion: no-preference) {
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-flow {
+    animation: pd-run 0.7s linear infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-token {
+    animation: ws-go 1.3s linear var(--wait, 0s) infinite backwards;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-step-1 {
+    animation: ws-step-1 2.6s steps(1, end) infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-step-2 {
+    animation: ws-step-2 2.6s steps(1, end) infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-step-3 {
+    animation: ws-step-3 2.6s steps(1, end) infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-step-4 {
+    animation: ws-step-4 2.6s steps(1, end) infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-tile {
+    animation: ws-appear 0.01s linear var(--wait, 0s) backwards;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-road {
+    stroke-dasharray: 1;
+    animation: pd-draw 0.5s ease-out 0.75s backwards;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-pin {
+    animation: ws-drop 0.5s cubic-bezier(0.5, 0, 0.8, 0.6) 1.2s backwards;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-ring {
+    animation: ws-ring 0.9s ease-out 1.5s infinite;
+  }
+
+  .work-row:is(:hover, :has(a:focus-visible)) .ws-page {
+    stroke-dasharray: 1;
+    animation: pd-draw 0.7s ease-out 1.9s backwards;
   }
 }

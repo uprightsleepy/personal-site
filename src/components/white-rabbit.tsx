@@ -2,39 +2,40 @@
 
 import { useRef, useState } from 'react'
 
-// A white rabbit, in pixels, that lives behind the first line of the home
-// page's poster. Every so often it comes up from behind the letters far
-// enough to look about, and goes down again. Follow it (click it) and it
-// jumps out and hops away across the screen to the torn corner of the sheet,
+// A white rabbit, in pixels, that lives in the P of the home page's poster.
+// The hole in the letter is its rabbit hole. Every so often its ears come up
+// out of it, then its head, with the ears standing up over the top of the
+// letter, and then it goes down again. Follow it (click it) and it jumps
+// out and hops away across the screen to the torn corner of the sheet,
 // slips under the fold, and the fold lifts for a moment after it.
 //
-// It is this site's own drawing: white, with an outline and an eye in the
-// sheet's blue. The window it comes up in is placed and styled in
-// globals.css (see ".rabbit"); the page gives the window its place over the
-// letters. The torn corner listens for the "white-rabbit" event (see
+// It is this site's own drawing: white, with an outline, eyes and a nose in
+// the sheet's blue, so it shows against the page and against the letter.
+// The window it comes up in is placed and styled in globals.css (see
+// ".rabbit"). The torn corner listens for the "white-rabbit" event (see
 // torn-corner.tsx).
 //
-// For anyone who asks for reduced motion it sits still, part of the way up,
-// and following it makes it go without the hopping.
+// For anyone who asks for reduced motion it sits still, up as far as its
+// eyes, and following it makes it go without the hopping.
 
-// Sitting up, facing right. "#" is fur and "e" is the eye.
-const SITTING = [
-  '......##.##...',
-  '......##.##...',
-  '......##.##...',
-  '......##.##...',
-  '......#####...',
-  '.....#######..',
-  '.....####e##..',
-  '.....########.',
-  '.....#######..',
-  '...#########..',
-  '..##########..',
-  '############..',
-  '############..',
-  '.###########..',
-  '.####..#####..',
-  '..###...####..',
+// Looking out, face on. "#" is fur and "e" is an eye or the nose.
+const LOOKING = [
+  '.##...##.',
+  '.##...##.',
+  '.##...##.',
+  '.##...##.',
+  '.##...##.',
+  '.#######.',
+  '#########',
+  '##e###e##',
+  '#########',
+  '####e####',
+  '.#######.',
+  '..#####..',
+  '.#######.',
+  '#########',
+  '#########',
+  '#########',
 ]
 
 // In the air, stretched out.
@@ -97,7 +98,7 @@ export default function WhiteRabbit() {
     // inside the frame's band if the frame is showing.
     const band = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--band')) || 0
     const rem = parseFloat(getComputedStyle(document.documentElement).fontSize)
-    const size = clamp(from.width * 1.25, 40, 110)
+    const size = clamp(from.width * 1.6, 44, 110)
     const startX = from.left
     const startY = from.bottom - size * 0.6
     const endX = window.innerWidth - band * rem - size * 0.9
@@ -145,7 +146,7 @@ export default function WhiteRabbit() {
         onClick={follow}
       >
         <span ref={sitter} className="rabbit-sitter">
-          <Sprite rows={SITTING} />
+          <Sprite rows={LOOKING} />
         </span>
       </button>
       {/* The one that does the hopping, laid over the screen */}
