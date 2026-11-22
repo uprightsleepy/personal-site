@@ -2231,14 +2231,11 @@ html {
 }
 
 /*
-  The portrait that objects (portrait.tsx). Clicked, the print gives way to
-  a little pixel-art figure wagging a finger, printed through the same
-  halftone screen, under the words set as a poster. Clicked again, the
-  print comes back.
-
-  Everything is in the print's two colours: white, which is the dots of the
-  halftone, and the blue it is printed on. In the Paper theme the print's
-  own overlay turns the white to paper.
+  The portrait that objects (portrait.tsx). Clicked, the print lifts away
+  and leaves the bare sheet, grid and all, inside the crop marks. On it are
+  a little pixel-art figure wagging a finger, printed in the sheet's one
+  ink, and the words set above it as a poster. Clicked again, the print
+  comes back.
 */
 .wag {
   position: relative;
@@ -2259,6 +2256,15 @@ html {
   visibility: hidden;
 }
 
+/* The print's ground and, on paper, its overlay go with it. */
+.wag[aria-pressed="true"] {
+  background: none;
+}
+
+.light .wag[aria-pressed="true"]::after {
+  display: none;
+}
+
 .wag[aria-pressed="true"] .wag-print {
   visibility: hidden;
 }
@@ -2267,28 +2273,30 @@ html {
   visibility: visible;
 }
 
-/*
-  The words, across the top. Inside the print the ink is always white, so
-  the poster's own ink is set to match, whichever theme the page is in.
-*/
+/* The words, across the top, in the sheet's ink. */
 .wag-words {
-  --ink: #ffffff;
   position: absolute;
-  left: 7%;
-  right: 7%;
-  top: 4.5%;
-  color: #ffffff;
+  left: 4%;
+  right: 4%;
+  top: 2%;
+  color: var(--ink);
   text-align: left;
 }
 
-/* The figure stands at the foot of the frame, under the words, as tall as fits. */
-.wag-figure {
+/*
+  The figure stands at the foot of the frame, under the words, as tall as
+  fits. It is already in the right ink for the theme, so it is laid straight
+  on the sheet and not blended like the print.
+*/
+.wag .wag-figure {
   position: absolute;
   left: 50%;
-  bottom: 2.5%;
+  bottom: 1%;
   width: auto;
-  height: 61%;
+  height: 66%;
   transform: translateX(-50%);
+  mix-blend-mode: normal;
+  image-rendering: pixelated;
 }
 
 /* The lines of the poster arrive one after another, each all at once. */

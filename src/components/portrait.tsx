@@ -1,19 +1,20 @@
 "use client"
 
 import Image from 'next/image'
+import { useTheme } from 'next-themes'
 import { useState } from 'react'
 import Poster, { type PosterLine } from '@/components/poster'
 
 // The portrait on the About page, with a joke in it. Click it and it tells
-// you off the way a locked-out terminal does in an old film. The print gives
-// way to a little pixel-art Henry in his grey suit, wagging a finger, under
+// you off the way a locked-out terminal does in an old film. The print
+// lifts away, leaving the bare sheet and its grid inside the crop marks, and
+// on it a little pixel-art Henry in his grey suit, wagging a finger, under
 // the words set as a poster. Click again and the print comes back.
 //
-// The figure is public/magic-word.gif: Henry's own animation, printed frame
-// by frame through a halftone screen like the portrait's by
-// scripts/build-magic-word.py, so it is in the same one ink as the print it
-// replaces. The words are set by the same poster component as the home
-// page's statement.
+// The figure is Henry's own animation, printed in one ink on a clear ground
+// by scripts/build-magic-word.py. There is a file for each theme, because
+// the ink is white on the blueprint and blue on paper. The words are set by
+// the same poster component as the home page's statement.
 //
 // The figure only shows while the button is pressed in. Its file is not
 // fetched until the portrait is first pointed at, focused or pressed. For
@@ -32,13 +33,15 @@ const words: PosterLine[] = [
 
 export default function Portrait() {
   const [on, setOn] = useState(false)
-  // Which picture of the figure to fetch, once it is wanted at all.
-  const [figure, setFigure] = useState<string | null>(null)
+  // Which kind of picture of the figure to fetch, once it is wanted at all.
+  const [kind, setKind] = useState<'webp' | 'png' | null>(null)
   const want = () => {
-    if (figure) return
-    const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    setFigure(still ? '/magic-word-still.png' : '/magic-word.gif')
+    if (kind) return
+    setKind(window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'png' : 'webp')
   }
+  // Blueprint is the default theme (next-themes calls it "dark").
+  const { resolvedTheme } = useTheme()
+  const figure = kind && `/magic-word-${resolvedTheme === 'light' ? 'paper' : 'blueprint'}.${kind}`
 
   return (
     <button
@@ -68,7 +71,7 @@ export default function Portrait() {
           <Poster label="" lines={words} />
         </span>
         {figure && (
-          <Image className="wag-figure" src={figure} alt="" width={310} height={501} unoptimized />
+          <Image className="wag-figure" src={figure} alt="" width={410} height={664} unoptimized />
         )}
       </span>
 
