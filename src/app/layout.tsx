@@ -131,7 +131,8 @@ export default function RootLayout({
             enableSystem={false}
             disableTransitionOnChange
           >
-            <div id="top" className="sheet flex min-h-screen flex-col bg-paper text-ink">
+            {/* tabIndex: the north arrow moves focus here when it brings the page back to the top */}
+            <div id="top" tabIndex={-1} className="sheet flex min-h-screen flex-col bg-paper text-ink">
               <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"

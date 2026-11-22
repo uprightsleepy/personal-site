@@ -30,25 +30,6 @@ export function Leader() {
   )
 }
 
-// North arrow. Up the page is north, so it links back to the top.
-export function NorthArrow() {
-  return (
-    <a href="#top" className="north nav-link">
-      <svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <circle cx="32" cy="35" r="22" />
-        {/* The needle: the left half is inked in, the right half is outline */}
-        <path className="north-fill" d="M32 2L32 49L18 58Z" />
-        <path d="M32 2L46 58L32 49" />
-      </svg>
-      <span>
-        <span className="font-bold">N</span>
-        <br />
-        Back to top
-      </span>
-    </a>
-  )
-}
-
 // The LinkedIn link in the footer gets a necktie on hover, and the word is
 // the neck. The tie hangs under the word: the knot is pulled up tight
 // beneath the letters, the word is squeezed in from both sides, and the

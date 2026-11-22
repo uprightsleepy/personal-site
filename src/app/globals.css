@@ -771,6 +771,12 @@ html.theme-wipe::view-transition-new(root) {
     }
   }
 
+  /* While its needle is away flying (see "Going north"), the ring is empty. */
+  .north svg[data-away] path,
+  .north-mark svg[data-away] path {
+    visibility: hidden;
+  }
+
   /* General notes, numbered the way they are on a drawing. */
   .notes {
     list-style: decimal;
@@ -1893,4 +1899,221 @@ html.theme-wipe::view-transition-new(root) {
     animation: pd-breathe 5s ease-in-out infinite;
     animation-delay: calc(var(--t, 0ms) * -3);
   }
+}
+
+/*
+  Going north (north.tsx). Following a north arrow sends its needle up the
+  screen and off the top, and the page rides up after it.
+
+  The flyer is a copy of the needle laid over the real one by the script,
+  which also sets --rise, how far it has to go to clear the top. It shakes
+  loose first, the way a compass needle swings before it settles, then
+  leaves, slowly and then fast. A dashed line trails behind it and fades.
+*/
+.north-flight {
+  position: fixed;
+  z-index: 50;
+  pointer-events: none;
+  color: var(--ink);
+  transform-origin: 50% 55%;
+  animation: north-flight 1.05s linear forwards;
+}
+
+.north-flight svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linejoin: miter;
+}
+
+.north-flight .north-fill {
+  fill: currentColor;
+}
+
+.north-flight::after {
+  content: "";
+  position: absolute;
+  left: calc(50% - 0.75px);
+  top: 92%;
+  width: 1.5px;
+  height: 45vh;
+  background: repeating-linear-gradient(to bottom, currentColor 0 5px, transparent 5px 11px);
+  -webkit-mask-image: linear-gradient(to bottom, #000, transparent);
+  mask-image: linear-gradient(to bottom, #000, transparent);
+  transform-origin: top;
+  animation: north-trail 1.05s linear forwards;
+}
+
+@keyframes north-flight {
+  0% {
+    transform: rotate(0deg);
+  }
+  7% {
+    transform: rotate(-16deg);
+  }
+  15% {
+    transform: rotate(11deg);
+  }
+  22% {
+    transform: rotate(-4deg);
+  }
+  /* Settled on north, and drawn back a little before it goes. */
+  30% {
+    transform: translateY(7px) rotate(0deg);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.45);
+  }
+  100% {
+    transform: translateY(calc(var(--rise) * -1)) rotate(0deg);
+  }
+}
+
+@keyframes north-trail {
+  0%,
+  30% {
+    transform: scaleY(0);
+  }
+  70%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/*
+  The pinned navigation (navigation.tsx). Once the header has scrolled away,
+  this copy of it hangs from the top of the sheet: a small title block ruled
+  into cells, with the heavy line and the fine one outside it that the stamp
+  and the diagrams' window are ruled with. The page it is on is the cell
+  that is inked in. On a narrow screen it runs the full width.
+
+  It is put away by sliding it up out of sight, and it sits under the print
+  grain and the drawing frame, like everything else on the sheet.
+*/
+.pinned {
+  position: fixed;
+  top: var(--band);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  background: var(--paper);
+  border-bottom: 2.5px solid var(--ink);
+  box-shadow:
+    0 3px 0 var(--paper),
+    0 4.5px 0 var(--ink);
+  font-size: 0.875rem;
+  font-stretch: 90%;
+  font-weight: 600;
+  line-height: 1.2;
+  transform: translateY(calc(-100% - 6px));
+  visibility: hidden;
+  transition:
+    transform 0.32s cubic-bezier(0.3, 0, 0.2, 1),
+    visibility 0s 0.32s;
+}
+
+.pinned[data-shown] {
+  transform: none;
+  visibility: visible;
+  transition:
+    transform 0.32s cubic-bezier(0.3, 0, 0.2, 1),
+    visibility 0s;
+}
+
+.pinned > * {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 0.5rem;
+  white-space: nowrap;
+  text-decoration-line: none;
+  cursor: pointer;
+}
+
+.pinned > * + * {
+  border-left: 1.5px solid var(--ink);
+}
+
+/* The page you are on is the cell that is inked in. */
+.pinned > [aria-current="page"] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.pinned > :focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: -5px;
+}
+
+.pinned > [aria-current="page"]:focus-visible {
+  outline-color: var(--paper);
+}
+
+/* So is the cell under a mouse. A finger has no hover, and would leave it stuck. */
+@media (hover: hover) {
+  .pinned > :hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .pinned > :hover:focus-visible {
+    outline-color: var(--paper);
+  }
+}
+
+/* The north arrow, at the size of a letter. */
+.north-mark {
+  flex: 0 0 auto;
+}
+
+.north-mark svg {
+  width: 1.15rem;
+  height: 1.15rem;
+  overflow: visible;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3.5;
+  stroke-linejoin: miter;
+}
+
+.north-mark .north-fill {
+  fill: currentColor;
+}
+
+/* With the frame showing, it is a block in the top right corner instead. */
+@media (min-width: 64rem) {
+  .pinned {
+    left: auto;
+    right: calc(var(--band) + 2rem);
+    border: 2.5px solid var(--ink);
+    border-top: 0;
+    box-shadow:
+      0 0 0 3px var(--paper),
+      0 0 0 4.5px var(--ink);
+  }
+
+  .pinned > * {
+    padding-inline: 0.9rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pinned,
+  .pinned[data-shown] {
+    transition: none;
+  }
+}
+
+/* An anchor jumped to should not land under the pinned navigation. */
+html {
+  scroll-padding-top: 4rem;
+}
+
+/* The top of the sheet takes focus when the north arrow lands; it needs no ring. */
+#top:focus {
+  outline: none;
 }
