@@ -8,7 +8,7 @@ import { symbols, type Symbol } from '@/components/diagram-kit'
 // ".work-scene" in globals.css). Each one is drawn from what that row's
 // summary says, in the line-drawn style of the case studies' diagrams.
 //
-//   secrets-migration  secrets cross from Vault to AWS, one at a time
+//   secrets-migration  secrets cross from Vault to AWS
 //   cicd-platform      a change passes scan, validate, sign and deploy
 //   spawnpointed       a map loads tile by tile and a pin drops on it
 //   badger-politics    four kinds of record go into SQLite and a site comes out
@@ -49,7 +49,7 @@ function Secrets() {
   return (
     <svg viewBox="0 0 420 92">
       <text className="ws-strong" x={210} y={20} textAnchor="middle">
-        62,800+ secrets, one at a time
+        Idempotent secret migration
       </text>
       <path className="ws-flow" d="M53 46H367" />
       <Token x={56} y={46} run={298} />
