@@ -911,6 +911,25 @@ export default function TornCorner() {
     return () => window.removeEventListener('keydown', onKey)
   }, [state, close])
 
+  // The white rabbit (white-rabbit.tsx) ends its run by slipping under this
+  // corner. The fold lifts after it for a moment, as it does under a mouse.
+  useEffect(() => {
+    let settle = 0
+    const onRabbit = () => {
+      if (current.current !== 'idle') return
+      setFetched(true)
+      animate({ tip: PEEK }, 200)
+      settle = window.setTimeout(() => {
+        if (current.current === 'idle') animate({ tip: REST }, 240)
+      }, 1100)
+    }
+    window.addEventListener('white-rabbit', onRabbit)
+    return () => {
+      window.removeEventListener('white-rabbit', onRabbit)
+      window.clearTimeout(settle)
+    }
+  }, [animate])
+
   // If the browser would not start the music, the next press, tap or key
   // anywhere on the page is allowed to.
   useEffect(() => {
