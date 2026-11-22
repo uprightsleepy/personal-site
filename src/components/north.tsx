@@ -122,12 +122,15 @@ export function NorthArrow() {
   )
 }
 
-// In the pinned navigation: the arrow alone, at the size of a letter.
-export function NorthMark() {
+// In the pinned navigation: the arrow alone, at the size of a letter. With
+// `labelled` it has a word beside it as well, for a style that shows names.
+// Either way its accessible name says where it goes.
+export function NorthMark({ labelled = false }: { labelled?: boolean }) {
   const { arrow, follow } = useNorth()
   return (
     <a href="#top" className="north-mark" aria-label="Back to top" onClick={follow}>
       <Arrow ref={arrow} />
+      {labelled && <span>Top</span>}
     </a>
   )
 }
