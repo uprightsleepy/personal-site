@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { flushSync } from 'react-dom'
 import { NorthMark } from '@/components/north'
+import { sheets } from '@/lib/sheets'
 
 const links = [
   { href: '/case-studies', label: 'Work' },
@@ -16,11 +17,21 @@ const links = [
 const subscribeToNothing = () => () => {}
 
 // The navigation appears twice. The header is part of the page and scrolls
-// away with it. Once it has gone, a pinned copy drops down from the top of
-// the sheet and stays there: a small title block, ruled into cells, with the
-// same links, the theme switch and a north arrow back to the top (see
-// ".pinned" in globals.css). While the header is on screen the pinned copy
-// is put away and cannot be reached, so the links are never there twice.
+// away with it. Once it has gone, a pinned copy takes over and stays put.
+// While the header is on screen the pinned copy is hidden and cannot be
+// reached, so the links are never there twice.
+//
+// The pinned copy has two forms (see ".pinned" and ".sheet-index" in
+// globals.css), and the screen's width picks one.
+//
+// On a wide screen it is a sheet index in the right margin: the circled
+// sheet numbers used beside links elsewhere, one for every sheet in the
+// set, on a line, with the sheet you are on inked in. A bubble's name shows
+// beside it when it is pointed at or focused. A north arrow heads the line
+// and the theme switch ends it.
+//
+// On a narrow screen there is no margin to spare, so it is a bar across the
+// top instead, ruled into cells, with the header's own links.
 
 export default function Navigation() {
   const pathname = usePathname()
@@ -60,6 +71,12 @@ export default function Navigation() {
     })
     transition.finished.finally(() => root.classList.remove('theme-wipe'))
   }
+
+  // The sheet this page belongs to: the one whose path is the longest match.
+  const here = pathname.length > 1 ? pathname.replace(/\/$/, '') : pathname
+  const currentSheet = sheets
+    .filter((sheet) => (sheet.path === '/' ? here === '/' : here === sheet.path || here.startsWith(`${sheet.path}/`)))
+    .sort((one, other) => other.path.length - one.path.length)[0]?.path
 
   const themeLabel = blueprint ? 'Switch to the paper theme' : 'Switch to the blueprint theme'
 
@@ -107,6 +124,23 @@ export default function Navigation() {
           {blueprint ? 'Paper' : 'Blueprint'}
         </button>
         <NorthMark />
+      </nav>
+
+      <nav aria-label="Sheets, pinned" className="sheet-index" data-shown={pinned || undefined} inert={!pinned}>
+        <NorthMark labelled />
+        {sheets.map((sheet, index) => (
+          <Link
+            key={sheet.path}
+            href={sheet.path}
+            data-n={index + 1}
+            aria-current={sheet.path === currentSheet ? 'page' : undefined}
+          >
+            <span>{sheet.title}</span>
+          </Link>
+        ))}
+        <button type="button" className="sheet-index-theme" onClick={toggleTheme} aria-label={themeLabel}>
+          <span>{blueprint ? 'Paper' : 'Blueprint'}</span>
+        </button>
       </nav>
     </>
   )

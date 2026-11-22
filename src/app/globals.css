@@ -1983,18 +1983,18 @@ html.theme-wipe::view-transition-new(root) {
 }
 
 /*
-  The pinned navigation (navigation.tsx). Once the header has scrolled away,
-  this copy of it hangs from the top of the sheet: a small title block ruled
-  into cells, with the heavy line and the fine one outside it that the stamp
-  and the diagrams' window are ruled with. The page it is on is the cell
-  that is inked in. On a narrow screen it runs the full width.
+  The pinned navigation (navigation.tsx). Once the header has scrolled away
+  a copy of it stays on screen. It is simply there or not there; it does not
+  slide. It sits under the print grain and the drawing frame, like
+  everything else on the sheet. The screen's width picks one of two forms.
 
-  It is put away by sliding it up out of sight, and it sits under the print
-  grain and the drawing frame, like everything else on the sheet.
+  On a narrow screen it is a bar across the top, ruled into cells, with the
+  heavy line and the fine one beneath it that the stamp is ruled with. The
+  page it is on is the cell that is inked in.
 */
 .pinned {
   position: fixed;
-  top: var(--band);
+  top: 0;
   left: 0;
   right: 0;
   z-index: 20;
@@ -2008,19 +2008,11 @@ html.theme-wipe::view-transition-new(root) {
   font-stretch: 90%;
   font-weight: 600;
   line-height: 1.2;
-  transform: translateY(calc(-100% - 6px));
   visibility: hidden;
-  transition:
-    transform 0.32s cubic-bezier(0.3, 0, 0.2, 1),
-    visibility 0s 0.32s;
 }
 
 .pinned[data-shown] {
-  transform: none;
   visibility: visible;
-  transition:
-    transform 0.32s cubic-bezier(0.3, 0, 0.2, 1),
-    visibility 0s;
 }
 
 .pinned > * {
@@ -2038,7 +2030,6 @@ html.theme-wipe::view-transition-new(root) {
   border-left: 1.5px solid var(--ink);
 }
 
-/* The page you are on is the cell that is inked in. */
 .pinned > [aria-current="page"] {
   background: var(--ink);
   color: var(--paper);
@@ -2053,20 +2044,8 @@ html.theme-wipe::view-transition-new(root) {
   outline-color: var(--paper);
 }
 
-/* So is the cell under a mouse. A finger has no hover, and would leave it stuck. */
-@media (hover: hover) {
-  .pinned > :hover {
-    background: var(--ink);
-    color: var(--paper);
-  }
-
-  .pinned > :hover:focus-visible {
-    outline-color: var(--paper);
-  }
-}
-
 /* The north arrow, at the size of a letter. */
-.north-mark {
+.pinned > .north-mark {
   flex: 0 0 auto;
 }
 
@@ -2084,27 +2063,120 @@ html.theme-wipe::view-transition-new(root) {
   fill: currentColor;
 }
 
-/* With the frame showing, it is a block in the top right corner instead. */
-@media (min-width: 64rem) {
-  .pinned {
-    left: auto;
-    right: calc(var(--band) + 2rem);
-    border: 2.5px solid var(--ink);
-    border-top: 0;
-    box-shadow:
-      0 0 0 3px var(--paper),
-      0 0 0 4.5px var(--ink);
-  }
-
-  .pinned > * {
-    padding-inline: 0.9rem;
-  }
+/*
+  On a wide screen it is a sheet index in the right margin instead: a
+  circled number for every sheet in the set, strung on a line, with a north
+  arrow at the head of the line and the theme switch at its foot. The
+  bubbles fit the margin between the page and the frame, so they never
+  cover anything. The sheet you are on is inked in, and a bubble's name
+  shows beside it when it is pointed at or focused.
+*/
+.sheet-index {
+  display: none;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .pinned,
-  .pinned[data-shown] {
-    transition: none;
+@media (min-width: 64rem) {
+  .pinned {
+    display: none;
+  }
+
+  .sheet-index {
+    position: fixed;
+    top: 50%;
+    right: calc(var(--band) + 0.15rem);
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transform: translateY(-50%);
+    visibility: hidden;
+  }
+
+  .sheet-index[data-shown] {
+    visibility: visible;
+  }
+
+  /* The line the bubbles are strung on. */
+  .sheet-index::before {
+    content: "";
+    position: absolute;
+    left: calc(50% - 0.75px);
+    top: 0.85rem;
+    bottom: 0.85rem;
+    width: 1.5px;
+    background: var(--ink);
+  }
+
+  .sheet-index > * {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    border: 1.5px solid var(--ink);
+    border-radius: 50%;
+    background: var(--paper);
+    font-size: 0.75rem;
+    font-weight: 700;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    text-decoration-line: none;
+    cursor: pointer;
+  }
+
+  .sheet-index > [data-n]::before {
+    content: attr(data-n);
+  }
+
+  .sheet-index > .north-mark svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .sheet-index > [aria-current="page"],
+  .sheet-index > :hover,
+  .sheet-index > :focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .sheet-index > :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+  }
+
+  /* The theme switch is half ink and half paper, and swaps under the pointer. */
+  .sheet-index > .sheet-index-theme {
+    background: linear-gradient(90deg, var(--ink) 50%, var(--paper) 50%);
+  }
+
+  .sheet-index > .sheet-index-theme:hover,
+  .sheet-index > .sheet-index-theme:focus-visible {
+    background: linear-gradient(90deg, var(--paper) 50%, var(--ink) 50%);
+  }
+
+  /* A bubble's name, lettered beside it. */
+  .sheet-index > * > span {
+    position: absolute;
+    right: calc(100% + 0.6rem);
+    top: 50%;
+    padding: 0.35rem 0.6rem;
+    border: 1.5px solid var(--ink);
+    background: var(--paper);
+    color: var(--ink);
+    font-size: 0.8125rem;
+    font-stretch: 90%;
+    font-weight: 600;
+    white-space: nowrap;
+    transform: translateY(-50%);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .sheet-index > :hover > span,
+  .sheet-index > :focus-visible > span {
+    visibility: visible;
   }
 }
 
