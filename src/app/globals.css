@@ -2232,16 +2232,13 @@ html {
 
 /*
   The portrait that objects (portrait.tsx). Clicked, the print gives way to
-  a little figure: the same halftone cut down to the head, on a small drawn
-  body in a grey suit, with one arm up and a finger wagging, and a line of
-  words running along the bottom. Clicked again, the print comes back.
+  a little pixel-art figure wagging a finger, printed through the same
+  halftone screen, under the words set as a poster. Clicked again, the
+  print comes back.
 
   Everything is in the print's two colours: white, which is the dots of the
-  halftone, and the blue it is printed on. Grey is a screen of white dots.
-  In the Paper theme the print's own overlay turns the white to paper.
-
-  The figure moves in two poses and nothing in between, like a short loop
-  of film.
+  halftone, and the blue it is printed on. In the Paper theme the print's
+  own overlay turns the white to paper.
 */
 .wag {
   position: relative;
@@ -2266,163 +2263,51 @@ html {
   visibility: hidden;
 }
 
-.wag[aria-pressed="true"] :is(.wag-scene, .wag-line) {
+.wag[aria-pressed="true"] .wag-scene {
   visibility: visible;
 }
 
-/* The body stands on the strip, a little left of centre, leaving room for the arm. */
-.wag-body {
-  position: absolute;
-  left: 8%;
-  bottom: 6%;
-  width: 78%;
-  height: auto;
-  overflow: visible;
-}
-
-.wag-ground {
-  fill: var(--blue);
-}
-
-.wag-white {
-  fill: #ffffff;
-}
-
-.wag-suit {
-  fill: url(#wag-grey);
-  stroke: #ffffff;
-  stroke-width: 2.5;
-  stroke-linejoin: round;
-}
-
-.wag-shirt {
-  fill: #ffffff;
-  stroke: var(--blue);
-  stroke-width: 3;
-  stroke-linejoin: round;
-}
-
-.wag-seam {
-  fill: none;
-  stroke: var(--blue);
-  stroke-width: 3.5;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-.wag-button {
-  fill: var(--blue);
-}
-
-/* The forearm turns about the elbow, given in the drawing's own units. */
-.wag-arm {
-  transform-origin: 201px 114px;
-}
-
 /*
-  The head: an oval window onto the halftone, sized and placed so the face
-  fills it, with a white edge like a cut-out. It sits over the collar.
+  The words, across the top. Inside the print the ink is always white, so
+  the poster's own ink is set to match, whichever theme the page is in.
 */
-.wag-head {
+.wag-words {
+  --ink: #ffffff;
   position: absolute;
-  left: 14.3%;
-  top: 9%;
-  width: 56%;
-  height: 56%;
-  overflow: hidden;
-  border: 3px solid #ffffff;
-  border-radius: 50%;
-  background: var(--blue);
-  transform-origin: 50% 96%;
+  left: 7%;
+  right: 7%;
+  top: 4.5%;
+  color: #ffffff;
+  text-align: left;
 }
 
-.wag-head img {
+/* The figure stands at the foot of the frame, under the words, as tall as fits. */
+.wag-figure {
   position: absolute;
-  left: -33.3%;
-  top: -17.5%;
-  width: 166.7%;
-  max-width: none;
-  height: auto;
+  left: 50%;
+  bottom: 2.5%;
+  width: auto;
+  height: 61%;
+  transform: translateX(-50%);
 }
 
-.wag-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  /* A hair below the edge, so nothing shows under it. */
-  bottom: -1px;
-  overflow: hidden;
-  padding: 0.5rem 0 calc(0.42rem + 1px);
-  border-top: 2.5px solid var(--blue);
-  background: #ffffff;
-  color: var(--blue);
-  font-size: 1.0625rem;
-  font-stretch: 75%;
-  font-weight: 800;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  white-space: nowrap;
-  visibility: hidden;
-}
-
-.wag-line > span {
-  display: inline-block;
-  padding-left: 0.6em;
-  word-spacing: 0.15em;
-}
-
-/* Two poses each, held, then swapped. */
-@keyframes wag-head {
-  0%,
-  49.99% {
-    transform: rotate(-5deg);
-  }
-  50%,
-  100% {
-    transform: rotate(5deg);
-  }
-}
-
-/* Out and back, never in far enough to hide behind the head. */
-@keyframes wag-arm {
-  0%,
-  49.99% {
-    transform: rotate(24deg);
-  }
-  50%,
-  100% {
-    transform: rotate(3deg);
-  }
-}
-
-/* The strip holds four copies of the line; a quarter of it is one line. */
-@keyframes wag-line {
-  to {
-    transform: translateX(-25%);
+/* The lines of the poster arrive one after another, each all at once. */
+@keyframes wag-word {
+  from {
+    visibility: hidden;
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .wag[aria-pressed="true"] .wag-head {
-    animation: wag-head 0.72s linear infinite;
+  .wag[aria-pressed="true"] .wag-words .poster-line {
+    animation: wag-word 0.01s linear backwards;
   }
 
-  .wag[aria-pressed="true"] .wag-arm {
-    animation: wag-arm 0.72s linear infinite;
+  .wag[aria-pressed="true"] .wag-words .poster-line:nth-child(2) {
+    animation-delay: 0.3s;
   }
-}
 
-/* Held still, the arm is at the outer end of its wag. */
-@media (prefers-reduced-motion: reduce) {
-  .wag-arm {
-    transform: rotate(12deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-
-  .wag[aria-pressed="true"] .wag-line > span {
-    animation: wag-line 5s steps(40) infinite;
+  .wag[aria-pressed="true"] .wag-words .poster-line:nth-child(3) {
+    animation-delay: 0.6s;
   }
 }
