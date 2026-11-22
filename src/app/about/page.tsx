@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Portrait from '@/components/portrait'
+import UsersLine from '@/components/users-line'
 import { certifications, education, experience, profile, skills } from '@/lib/site'
 
 const title = `About ${profile.name} - ${profile.shortRole}`
@@ -65,6 +66,7 @@ export default function About() {
               practice. I try to build systems that are secure by design, usable, and don&apos;t
               make other developers&apos; lives miserable.
             </p>
+            <UsersLine />
           </div>
         </div>
         <div className="md:col-span-4 md:col-start-9">

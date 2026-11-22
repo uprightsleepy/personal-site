@@ -2343,3 +2343,177 @@ html {
     animation-delay: 0.6s;
   }
 }
+
+/*
+  "I fight for the users." (users-line.tsx), on the About page: a line of
+  the bio, and the light that underlines it. The light is drawn by the
+  script along the sheet's grid, in the sheet's ink, and then hands over to
+  the plain underline here.
+
+  data-light on the line says where things are: "run" while the light is
+  moving and "done" once it has finished.
+*/
+.users {
+  position: relative;
+  font-weight: 700;
+}
+
+.users-words {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+}
+
+/* The underline the light leaves. */
+.users-words::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 5px - 0.75px);
+  height: 1.5px;
+  background: var(--ink);
+}
+
+/* Its corner is the paragraph's corner, and it draws well outside itself. */
+.users-light {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.users-light path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-linejoin: miter;
+}
+
+.users-trail {
+  stroke-width: 1.5;
+  stroke-dasharray: 1;
+  filter: drop-shadow(0 0 3px var(--ink));
+}
+
+.users-head {
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 5px var(--ink)) drop-shadow(0 0 12px var(--ink));
+}
+
+/* Where motion is allowed, the underline waits for the light to draw it. */
+@media (prefers-reduced-motion: no-preference) {
+  .users:not([data-light="done"]) .users-words::after {
+    visibility: hidden;
+  }
+}
+
+/*
+  The white rabbit (white-rabbit.tsx), on the home page.
+
+  Its perch is the poster. The rabbit's window is a small box whose bottom
+  edge lies along the tops of the first line's letters, so that when the
+  rabbit rises into the window it seems to come up from behind them. The
+  first line's type is 99.7cqw / 8.6585 high (page.tsx), and its capitals'
+  tops are 0.118 of that below the top of the poster.
+*/
+.rabbit-perch {
+  position: relative;
+  container-type: inline-size;
+}
+
+.rabbit {
+  --pixel: max(2px, 0.26cqw);
+  position: absolute;
+  left: 63.5%;
+  bottom: calc(100% - 99.7cqw / 8.6585 * 0.118);
+  width: calc(var(--pixel) * 16);
+  height: calc(var(--pixel) * 18);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.rabbit:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.rabbit[data-gone] {
+  visibility: hidden;
+}
+
+/* The sitting rabbit. Held still, it is up as far as its eye. */
+.rabbit-sitter {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: translateY(54%);
+}
+
+.rabbit svg,
+.rabbit-leaper svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.rabbit-fur {
+  fill: #ffffff;
+}
+
+.rabbit-line {
+  fill: var(--blue);
+}
+
+/* The one that hops away: laid over the screen, moved by the script. */
+.rabbit-leaper {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 55;
+  pointer-events: none;
+}
+
+.rabbit-leaper > span {
+  display: block;
+}
+
+/*
+  Up for a look, and down again. It comes up as far as its eye, looks,
+  comes right up, and ducks, in steps like a short loop of film.
+*/
+@keyframes rabbit-look {
+  0%,
+  14% {
+    transform: translateY(102%);
+  }
+  17%,
+  30% {
+    transform: translateY(54%);
+  }
+  33%,
+  50% {
+    transform: translateY(8%);
+  }
+  53%,
+  100% {
+    transform: translateY(102%);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .rabbit-sitter {
+    animation: rabbit-look 14s steps(1, end) 2.5s infinite backwards;
+  }
+
+  /* Under a pointer it comes right up and stays, so it can be caught. */
+  @media (hover: hover) {
+    .rabbit:hover .rabbit-sitter {
+      animation: none;
+      transform: translateY(8%);
+    }
+  }
+}

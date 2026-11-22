@@ -4,6 +4,7 @@ import { Leader, SheetRef } from '@/components/drafting'
 import LensTitle from '@/components/lens-title'
 import Poster, { type PosterLine } from '@/components/poster'
 import TornCorner from '@/components/torn-corner'
+import WhiteRabbit from '@/components/white-rabbit'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
@@ -47,12 +48,16 @@ export default function Home() {
     <div className="gutter">
       {/* Opening statement, set as a poster */}
       <section className="pb-14 pt-6 md:pb-24 md:pt-10">
-        <h1>
-          <Poster
-            label="Henry Phillips is an application and cloud security engineer."
-            lines={statement}
-          />
-        </h1>
+        {/* The rabbit's window sits on top of the first line's letters (see .rabbit-perch) */}
+        <div className="rabbit-perch">
+          <h1>
+            <Poster
+              label="Henry Phillips is an application and cloud security engineer."
+              lines={statement}
+            />
+          </h1>
+          <WhiteRabbit />
+        </div>
         <div className="mt-10 grid gap-x-10 md:mt-16 md:grid-cols-12">
           <p className="lead max-w-[40ch] md:col-span-6 md:col-start-7">
             I build security into how software gets delivered: CI/CD platforms, secrets
