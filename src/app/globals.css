@@ -490,8 +490,10 @@
       padding-block: var(--band);
     }
 
+    /* The right side also holds the sheet index (see .sheet-index and --index). */
     .gutter {
-      padding-inline: calc(var(--band) + 2rem);
+      padding-left: calc(var(--band) + 2rem);
+      padding-right: calc(var(--band) + var(--index));
     }
 
     .frame {
@@ -1599,7 +1601,7 @@ html.theme-wipe::view-transition-new(root) {
 
 /* The drawing never gets narrower than this, so its words stay readable. */
 .diagram-sheet {
-  width: max(100%, 70rem);
+  width: max(100%, 67rem);
 }
 
 .diagram svg {
@@ -2066,11 +2068,25 @@ html.theme-wipe::view-transition-new(root) {
 /*
   On a wide screen it is a sheet index in the right margin instead: a
   circled number for every sheet in the set, strung on a line, with a north
-  arrow at the head of the line and the theme switch at its foot. The
-  bubbles fit the margin between the page and the frame, so they never
-  cover anything. The sheet you are on is inked in, and a bubble's name
-  shows beside it when it is pointed at or focused.
+  arrow at the head of the line and the theme switch at its foot. The sheet
+  you are on is inked in.
+
+  The page keeps a margin for it on the right, --index wide, measured from
+  the frame. At first that is room for the bubbles alone, and a bubble's
+  name shows on a patch of paper when it is pointed at or focused. On the
+  widest screens the margin is wide enough for the names to be lettered
+  beside the bubbles all the time.
 */
+:root {
+  --index: 2.9rem;
+}
+
+@media (min-width: 80rem) {
+  :root {
+    --index: 8rem;
+  }
+}
+
 .sheet-index {
   display: none;
 }
@@ -2083,7 +2099,7 @@ html.theme-wipe::view-transition-new(root) {
   .sheet-index {
     position: fixed;
     top: 50%;
-    right: calc(var(--band) + 0.15rem);
+    right: calc(var(--band) + 0.6rem);
     z-index: 20;
     display: flex;
     flex-direction: column;
@@ -2156,7 +2172,8 @@ html.theme-wipe::view-transition-new(root) {
     background: linear-gradient(90deg, var(--paper) 50%, var(--ink) 50%);
   }
 
-  /* A bubble's name, lettered beside it. */
+  /* A bubble's name. Here it is put away until asked for, and comes on a
+     patch of paper, because it reaches in over the page. */
   .sheet-index > * > span {
     position: absolute;
     right: calc(100% + 0.6rem);
@@ -2171,12 +2188,35 @@ html.theme-wipe::view-transition-new(root) {
     white-space: nowrap;
     transform: translateY(-50%);
     visibility: hidden;
-    pointer-events: none;
+  }
+
+  .sheet-index[data-shown] > :hover > span,
+  .sheet-index[data-shown] > :focus-visible > span {
+    visibility: visible;
+  }
+}
+
+/* With the wider margin, the names are lettered beside the bubbles for good. */
+@media (min-width: 80rem) {
+  .sheet-index {
+    right: calc(var(--band) + 0.9rem);
+  }
+
+  .sheet-index > * > span {
+    padding: 0.35rem 0;
+    border: 0;
+    background: none;
+    visibility: inherit;
+  }
+
+  .sheet-index > [aria-current="page"] > span {
+    font-weight: 800;
   }
 
   .sheet-index > :hover > span,
   .sheet-index > :focus-visible > span {
-    visibility: visible;
+    text-decoration-line: underline;
+    text-underline-offset: 0.2em;
   }
 }
 

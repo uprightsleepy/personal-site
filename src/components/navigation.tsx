@@ -26,9 +26,11 @@ const subscribeToNothing = () => () => {}
 //
 // On a wide screen it is a sheet index in the right margin: the circled
 // sheet numbers used beside links elsewhere, one for every sheet in the
-// set, on a line, with the sheet you are on inked in. A bubble's name shows
-// beside it when it is pointed at or focused. A north arrow heads the line
-// and the theme switch ends it.
+// set, on a line, with the sheet you are on inked in. A north arrow heads
+// the line and the theme switch ends it. On the widest screens the page
+// keeps a margin for it, and each bubble has its name lettered beside it.
+// Where the margin is only wide enough for the bubbles, a name shows when
+// its bubble is pointed at or focused.
 //
 // On a narrow screen there is no margin to spare, so it is a bar across the
 // top instead, ruled into cells, with the header's own links.
@@ -135,7 +137,7 @@ export default function Navigation() {
             data-n={index + 1}
             aria-current={sheet.path === currentSheet ? 'page' : undefined}
           >
-            <span>{sheet.title}</span>
+            <span>{sheet.short ?? sheet.title}</span>
           </Link>
         ))}
         <button type="button" className="sheet-index-theme" onClick={toggleTheme} aria-label={themeLabel}>
