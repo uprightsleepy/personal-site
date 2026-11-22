@@ -9,7 +9,8 @@ import Poster, { type PosterLine } from '@/components/poster'
 // you off the way a locked-out terminal does in an old film. The print
 // lifts away, leaving the bare sheet and its grid inside the crop marks, and
 // on it a little pixel-art Henry in his grey suit, wagging a finger, under
-// the words set as a poster. Click again and the print comes back.
+// the words set as a poster. Click again and the print comes back. A small
+// tag in the corner of the print says not to click, which is the hint.
 //
 // The figure is Henry's own animation, printed in one ink on a clear ground
 // by scripts/build-magic-word.py. There is a file for each theme, because
@@ -65,6 +66,10 @@ export default function Portrait() {
         className="wag-print h-full w-full object-cover"
         priority
       />
+      {/* The hint, on a small tag in the corner of the print */}
+      <span className="wag-tag" aria-hidden="true">
+        Don&rsquo;t click
+      </span>
 
       <span className="wag-scene" aria-hidden="true">
         <span className="wag-words">

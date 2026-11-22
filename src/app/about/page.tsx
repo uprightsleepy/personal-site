@@ -77,8 +77,7 @@ export default function About() {
             <i aria-hidden="true" />
           </div>
           <p className="caption">
-            Fig. 1. Henry Phillips, printed in one ink through a halftone screen. Not to scale. Do
-            not touch.
+            Fig. 1. Henry Phillips, printed in one ink through a halftone screen. Not to scale.
           </p>
         </div>
       </section>

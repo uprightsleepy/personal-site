@@ -2256,6 +2256,30 @@ html {
   visibility: hidden;
 }
 
+/*
+  The hint: a small tag stuck on the corner of the print, a little askew.
+  It is in the print's own two colours, so on paper the print's overlay
+  turns its white to paper too. It goes when the print does.
+*/
+.wag-tag {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.7rem;
+  padding: 0.28rem 0.5rem 0.24rem;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 0.6875rem;
+  font-stretch: 90%;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-4deg);
+}
+
+.wag[aria-pressed="true"] .wag-tag {
+  visibility: hidden;
+}
+
 /* The print's ground and, on paper, its overlay go with it. */
 .wag[aria-pressed="true"] {
   background: none;
