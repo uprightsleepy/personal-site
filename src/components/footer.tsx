@@ -1,5 +1,6 @@
 import DimensionLine from '@/components/dimension-line'
-import { CommitGraph, NorthArrow, Tie, Typed } from '@/components/drafting'
+import { CommitGraph, Tie, Typed } from '@/components/drafting'
+import { NorthArrow } from '@/components/north'
 import Reveal from '@/components/reveal'
 import TitleBlock from '@/components/title-block'
 import { buildRevision } from '@/lib/build'
