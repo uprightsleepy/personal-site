@@ -2546,6 +2546,8 @@ html {
     grid-row: 1;
     align-self: start;
     max-width: 26.5rem;
+    /* Clear of the title's descenders above it. */
+    margin-top: 1.25rem;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.2s ease-out;
