@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
+import Portrait from '@/components/portrait'
 import { certifications, education, experience, profile, skills } from '@/lib/site'
 
 const title = `About ${profile.name} - ${profile.shortRole}`
@@ -70,17 +70,7 @@ export default function About() {
         <div className="md:col-span-4 md:col-start-9">
           {/* The four <i> elements are crop marks (see .crop in globals.css) */}
           <div className="crop w-full max-w-sm md:max-w-none">
-            <div className="one-ink aspect-[4/5] overflow-hidden">
-              {/* A halftone of headshot.jpg, built by scripts/build-print-assets.py */}
-              <Image
-                src="/headshot-halftone.png"
-                alt="Portrait of Henry Phillips, printed as a halftone"
-                width={800}
-                height={1000}
-                className="h-full w-full object-cover"
-                priority
-              />
-            </div>
+            <Portrait />
             <i aria-hidden="true" />
             <i aria-hidden="true" />
             <i aria-hidden="true" />

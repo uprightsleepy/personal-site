@@ -2229,3 +2229,117 @@ html {
 #top:focus {
   outline: none;
 }
+
+/*
+  The portrait that objects (portrait.tsx). Clicked, the print lifts away
+  and leaves the bare sheet, grid and all, inside the crop marks. On it are
+  a little pixel-art figure wagging a finger, printed in the sheet's one
+  ink, and the words set above it as a poster. Clicked again, the print
+  comes back.
+*/
+.wag {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.wag:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 4px;
+}
+
+.wag-scene {
+  position: absolute;
+  inset: 0;
+  visibility: hidden;
+}
+
+/*
+  The hint: a small tag stuck on the corner of the print, a little askew.
+  It is in the print's own two colours, so on paper the print's overlay
+  turns its white to paper too. It goes when the print does.
+*/
+.wag-tag {
+  position: absolute;
+  right: 0.6rem;
+  bottom: 0.7rem;
+  padding: 0.28rem 0.5rem 0.24rem;
+  background: #ffffff;
+  color: var(--blue);
+  font-size: 0.6875rem;
+  font-stretch: 90%;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  transform: rotate(-4deg);
+}
+
+.wag[aria-pressed="true"] .wag-tag {
+  visibility: hidden;
+}
+
+/* The print's ground and, on paper, its overlay go with it. */
+.wag[aria-pressed="true"] {
+  background: none;
+}
+
+.light .wag[aria-pressed="true"]::after {
+  display: none;
+}
+
+.wag[aria-pressed="true"] .wag-print {
+  visibility: hidden;
+}
+
+.wag[aria-pressed="true"] .wag-scene {
+  visibility: visible;
+}
+
+/* The words, across the top, in the sheet's ink. */
+.wag-words {
+  position: absolute;
+  left: 4%;
+  right: 4%;
+  top: 2%;
+  color: var(--ink);
+  text-align: left;
+}
+
+/*
+  The figure stands at the foot of the frame, under the words, as tall as
+  fits. It is already in the right ink for the theme, so it is laid straight
+  on the sheet and not blended like the print.
+*/
+.wag .wag-figure {
+  position: absolute;
+  left: 50%;
+  bottom: 1%;
+  width: auto;
+  height: 66%;
+  transform: translateX(-50%);
+  mix-blend-mode: normal;
+  image-rendering: pixelated;
+}
+
+/* The lines of the poster arrive one after another, each all at once. */
+@keyframes wag-word {
+  from {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .wag[aria-pressed="true"] .wag-words .poster-line {
+    animation: wag-word 0.01s linear backwards;
+  }
+
+  .wag[aria-pressed="true"] .wag-words .poster-line:nth-child(2) {
+    animation-delay: 0.3s;
+  }
+
+  .wag[aria-pressed="true"] .wag-words .poster-line:nth-child(3) {
+    animation-delay: 0.6s;
+  }
+}
