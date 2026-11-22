@@ -38,6 +38,15 @@ export const metadata: Metadata = {
   },
 }
 
+// What Henry does when he is not working.
+const offTheClock = [
+  ['Gaming', 'I play World of Warcraft and lead a raiding guild, Average Grey Parsers.'],
+  [
+    'Raiding',
+    'We raid for Ahead of the Curve (AOTC), the achievement for defeating a raid’s final boss on Heroic difficulty while that raid is still the current one.',
+  ],
+]
+
 export default function About() {
   return (
     <div className="gutter">
@@ -164,6 +173,21 @@ export default function About() {
             </li>
           ))}
         </ul>
+      </section>
+
+      {/* Outside work, in the same table as the sections above */}
+      <section className="pt-24 md:pt-36" aria-labelledby="off-the-clock-heading">
+        <h2 id="off-the-clock-heading" className="section-heading mb-5">
+          Off the clock
+        </h2>
+        <dl className="border-b border-rule">
+          {offTheClock.map(([term, detail]) => (
+            <div key={term} className="grid gap-x-10 gap-y-1 border-t border-rule py-4 md:grid-cols-12">
+              <dt className="font-semibold md:col-span-6">{term}</dt>
+              <dd className="max-w-[62ch] md:col-span-6">{detail}</dd>
+            </div>
+          ))}
+        </dl>
       </section>
     </div>
   )
