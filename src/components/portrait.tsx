@@ -60,7 +60,7 @@ export default function Portrait() {
       {/* A halftone of headshot.jpg, built by scripts/build-print-assets.py */}
       <Image
         src="/headshot-halftone.png"
-        alt=""
+        alt="Portrait of Henry Phillips, printed as a halftone"
         width={800}
         height={1000}
         className="wag-print h-full w-full object-cover"

@@ -9,6 +9,7 @@ const description =
 export const metadata: Metadata = {
   title: 'Writing',
   description,
+  alternates: { canonical: '/blog' },
   keywords: [
     'Henry Phillips',
     'Technical Writing',

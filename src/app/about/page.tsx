@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Portrait from '@/components/portrait'
+import StructuredData from '@/components/structured-data'
 import UsersLine from '@/components/users-line'
+import { breadcrumbs, profilePage } from '@/lib/schema'
 import { certifications, education, experience, profile, skills } from '@/lib/site'
 
 const title = `About ${profile.name} - ${profile.shortRole}`
@@ -8,8 +10,10 @@ const description =
   'Henry Phillips is an application and cloud security engineer with a software engineering background. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
 
 export const metadata: Metadata = {
-  title: 'About',
+  // The whole title, so a search result names the role as well as the page.
+  title: { absolute: title },
   description,
+  alternates: { canonical: '/about' },
   keywords: [
     'Henry Phillips',
     'Cloud Security Engineer',
@@ -42,6 +46,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="gutter">
+      <StructuredData data={[profilePage, breadcrumbs([['Home', ''], ['About', '/about']])]} />
       {/* Story on the left, portrait on the right */}
       <section className="grid gap-x-10 gap-y-12 pb-20 pt-10 md:grid-cols-12 md:pb-32 md:pt-20">
         <div className="md:col-span-7">

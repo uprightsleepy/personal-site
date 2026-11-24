@@ -2,11 +2,16 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SheetRef } from '@/components/drafting'
 import PipelineDiagram from '@/components/pipeline-diagram'
+import StructuredData from '@/components/structured-data'
+import { breadcrumbs, caseStudy } from '@/lib/schema'
+
+const description =
+  'A case study of a multi-tenant CI/CD platform on GCP: Cloud Run jobs per team, managed in Terraform, with scanning, secret validation and signed deploys.'
 
 export const metadata: Metadata = {
   title: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
-  description:
-    'A case study of a multi-tenant CI/CD platform on GCP: Cloud Run jobs in each team’s own project, managed in Terraform, with SonarQube scanning, secret validation and signed production deploys.',
+  description,
+  alternates: { canonical: '/case-studies/cicd-platform' },
   keywords: [
     'CI/CD Platform',
     'GCP Cloud Run',
@@ -204,6 +209,24 @@ function Row({ term, children }: { term: string; children: React.ReactNode }) {
 export default function CicdPlatform() {
   return (
     <article className="gutter">
+      <StructuredData
+        data={[
+          caseStudy({
+            path: '/case-studies/cicd-platform',
+            headline: 'Multi-tenant CI/CD platform',
+            description,
+            image: '/og/cicd-platform.png',
+            published: '2026-11-21',
+            modified: '2026-11-21',
+            about: ['CI/CD', 'Google Cloud Run', 'Terraform', 'DevSecOps', 'Platform engineering'],
+          }),
+          breadcrumbs([
+            ['Home', ''],
+            ['Work', '/case-studies'],
+            ['Multi-tenant CI/CD platform', '/case-studies/cicd-platform'],
+          ]),
+        ]}
+      />
       <header className="relative pb-14 pt-10 md:pb-20 md:pt-20">
         <p className="mb-8">
           <Link href="/case-studies">Back to work</Link>

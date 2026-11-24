@@ -2,10 +2,16 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { SheetRef } from '@/components/drafting'
 import SecretsDiagram from '@/components/secrets-diagram'
+import StructuredData from '@/components/structured-data'
+import { breadcrumbs, caseStudy } from '@/lib/schema'
+
+const description =
+  'A detailed case study of migrating 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.'
 
 export const metadata: Metadata = {
   title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
-  description: 'A detailed case study of migrating 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
+  description,
+  alternates: { canonical: '/case-studies/secrets-migration' },
   keywords: ['HashiCorp Vault Migration', 'AWS Secrets Manager', 'Cloud Security', 'Lambda Architecture', 'Secret Management', 'Fault Tolerance'],
   openGraph: {
     title: 'Secrets Migration Case Study: 62,800+ Secrets Migrated | Henry Phillips',
@@ -189,6 +195,24 @@ function Row({ term, children }: { term: string; children: React.ReactNode }) {
 export default function SecretsMigration() {
   return (
     <article className="gutter">
+      <StructuredData
+        data={[
+          caseStudy({
+            path: '/case-studies/secrets-migration',
+            headline: 'Large-scale secrets migration',
+            description,
+            image: '/og/secrets-migration.png',
+            published: '2025-08-31',
+            modified: '2026-11-21',
+            about: ['Secrets management', 'HashiCorp Vault', 'AWS Secrets Manager', 'AWS Lambda', 'Cloud security'],
+          }),
+          breadcrumbs([
+            ['Home', ''],
+            ['Work', '/case-studies'],
+            ['Large-scale secrets migration', '/case-studies/secrets-migration'],
+          ]),
+        ]}
+      />
       <header className="relative pb-14 pt-10 md:pb-20 md:pt-20">
         <p className="mb-8">
           <Link href="/case-studies">Back to work</Link>
