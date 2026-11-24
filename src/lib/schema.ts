@@ -49,6 +49,7 @@ export const person = {
   ],
   knowsAbout: [
     'Cloud Security',
+    'Cloud Security Engineering',
     'Application Security',
     'DevSecOps',
     'CI/CD Platform Engineering',
@@ -61,7 +62,9 @@ export const person = {
     'Python',
     'Java',
   ],
-  address: { '@type': 'PostalAddress', addressCountry: 'US' },
+  // Where he is: the Greater Milwaukee area. He also works remotely.
+  homeLocation: { '@type': 'Place', name: 'Greater Milwaukee area, Wisconsin' },
+  address: { '@type': 'PostalAddress', addressRegion: 'WI', addressCountry: 'US' },
 }
 
 export const website = {

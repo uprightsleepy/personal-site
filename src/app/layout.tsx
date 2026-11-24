@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: '%s | Henry Phillips'
   },
   description: profile.description,
-  keywords: ['Cloud Security Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
+  keywords: ['Cloud Security Engineer', 'DevSecOps Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
   authors: [{ name: 'Henry Phillips' }],
   creator: 'Henry Phillips',
   publisher: 'Henry Phillips',

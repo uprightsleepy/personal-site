@@ -5,7 +5,14 @@
 export const profile = {
   name: 'Henry Phillips',
   role: 'Application and cloud security engineer',
-  shortRole: 'Cloud Security Engineer',
+  // The role as it appears in page titles: the two titles to be found under.
+  shortRole: 'Cloud Security and DevSecOps Engineer',
+  focus: 'Cloud security engineering and DevSecOps',
+  location: 'Greater Milwaukee area or remote',
+  // The résumé's address once the file is in /public, for example
+  // '/henry-phillips-resume.pdf'. While this is null the About page shows a
+  // placeholder in its place and nothing else mentions a résumé.
+  resume: null as string | null,
   description:
     'Henry Phillips is an application and cloud security engineer working on DevSecOps, CI/CD platform engineering, IAM and secrets management across AWS and GCP.',
   url: 'https://henryp.me',

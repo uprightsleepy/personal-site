@@ -14,7 +14,7 @@ export function GET() {
     '',
     `> ${profile.description}`,
     '',
-    `${profile.name} is currently a ${experience[0].title} at ${experience[0].company}. This file summarises ${profile.url} for programs that read it on someone's behalf. Every page is static HTML and can be read without running scripts.`,
+    `${profile.name} is currently a ${experience[0].title} at ${experience[0].company}. Focus: ${profile.focus}. Location: ${profile.location}. This file summarises ${profile.url} for programs that read it on someone's behalf. Every page is static HTML and can be read without running scripts.`,
     '',
     '## Pages',
     '',
@@ -48,6 +48,7 @@ export function GET() {
     '',
     `- [LinkedIn](${profile.linkedin})`,
     `- [GitHub](${profile.github})`,
+    ...(profile.resume ? [`- [Résumé (PDF)](${profile.url}${profile.resume})`] : []),
     '',
   ]
   return new Response(lines.join('\n'), { headers: { 'Content-Type': 'text/plain; charset=utf-8' } })

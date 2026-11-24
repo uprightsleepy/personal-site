@@ -7,7 +7,7 @@ import { certifications, education, experience, profile, skills } from '@/lib/si
 
 const title = `About ${profile.name} - ${profile.shortRole}`
 const description =
-  'Henry Phillips is an application and cloud security engineer with a software engineering background. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
+  'Henry Phillips is a cloud security and DevSecOps engineer in the Greater Milwaukee area. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
 
 export const metadata: Metadata = {
   // The whole title, so a search result names the role as well as the page.
@@ -17,6 +17,8 @@ export const metadata: Metadata = {
   keywords: [
     'Henry Phillips',
     'Cloud Security Engineer',
+    'DevSecOps Engineer',
+    'Greater Milwaukee',
     'Application Security',
     'DevSecOps',
     'CI/CD Platform Engineering',
@@ -55,6 +57,31 @@ export default function About() {
             I&apos;m an application and cloud security engineer with a software engineering
             background.
           </p>
+          {/* The facts a recruiter looks for first */}
+          <dl className="mt-8 max-w-[58ch] border-b border-rule">
+            {[
+              ['Focus', profile.focus],
+              ['Location', profile.location],
+            ].map(([term, detail]) => (
+              <div key={term} className="grid gap-x-10 gap-y-1 border-t border-rule py-3 md:grid-cols-12">
+                <dt className="font-semibold md:col-span-4">{term}</dt>
+                <dd className="md:col-span-8">{detail}</dd>
+              </div>
+            ))}
+            <div className="grid gap-x-10 gap-y-1 border-t border-rule py-3 md:grid-cols-12">
+              <dt className="font-semibold md:col-span-4">Résumé</dt>
+              <dd className="md:col-span-8">
+                {profile.resume ? (
+                  <a href={profile.resume} download>
+                    Download the PDF
+                  </a>
+                ) : (
+                  // A placeholder until the file is added (see profile.resume)
+                  <span className="text-soft">PDF to follow</span>
+                )}
+              </dd>
+            </div>
+          </dl>
           <div className="mt-8 max-w-[58ch] space-y-5">
             <p>
               I work on DevSecOps, CI/CD platform engineering, IAM and secrets management across
