@@ -14,6 +14,7 @@ const title = `${profile.name} - ${profile.shortRole}`
 export const metadata: Metadata = {
   title,
   description: profile.description,
+  alternates: { canonical: '/' },
   openGraph: {
     title,
     description: profile.description,

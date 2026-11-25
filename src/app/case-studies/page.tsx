@@ -8,8 +8,9 @@ const description =
   'Work by Henry Phillips: a 62,800+ secret migration from HashiCorp Vault to AWS Secrets Manager, a multi-tenant CI/CD platform on GCP, and two personal projects.'
 
 export const metadata: Metadata = {
-  title: 'Work',
+  title: 'Work and Case Studies',
   description,
+  alternates: { canonical: '/case-studies' },
   keywords: [
     'Cloud Security Case Studies',
     'HashiCorp Vault',

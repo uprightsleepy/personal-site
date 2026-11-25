@@ -1,18 +1,24 @@
 import type { Metadata } from 'next'
 import Portrait from '@/components/portrait'
+import StructuredData from '@/components/structured-data'
 import UsersLine from '@/components/users-line'
+import { breadcrumbs, profilePage } from '@/lib/schema'
 import { certifications, education, experience, profile, skills } from '@/lib/site'
 
 const title = `About ${profile.name} - ${profile.shortRole}`
 const description =
-  'Henry Phillips is an application and cloud security engineer with a software engineering background. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
+  'Henry Phillips is a cloud security and DevSecOps engineer in the Greater Milwaukee area. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
 
 export const metadata: Metadata = {
-  title: 'About',
+  // The whole title, so a search result names the role as well as the page.
+  title: { absolute: title },
   description,
+  alternates: { canonical: '/about' },
   keywords: [
     'Henry Phillips',
     'Cloud Security Engineer',
+    'DevSecOps Engineer',
+    'Greater Milwaukee',
     'Application Security',
     'DevSecOps',
     'CI/CD Platform Engineering',
@@ -42,6 +48,7 @@ export const metadata: Metadata = {
 export default function About() {
   return (
     <div className="gutter">
+      <StructuredData data={[profilePage, breadcrumbs([['Home', ''], ['About', '/about']])]} />
       {/* Story on the left, portrait on the right */}
       <section className="grid gap-x-10 gap-y-12 pb-20 pt-10 md:grid-cols-12 md:pb-32 md:pt-20">
         <div className="md:col-span-7">
@@ -50,6 +57,31 @@ export default function About() {
             I&apos;m an application and cloud security engineer with a software engineering
             background.
           </p>
+          {/* The facts a recruiter looks for first */}
+          <dl className="mt-8 max-w-[58ch] border-b border-rule">
+            {[
+              ['Focus', profile.focus],
+              ['Location', profile.location],
+            ].map(([term, detail]) => (
+              <div key={term} className="grid gap-x-10 gap-y-1 border-t border-rule py-3 md:grid-cols-12">
+                <dt className="font-semibold md:col-span-4">{term}</dt>
+                <dd className="md:col-span-8">{detail}</dd>
+              </div>
+            ))}
+            <div className="grid gap-x-10 gap-y-1 border-t border-rule py-3 md:grid-cols-12">
+              <dt className="font-semibold md:col-span-4">Résumé</dt>
+              <dd className="md:col-span-8">
+                {profile.resume ? (
+                  <a href={profile.resume} download>
+                    Download the PDF
+                  </a>
+                ) : (
+                  // A placeholder until the file is added (see profile.resume)
+                  <span className="text-soft">PDF to follow</span>
+                )}
+              </dd>
+            </div>
+          </dl>
           <div className="mt-8 max-w-[58ch] space-y-5">
             <p>
               I work on DevSecOps, CI/CD platform engineering, IAM and secrets management across

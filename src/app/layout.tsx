@@ -9,6 +9,7 @@ import { ThemeProvider } from '../components/theme-provider'
 import StructuredData from '../components/structured-data'
 import PlausibleProvider from 'next-plausible'
 import { profile } from '@/lib/site'
+import { person, website } from '@/lib/schema'
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://henryp.me'),
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
     template: '%s | Henry Phillips'
   },
   description: profile.description,
-  keywords: ['Cloud Security Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
+  keywords: ['Cloud Security Engineer', 'DevSecOps Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
   authors: [{ name: 'Henry Phillips' }],
   creator: 'Henry Phillips',
   publisher: 'Henry Phillips',
@@ -54,11 +55,6 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    // Add these when you set up verification
-    // google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
-  },
 }
 
 // Browser chrome matches the blueprint sheet.
@@ -74,54 +70,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <StructuredData 
-          type="website"
-          data={{
-            name: `${profile.name} - ${profile.shortRole}`,
-            description: profile.description,
-            url: profile.url,
-            author: { name: "Henry Phillips" }
-          }}
-        />
-        <StructuredData 
-          type="person"
-          data={{
-            name: "Henry Phillips",
-            jobTitle: "Solutions Consultant",
-            description: profile.description,
-            url: profile.url,
-            image: "https://henryp.me/headshot.jpg",
-            sameAs: [profile.linkedin, profile.github],
-            worksFor: {
-              name: "Google",
-              url: "https://www.google.com"
-            },
-            alumniOf: [
-              {
-                name: "Western Governors University",
-                url: "https://wgu.edu"
-              },
-              {
-                name: "California State University, San Bernardino", 
-                url: "https://csusb.edu"
-              }
-            ],
-            skills: [
-              "Cloud Security",
-              "Application Security",
-              "DevSecOps",
-              "CI/CD Platform Engineering",
-              "Secrets Management",
-              "Identity and Access Management",
-              "Terraform",
-              "AWS",
-              "Google Cloud Platform",
-              "Go",
-              "Python",
-              "Java"
-            ]
-          }}
-        />
+        {/* Who the site is by and what it is, for crawlers (src/lib/schema.ts) */}
+        <StructuredData data={[website, person]} />
       </head>
       <body>
         <PlausibleProvider domain="henryp.me" enabled={process.env.NODE_ENV === 'production'}>
