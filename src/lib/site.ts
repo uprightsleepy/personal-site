@@ -9,10 +9,11 @@ export const profile = {
   shortRole: 'Cloud Security and DevSecOps Engineer',
   focus: 'Cloud security engineering and DevSecOps',
   location: 'Greater Milwaukee area or remote',
-  // The résumé's address once the file is in /public, for example
-  // '/henry-phillips-resume.pdf'. While this is null the About page shows a
-  // placeholder in its place and nothing else mentions a résumé.
-  resume: null as string | null,
+  // The résumé in /public. This is the copy made for the site: it carries the
+  // site, LinkedIn and GitHub links and leaves out the phone number and email
+  // address, so replace it with a copy that does the same. Set this to null to
+  // show a placeholder on the About page and drop the link from /llms.txt.
+  resume: '/henry-phillips-resume.pdf' as string | null,
   description:
     'Henry Phillips is an application and cloud security engineer working on DevSecOps, CI/CD platform engineering, IAM and secrets management across AWS and GCP.',
   url: 'https://henryp.me',
