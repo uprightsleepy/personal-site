@@ -1042,12 +1042,13 @@ html.theme-wipe::view-transition-new(root) {
 
   /*
     A band of halftone dots at the foot of every page, growing until they
-    nearly close up at the bottom edge of the sheet. It runs the full width.
+    nearly close up at the bottom edge of the sheet. It runs the full width:
+    the footer places it outside the gutter, whose margins are not equal on
+    both sides once the sheet index is showing.
   */
   .halftone-fade {
     height: 126px;
     margin-top: 2.5rem;
-    margin-inline: calc(50% - 50vw);
     background: var(--ink);
     opacity: 0.9;
     -webkit-mask-image: url("/halftone-fade.png");
