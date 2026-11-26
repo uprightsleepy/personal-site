@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   keywords: [
     'CI/CD Platform',
     'GCP Cloud Run',
+    'GKE',
     'Terraform',
     'DevSecOps',
     'SonarQube',
@@ -84,7 +85,7 @@ const components = [
   ],
   [
     'Binary Authorization',
-    'Cloud Run checks an image against a policy before it runs it. An image without a valid signature from the pipeline’s Cloud KMS key is refused, however it was deployed.',
+    'Cloud Run and GKE check an image against a policy before they run it. An image without a valid signature from the pipeline’s Cloud KMS key is refused, however it was deployed.',
   ],
 ]
 
@@ -132,7 +133,7 @@ const checks = [
   ],
   [
     'Enforcement at deploy',
-    'The signature is checked by Cloud Run itself, through Binary Authorization, and not by a step in the pipeline. An image without a valid signature is refused, so a deploy made outside the pipeline fails as well.',
+    'The signature is checked by the deploy target itself, Cloud Run or GKE, through Binary Authorization, and not by a step in the pipeline. An image without a valid signature is refused, so a deploy made outside the pipeline fails as well.',
   ],
 ]
 
@@ -188,7 +189,7 @@ const skillsShown = [
   ],
   [
     'Release engineering',
-    'One build promoted by digest through a lower environment, gradual rollout on Cloud Run and automatic rollback',
+    'One build promoted by digest through a lower environment and deployed to Cloud Run or GKE, with gradual rollout and automatic rollback on Cloud Run',
   ],
   [
     'Delivery',
@@ -218,7 +219,7 @@ export default function CicdPlatform() {
             image: '/og/cicd-platform.png',
             published: '2026-11-21',
             modified: '2026-11-21',
-            about: ['CI/CD', 'Google Cloud Run', 'Terraform', 'DevSecOps', 'Platform engineering'],
+            about: ['CI/CD', 'Google Cloud Run', 'Google Kubernetes Engine', 'Terraform', 'DevSecOps', 'Platform engineering'],
           }),
           breadcrumbs([
             ['Home', ''],
@@ -249,7 +250,7 @@ export default function CicdPlatform() {
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
           <Row term="Stack">
-            GCP Cloud Run, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
+            GCP Cloud Run, GKE, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
             Snyk
           </Row>
           <Row term="Reading time">5 minutes</Row>
@@ -263,9 +264,10 @@ export default function CicdPlatform() {
           cloud environment before it. The platform is a set of <strong>Cloud Run jobs</strong>,
           started from Bitbucket through Workload Identity Federation and created for each team
           inside that team&rsquo;s own GCP project, with everything defined in Terraform. It builds
-          React, Java, Python and Go applications and runs Terraform. Every application pipeline
+          React, Java, Python and Go applications, deploys them to Cloud Run or GKE, and runs
+          Terraform. Every application pipeline
           includes tests, SonarQube scanning and secret validation. Builds are signed with Cloud
-          KMS, and Cloud Run refuses anything without that signature, so only what the pipeline
+          KMS, and Cloud Run and GKE refuse anything without that signature, so only what the pipeline
           built can run in production. A team could be onboarded in{' '}
           <strong>about five minutes</strong>, where provisioning by ticket had taken several
           weeks. Twelve teams adopted it during my contract, and to my knowledge it now serves all
@@ -338,9 +340,10 @@ export default function CicdPlatform() {
         <p>
           An application is built once. After approval the pipeline signs the build and its
           provenance, and the same build, identified by its digest, is deployed to a lower
-          environment and then promoted to production. Nothing is rebuilt between the two.
-          Production traffic moves to the new revision a share at a time, and if a health check
-          fails the pipeline rolls back to the previous revision without anyone stepping in.
+          environment and then promoted to production, on Cloud Run or GKE. Nothing is rebuilt
+          between the two. On Cloud Run, production traffic moves to the new revision a share at a
+          time, and if a health check fails the pipeline rolls back to the previous revision
+          without anyone stepping in.
         </p>
 
         <h3>The Terraform pipeline</h3>

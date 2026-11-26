@@ -147,9 +147,8 @@ export default function Home() {
             architectures across AWS, GCP and Azure.
           </p>
           <p className="mt-6 max-w-[58ch]">
-            Before that I was a Senior Security Engineer at RiscPoint, built a CI/CD platform and a
-            secrets migration at RKON and ScaleSec, and started as a software engineer at
-            Northwestern Mutual. Outside of work I build and run Spawnpointed and Badger Politics.{' '}
+            Before that I built a CI/CD platform and a secrets migration at RKON and ScaleSec, and
+            I started as a software engineer at Northwestern Mutual. Outside of work I build and run Spawnpointed and Badger Politics.{' '}
             <Link href="/about">More about me</Link>
             <SheetRef path="/about" />
           </p>

@@ -7,7 +7,7 @@ import { certifications, education, experience, profile, skills } from '@/lib/si
 
 const title = `About ${profile.name} | Software & Security Engineer`
 const description =
-  'Henry Phillips is a software and security engineer in the Greater Milwaukee area. Experience at Google (Wiz), RiscPoint, RKON, ScaleSec and Northwestern Mutual.'
+  'Henry Phillips is a software and security engineer in the Greater Milwaukee area. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
 
 export const metadata: Metadata = {
   // The whole title, so a search result names the role as well as the page.

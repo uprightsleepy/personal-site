@@ -3,6 +3,7 @@
 import {
   CallLines,
   DiagramWindow,
+  Glyph,
   Label,
   Legend,
   ResourceBox,
@@ -26,8 +27,11 @@ import {
 // Storage bucket, the plan and apply service accounts and the self-hosted
 // Snyk server in the band between the lanes, Workload Identity Federation
 // at the way in, and the self-hosted SonarQube server above the application
-// lane. A dotted line joins a step to each resource it calls, and joins
-// Binary Authorization to the key it checks signatures against. A diamond
+// lane. The two places a build is deployed to, Cloud Run and GKE, are above
+// that lane as well, in a frame of their own: both deploy steps call the
+// frame, since either step deploys to whichever of the two a team uses. A
+// dotted line joins a step to each resource it calls, and joins Binary
+// Authorization to the key it checks signatures against. A diamond
 // is the merge request's approval: "yes" carries on to the right, and "no"
 // loops back to the first step.
 //
@@ -111,6 +115,15 @@ const resources: Resource[] = [
   { id: 'apply-sa', x: 1172, y: 366, w: 148, h: 44, symbol: 'badge', lines: ['Apply service', 'account'] },
 ]
 
+// Where builds are deployed. The two targets share one frame above the
+// deploy steps, and a step's call ends at the frame, not at one of them. Two
+// steps each calling two boxes could not be drawn without lines crossing.
+const TARGETS = { id: 'targets', x: 1040, y: 1, w: 280, h: 62 }
+const targets: Resource[] = [
+  { id: 'run', x: 1049, y: 10, w: 127, h: 44, symbol: 'deploy', lines: ['Cloud Run'] },
+  { id: 'gke', x: 1184, y: 10, w: 127, h: 44, symbol: 'layers', lines: ['GKE'] },
+]
+
 // A dotted line for each call, drawn from the caller to the resource so the
 // dots can run that way. Step tops and bottoms: the application steps run
 // from 126 to 222, and the Terraform steps start at 480.
@@ -121,7 +134,10 @@ const calls: Call[] = [
   { d: 'M246 222V310', from: 'a0', to: 'snyk' },
   // Signing the build and its provenance uses the key
   { d: 'M984 222V310', from: 'a4', to: 'kms' },
-  // Cloud Run asks Binary Authorization before it runs a new revision in
+  // Both deploy steps deploy to Cloud Run or GKE
+  { d: 'M1114 126V63', from: 'a5', to: 'targets' },
+  { d: 'M1244 126V63', from: 'a6', to: 'targets' },
+  // The target asks Binary Authorization before it runs a new build in
   // production, and Binary Authorization checks against the key
   { d: 'M1244 222V310', from: 'a6', to: 'binauth' },
   { d: 'M1172 332H1124', from: 'binauth', to: 'kms' },
@@ -245,13 +261,13 @@ export default function PipelineDiagram() {
       width={WIDTH}
       height={HEIGHT}
       name="Pipeline diagram"
-      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production, where Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production. Both deploys go to Cloud Run or GKE, and in production Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
       tracing={tracing}
       caption={
         <>
           Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines run as
-          Cloud Run jobs in that team&rsquo;s own GCP project. Point at or tap a step or a resource
-          to trace its calls.
+          Cloud Run jobs in that team&rsquo;s own GCP project, and builds are deployed to Cloud Run
+          or GKE. Point at or tap a step or a resource to trace its calls.
         </>
       }
     >
@@ -287,6 +303,24 @@ export default function PipelineDiagram() {
             trace={trace}
           />
         ))}
+
+      {/* The deploy targets, framed together */}
+      <g style={at(AT.resources + resources.length * AT.resource)} {...trace(TARGETS.id)}>
+        <rect className="pd-lane" x={TARGETS.x} y={TARGETS.y} width={TARGETS.w} height={TARGETS.h} />
+        {targets.map((target) => (
+          <g key={target.id} className="pd-resource">
+            <rect className="pd-solid" x={target.x} y={target.y} width={target.w} height={target.h} />
+            <Glyph symbol={target.symbol} x={target.x + 12} y={target.y + target.h / 2 - 10} size={20} />
+            <Label
+              x={target.x + 42}
+              y={target.y + target.h / 2}
+              lines={target.lines}
+              className="pd-small pd-strong"
+              anchor="start"
+            />
+          </g>
+        ))}
+      </g>
 
       <Legend x={214} y={668} t={AT.legend} step="Pipeline step" resource="Platform resource" />
     </DiagramWindow>

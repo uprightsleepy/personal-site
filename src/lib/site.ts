@@ -1,6 +1,7 @@
 // Content for the site, kept in one place so the home page, About, Case
 // Studies and Writing pages stay in agreement. Update this file when the
-// resume changes.
+// resume changes. RiscPoint (Senior Security Engineer, February to May 2026)
+// is on the résumé and is left off the site on purpose.
 
 export const profile = {
   name: 'Henry Phillips',
@@ -67,7 +68,7 @@ export const work: WorkItem[] = [
     title: 'Building a secure, multi-tenant CI/CD platform',
     summary:
       'Designed and implemented a multi-tenant software delivery platform on GCP for a Fortune 250 enterprise, with scanning, secret validation, keyless authentication and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
-    tags: ['GCP', 'Cloud Run', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
+    tags: ['GCP', 'Cloud Run', 'GKE', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
     link: {
       href: '/case-studies/cicd-platform',
       label: 'Read the case study',
@@ -134,20 +135,6 @@ export const experience: Role[] = [
       'Configure and customize cloud security policies, detection rules and platform integrations across AWS, GCP and Azure.',
       'Develop reusable reference architectures, remediation workflows and technical runbooks addressing cloud misconfigurations, vulnerabilities, identity risks and attack paths.',
       'Provide technical security guidance across 16 enterprise customers.',
-    ],
-  },
-  {
-    title: 'Senior Security Engineer',
-    company: 'RiscPoint',
-    period: 'February 2026 to May 2026',
-    years: '2026',
-    location: 'Remote',
-    summary:
-      'Image hardening, asset inventory and CI/CD automation for regulated cloud environments.',
-    bullets: [
-      'Developed automated AWS image-hardening workflows using FIPS-enabled machine images to support security and compliance requirements in FedRAMP environments.',
-      'Built cloud asset inventory automation using AWS CloudFormation, Lambda and S3 to collect and centralize infrastructure inventory across customer environments.',
-      'Implemented CI/CD automation, vulnerability remediation and operating system package updates to maintain secure cloud infrastructure.',
     ],
   },
   {
