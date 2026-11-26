@@ -42,8 +42,8 @@ const images: Record<string, OgImage> = {
     path: '/',
     lines: [
       { text: 'Henry Phillips', width: '100' },
-      { text: 'is an application', width: '62', outline: true },
-      { text: 'and cloud security', width: '84' },
+      { text: 'is a security', width: '84', outline: true },
+      { text: 'and platform', width: '100' },
       { text: 'engineer.', width: '125', outline: true },
     ],
     stamp: 'Not for construction',
@@ -52,8 +52,8 @@ const images: Record<string, OgImage> = {
     path: '/about',
     lines: [
       { text: 'About', width: '125' },
-      { text: 'From graphic design', width: '62', outline: true },
-      { text: 'to software to security', width: '100' },
+      { text: 'Software and', width: '62', outline: true },
+      { text: 'security engineer', width: '100' },
     ],
   },
   'blog.png': {
@@ -86,7 +86,7 @@ const images: Record<string, OgImage> = {
     path: '/case-studies/cicd-platform',
     lines: [
       { text: 'CI/CD platform', width: '62' },
-      { text: 'Cloud Run on GCP', width: '125', outline: true },
+      { text: 'Multi-tenant', width: '125', outline: true },
       { text: 'Weeks of tickets', width: '100' },
       { text: 'to five minutes', width: '84', outline: true },
     ],

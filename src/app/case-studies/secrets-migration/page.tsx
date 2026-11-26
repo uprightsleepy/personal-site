@@ -6,15 +6,15 @@ import StructuredData from '@/components/structured-data'
 import { breadcrumbs, caseStudy } from '@/lib/schema'
 
 const description =
-  'A detailed case study of migrating 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager using Lambda, SQS, DLQ, and ECS for improved fault tolerance.'
+  'How I developed an event-driven Go platform on AWS Lambda, SQS and ECS that migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 enterprise.'
 
 export const metadata: Metadata = {
-  title: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
+  title: 'Engineering a Large-Scale Secrets Migration Platform',
   description,
   alternates: { canonical: '/case-studies/secrets-migration' },
   keywords: ['HashiCorp Vault Migration', 'AWS Secrets Manager', 'Cloud Security', 'Lambda Architecture', 'Secret Management', 'Fault Tolerance'],
   openGraph: {
-    title: 'Secrets Migration Case Study: 62,800+ Secrets Migrated | Henry Phillips',
+    title: 'Engineering a Large-Scale Secrets Migration Platform | Henry Phillips',
     description: 'How we architected and executed a large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
     url: 'https://henryp.me/case-studies/secrets-migration',
     images: [
@@ -22,13 +22,13 @@ export const metadata: Metadata = {
         url: '/og/secrets-migration.png',
         width: 1200,
         height: 630,
-        alt: 'Secrets Migration Case Study: HashiCorp Vault to AWS Secrets Manager',
+        alt: 'Engineering a Large-Scale Secrets Migration Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Secrets Migration Case Study: 62,800+ Secrets Migrated',
+    title: 'Engineering a Large-Scale Secrets Migration Platform',
     description: 'Large-scale secrets migration using Lambda, SQS, DLQ, and ECS for improved fault tolerance.',
     images: ['/og/secrets-migration.png'],
   },
@@ -199,7 +199,7 @@ export default function SecretsMigration() {
         data={[
           caseStudy({
             path: '/case-studies/secrets-migration',
-            headline: 'Large-scale secrets migration',
+            headline: 'Engineering a large-scale secrets migration platform',
             description,
             image: '/og/secrets-migration.png',
             published: '2025-08-31',
@@ -218,16 +218,22 @@ export default function SecretsMigration() {
           <Link href="/case-studies">Back to work</Link>
           <SheetRef path="/case-studies" />
         </p>
-        <h1 className="title max-w-[12em]">Large-scale secrets migration</h1>
+        <h1 className="title max-w-[12em]">Engineering a large-scale secrets migration platform</h1>
         <p className="lead mt-8 max-w-[40ch] text-soft">
-          HashiCorp Vault to AWS Secrets Manager for a Fortune 100 financial services institution
+          An event-driven platform I developed to move more than 62,800 secrets from HashiCorp
+          Vault to AWS Secrets Manager for a Fortune 100 financial services institution
+        </p>
+        <p className="mt-6 max-w-[58ch]">
+          The system used Go and AWS-native services to automate secret migration, preserve
+          metadata, handle failures, and support auditable migration workflows across enterprise
+          engineering teams.
         </p>
         {/* A finished job: drawings of completed work are stamped "as built" */}
         <p className="stamp mt-10 lg:absolute lg:bottom-28 lg:right-[9%] lg:mt-0">As built</p>
         <dl className="mt-12 max-w-[68ch] border-b border-rule">
           <Row term="Duration">12 months total (4 months core migration)</Row>
           <Row term="Scale">62,800+ secrets</Row>
-          <Row term="Stack">AWS Lambda, HashiCorp Vault, IAM</Row>
+          <Row term="Stack">Go, AWS Lambda, SQS, ECS, AWS Secrets Manager, HashiCorp Vault, IAM</Row>
           <Row term="Reading time">8 minutes</Row>
         </dl>
       </header>

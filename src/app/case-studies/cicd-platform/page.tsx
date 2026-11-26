@@ -6,22 +6,23 @@ import StructuredData from '@/components/structured-data'
 import { breadcrumbs, caseStudy } from '@/lib/schema'
 
 const description =
-  'A case study of a multi-tenant CI/CD platform on GCP: Cloud Run jobs per team, managed in Terraform, with scanning, secret validation and signed deploys.'
+  'How I designed and implemented a secure, multi-tenant software delivery platform on GCP for a Fortune 250 enterprise, with keyless authentication, artifact signing and automated security gates.'
 
 export const metadata: Metadata = {
-  title: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
+  title: 'Building a Secure, Multi-Tenant CI/CD Platform',
   description,
   alternates: { canonical: '/case-studies/cicd-platform' },
   keywords: [
     'CI/CD Platform',
     'GCP Cloud Run',
+    'GKE',
     'Terraform',
     'DevSecOps',
     'SonarQube',
     'Platform Engineering',
   ],
   openGraph: {
-    title: 'CI/CD Platform Case Study: Onboarding in Five Minutes | Henry Phillips',
+    title: 'Building a Secure, Multi-Tenant CI/CD Platform | Henry Phillips',
     description:
       'How a company new to GCP went from weeks of provisioning tickets to a shared pipeline that a team could join in about five minutes.',
     url: 'https://henryp.me/case-studies/cicd-platform',
@@ -30,13 +31,13 @@ export const metadata: Metadata = {
         url: '/og/cicd-platform.png',
         width: 1200,
         height: 630,
-        alt: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
+        alt: 'Building a Secure, Multi-Tenant CI/CD Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CI/CD Platform Case Study: Onboarding in Five Minutes',
+    title: 'Building a Secure, Multi-Tenant CI/CD Platform',
     description:
       'A multi-tenant CI/CD platform on GCP Cloud Run with security checks built into every pipeline.',
     images: ['/og/cicd-platform.png'],
@@ -67,6 +68,10 @@ const components = [
     'The build, test, scan and deploy steps run as Cloud Run jobs. Each team has its own set, created in its own GCP project.',
   ],
   [
+    'Artifact Registry',
+    'Builds pull their images and libraries through Artifact Registry, which keeps a cached copy of each, so a build does not fetch them from the public internet every time.',
+  ],
+  [
     'Service accounts',
     'Each team’s jobs run as service accounts that belong to that team’s project and can reach only that project.',
   ],
@@ -84,7 +89,7 @@ const components = [
   ],
   [
     'Binary Authorization',
-    'Cloud Run checks an image against a policy before it runs it. An image without a valid signature from the pipeline’s Cloud KMS key is refused, however it was deployed.',
+    'Cloud Run and GKE check an image against a policy before they run it. An image without a valid signature from the pipeline’s Cloud KMS key is refused, however it was deployed.',
   ],
 ]
 
@@ -132,7 +137,7 @@ const checks = [
   ],
   [
     'Enforcement at deploy',
-    'The signature is checked by Cloud Run itself, through Binary Authorization, and not by a step in the pipeline. An image without a valid signature is refused, so a deploy made outside the pipeline fails as well.',
+    'The signature is checked by the deploy target itself, Cloud Run or GKE, through Binary Authorization, and not by a step in the pipeline. An image without a valid signature is refused, so a deploy made outside the pipeline fails as well.',
   ],
 ]
 
@@ -188,7 +193,7 @@ const skillsShown = [
   ],
   [
     'Release engineering',
-    'One build promoted by digest through a lower environment, gradual rollout on Cloud Run and automatic rollback',
+    'One build promoted by digest through a lower environment and deployed to Cloud Run or GKE, with gradual rollout and automatic rollback on Cloud Run',
   ],
   [
     'Delivery',
@@ -213,12 +218,12 @@ export default function CicdPlatform() {
         data={[
           caseStudy({
             path: '/case-studies/cicd-platform',
-            headline: 'Multi-tenant CI/CD platform',
+            headline: 'Building a secure, multi-tenant CI/CD platform',
             description,
             image: '/og/cicd-platform.png',
             published: '2026-11-21',
             modified: '2026-11-21',
-            about: ['CI/CD', 'Google Cloud Run', 'Terraform', 'DevSecOps', 'Platform engineering'],
+            about: ['CI/CD', 'Google Cloud Run', 'Google Kubernetes Engine', 'Terraform', 'DevSecOps', 'Platform engineering'],
           }),
           breadcrumbs([
             ['Home', ''],
@@ -232,10 +237,16 @@ export default function CicdPlatform() {
           <Link href="/case-studies">Back to work</Link>
           <SheetRef path="/case-studies" />
         </p>
-        <h1 className="title max-w-[12em]">Multi-tenant CI/CD platform</h1>
+        <h1 className="title max-w-[12em]">Building a secure, multi-tenant CI/CD platform</h1>
         <p className="lead mt-8 max-w-[40ch] text-soft">
-          Shared build and deploy pipelines on GCP for a Fortune 250 company that was new to the
-          cloud
+          A software delivery platform I designed and implemented on GCP for a Fortune 250
+          enterprise that was new to the cloud
+        </p>
+        <p className="mt-6 max-w-[58ch]">
+          The platform standardized application and infrastructure deployments while incorporating
+          automated security controls, keyless authentication, artifact integrity verification, and
+          reusable deployment workflows. The project focused on improving developer experience
+          without sacrificing security, tenant isolation, or deployment integrity.
         </p>
         {/* A finished job: drawings of completed work are stamped "as built" */}
         <p className="stamp mt-10 lg:absolute lg:bottom-28 lg:right-[9%] lg:mt-0">As built</p>
@@ -243,7 +254,7 @@ export default function CicdPlatform() {
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
           <Row term="Stack">
-            GCP Cloud Run, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
+            GCP Cloud Run, GKE, Artifact Registry, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
             Snyk
           </Row>
           <Row term="Reading time">5 minutes</Row>
@@ -257,9 +268,10 @@ export default function CicdPlatform() {
           cloud environment before it. The platform is a set of <strong>Cloud Run jobs</strong>,
           started from Bitbucket through Workload Identity Federation and created for each team
           inside that team&rsquo;s own GCP project, with everything defined in Terraform. It builds
-          React, Java, Python and Go applications and runs Terraform. Every application pipeline
+          React, Java, Python and Go applications, deploys them to Cloud Run or GKE, and runs
+          Terraform. Every application pipeline
           includes tests, SonarQube scanning and secret validation. Builds are signed with Cloud
-          KMS, and Cloud Run refuses anything without that signature, so only what the pipeline
+          KMS, and Cloud Run and GKE refuse anything without that signature, so only what the pipeline
           built can run in production. A team could be onboarded in{' '}
           <strong>about five minutes</strong>, where provisioning by ticket had taken several
           weeks. Twelve teams adopted it during my contract, and to my knowledge it now serves all
@@ -332,9 +344,10 @@ export default function CicdPlatform() {
         <p>
           An application is built once. After approval the pipeline signs the build and its
           provenance, and the same build, identified by its digest, is deployed to a lower
-          environment and then promoted to production. Nothing is rebuilt between the two.
-          Production traffic moves to the new revision a share at a time, and if a health check
-          fails the pipeline rolls back to the previous revision without anyone stepping in.
+          environment and then promoted to production, on Cloud Run or GKE. Nothing is rebuilt
+          between the two. On Cloud Run, production traffic moves to the new revision a share at a
+          time, and if a health check fails the pipeline rolls back to the previous revision
+          without anyone stepping in.
         </p>
 
         <h3>The Terraform pipeline</h3>

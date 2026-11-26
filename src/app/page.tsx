@@ -9,15 +9,16 @@ import WorkScene from '@/components/work-scene'
 import WorkLink from '@/components/work-link'
 import { articles, certifications, experience, profile, work } from '@/lib/site'
 
-const title = `${profile.name} - ${profile.shortRole}`
+const title = `${profile.name} | ${profile.shortRole}`
 
 export const metadata: Metadata = {
-  title,
-  description: profile.description,
+  // The whole title, so the layout's template does not add the name again.
+  title: { absolute: title },
+  description: profile.siteDescription,
   alternates: { canonical: '/' },
   openGraph: {
     title,
-    description: profile.description,
+    description: profile.siteDescription,
     url: profile.url,
     images: [
       {
@@ -31,17 +32,17 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title,
-    description: profile.description,
+    description: profile.siteDescription,
     images: ['/og/home.png'],
   },
 }
 
-// The opening statement, one line of the poster each. Every line is set in a
-// different width of Archivo and sized to fill the measure.
+// The opening statement, one line of the poster each. Each line is set in its
+// own width of Archivo and sized to fill the measure.
 const statement: PosterLine[] = [
   { text: 'Henry Phillips', stretch: 100, ems: 8.6585 },
-  { text: 'is an application', stretch: 62, ems: 6.725, outline: true },
-  { text: 'and cloud security', stretch: 84, ems: 10.0663 },
+  { text: 'is a security', stretch: 84, ems: 6.4805, outline: true },
+  { text: 'and platform', stretch: 100, ems: 8.252 },
   { text: 'engineer.', stretch: 125, ems: 7.2325, outline: true },
 ]
 
@@ -54,17 +55,45 @@ export default function Home() {
         <div className="rabbit-perch">
           <h1>
             <Poster
-              label="Henry Phillips is an application and cloud security engineer."
+              label="Henry Phillips is a security and platform engineer."
               lines={statement}
             />
           </h1>
           <WhiteRabbit />
         </div>
         <div className="mt-10 grid gap-x-10 md:mt-16 md:grid-cols-12">
-          <p className="lead max-w-[40ch] md:col-span-6 md:col-start-7">
-            I build security into how software gets delivered: CI/CD platforms, secrets
-            management, IAM and infrastructure as code on AWS and GCP.
-          </p>
+          <div className="md:col-span-6 md:col-start-7">
+            <p className="lead max-w-[40ch]">
+              I build secure software, developer platforms, and cloud infrastructure. My work spans
+              distributed systems, identity and access management, security automation, and
+              software delivery.
+            </p>
+            <p className="mt-6 max-w-[58ch]">
+              I enjoy solving complex engineering problems, building tools that simplify difficult
+              workflows, and designing systems that are secure, reliable, and maintainable.
+            </p>
+            {/* Where to go from here: the work, the résumé and the code */}
+            <ul className="mt-6 flex flex-wrap gap-x-8 gap-y-2 font-semibold">
+              <li>
+                <Link href="/case-studies">Explore my work</Link>
+                <SheetRef path="/case-studies" />
+              </li>
+              {profile.resume && (
+                <li>
+                  <a href={profile.resume} download>
+                    Download résumé
+                  </a>
+                </li>
+              )}
+              <li>
+                <a href={profile.github} target="_blank" rel="noopener noreferrer">
+                  GitHub
+                  <span className="sr-only"> (opens in a new tab)</span>
+                </a>
+                <Leader />
+              </li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -113,13 +142,13 @@ export default function Home() {
             Now
           </h2>
           <p className="lead">
-            I&apos;m a Solutions Consultant at Wiz, part of Google, where I manage 16 enterprise
-            customers across AWS, GCP and Azure.
+            I&apos;m a Solutions Consultant at Wiz, part of Google, where I build Terraform sandbox
+            environments, customize security policies and detection rules, and write reference
+            architectures across AWS, GCP and Azure.
           </p>
           <p className="mt-6 max-w-[58ch]">
-            Before that I worked in cloud security engineering and consulting at RKON and ScaleSec,
-            and I started as a software engineer at Northwestern Mutual. I came to security through
-            graphic design and software engineering.{' '}
+            Before that I built a CI/CD platform and a secrets migration at RKON and ScaleSec, and
+            I started as a software engineer at Northwestern Mutual. Outside of work I build and run Spawnpointed and Badger Politics.{' '}
             <Link href="/about">More about me</Link>
             <SheetRef path="/about" />
           </p>

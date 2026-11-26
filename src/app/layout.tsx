@@ -14,11 +14,11 @@ import { person, website } from '@/lib/schema'
 export const metadata: Metadata = {
   metadataBase: new URL('https://henryp.me'),
   title: {
-    default: `${profile.name} - ${profile.shortRole}`,
+    default: `${profile.name} | ${profile.shortRole}`,
     template: '%s | Henry Phillips'
   },
-  description: profile.description,
-  keywords: ['Cloud Security Engineer', 'DevSecOps Engineer', 'Application Security', 'DevSecOps', 'CI/CD', 'Secrets Management', 'IAM', 'Terraform', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
+  description: profile.siteDescription,
+  keywords: ['Security Engineer', 'Platform Engineer', 'Software Engineer', 'Cloud Security Engineer', 'DevSecOps Engineer', 'Platform Engineering', 'Software Supply Chain Security', 'Distributed Systems', 'Security Automation', 'IAM', 'Terraform', 'Kubernetes', 'AWS', 'GCP', 'Go', 'Python', 'Java'],
   authors: [{ name: 'Henry Phillips' }],
   creator: 'Henry Phillips',
   publisher: 'Henry Phillips',
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://henryp.me',
     siteName: 'Henry Phillips',
-    title: `${profile.name} - ${profile.shortRole}`,
-    description: profile.description,
+    title: `${profile.name} | ${profile.shortRole}`,
+    description: profile.siteDescription,
     images: [
       {
         url: '/headshot.jpg',
@@ -40,8 +40,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: `${profile.name} - ${profile.shortRole}`,
-    description: profile.description,
+    title: `${profile.name} | ${profile.shortRole}`,
+    description: profile.siteDescription,
     images: ['/headshot.jpg'],
   },
   robots: {
