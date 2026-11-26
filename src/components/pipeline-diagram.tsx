@@ -26,8 +26,8 @@ import {
 // outside the lanes: the Cloud KMS key, Binary Authorization, the Cloud
 // Storage bucket, the plan and apply service accounts and the self-hosted
 // Snyk server in the band between the lanes, Workload Identity Federation
-// at the way in, and the self-hosted SonarQube server above the application
-// lane. The two places a build is deployed to, Cloud Run and GKE, are above
+// at the way in, and Artifact Registry and the self-hosted SonarQube server
+// above the application lane. The two places a build is deployed to, Cloud Run and GKE, are above
 // that lane as well, in a frame of their own: both deploy steps call the
 // frame, since either step deploys to whichever of the two a team uses. A
 // dotted line joins a step to each resource it calls, and joins Binary
@@ -65,7 +65,8 @@ const lanes: Lane[] = [
   {
     id: 'a',
     top: 80,
-    title: 'Application pipeline: React, Java, Python, Go',
+    // Short, so that the build step's line to Artifact Registry clears it.
+    title: 'Application pipeline',
     titleAt: 'top',
     steps: [
       { x: 220, symbol: 'lock', lines: ['Secret', 'validation'] },
@@ -105,6 +106,7 @@ const lanes: Lane[] = [
 // scan comes in from the side, a little lower than the key's line so the
 // two do not read as one.
 const resources: Resource[] = [
+  { id: 'registry', x: 331, y: 1, w: 150, h: 44, symbol: 'store', lines: ['Artifact', 'Registry'] },
   { id: 'sonar', x: 591, y: 1, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'SonarQube'] },
   { id: 'wif', x: 1, y: 327, w: 159, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
   { id: 'snyk', x: 200, y: 310, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'Snyk'] },
@@ -128,6 +130,8 @@ const targets: Resource[] = [
 // dots can run that way. Step tops and bottoms: the application steps run
 // from 126 to 222, and the Terraform steps start at 480.
 const calls: Call[] = [
+  // The build pulls its images and libraries through Artifact Registry
+  { d: 'M406 126V45', from: 'a1', to: 'registry' },
   // The scan step sends the build to the SonarQube server
   { d: 'M666 126V45', from: 'a3', to: 'sonar' },
   // Secret validation asks the Snyk server
@@ -261,13 +265,14 @@ export default function PipelineDiagram() {
       width={WIDTH}
       height={HEIGHT}
       name="Pipeline diagram"
-      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline runs secret validation against the self-hosted Snyk server, a build, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production. Both deploys go to Cloud Run or GKE, and in production Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline, for React, Java, Python and Go, runs secret validation against the self-hosted Snyk server, a build that pulls its images and libraries through Artifact Registry, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production. Both deploys go to Cloud Run or GKE, and in production Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
       tracing={tracing}
       caption={
         <>
           Fig. 1. The two pipelines and the resources they call. Each team&rsquo;s pipelines run as
-          Cloud Run jobs in that team&rsquo;s own GCP project, and builds are deployed to Cloud Run
-          or GKE. Point at or tap a step or a resource to trace its calls.
+          Cloud Run jobs in that team&rsquo;s own GCP project. The application pipeline builds
+          React, Java, Python and Go, and deploys to Cloud Run or GKE. Point at or tap a step or a
+          resource to trace its calls.
         </>
       }
     >

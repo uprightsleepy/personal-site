@@ -68,7 +68,7 @@ export const work: WorkItem[] = [
     title: 'Building a secure, multi-tenant CI/CD platform',
     summary:
       'Designed and implemented a multi-tenant software delivery platform on GCP for a Fortune 250 enterprise, with scanning, secret validation, keyless authentication and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
-    tags: ['GCP', 'Cloud Run', 'GKE', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
+    tags: ['GCP', 'Cloud Run', 'GKE', 'Artifact Registry', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
     link: {
       href: '/case-studies/cicd-platform',
       label: 'Read the case study',
@@ -147,7 +147,7 @@ export const experience: Role[] = [
     summary:
       'Designed and implemented a multi-tenant CI/CD platform on GCP that 12 engineering teams adopted voluntarily.',
     bullets: [
-      'Designed and implemented a multi-tenant GCP CI/CD platform for a Fortune 250 enterprise using Cloud Build, Bitbucket, Artifact Registry, Terraform and Kubernetes. Twelve engineering teams adopted it voluntarily.',
+      'Designed and implemented a multi-tenant GCP CI/CD platform for a Fortune 250 enterprise using Cloud Run jobs, Bitbucket, Artifact Registry, Terraform and Kubernetes. Twelve engineering teams adopted it voluntarily.',
       'Implemented software supply chain security controls using SonarQube, Snyk, Cloud KMS-backed artifact signing, Binary Authorization and keyless authentication through Workload Identity Federation.',
       'Engineered auditable Terraform deployment workflows with isolated plan and apply identities, encrypted plan storage, artifact integrity validation and automated security gates.',
       'Developed reusable pipeline templates and deployment automation supporting container images, Maven, Gradle, NPM, Cloud Run and GKE workloads.',

@@ -68,6 +68,10 @@ const components = [
     'The build, test, scan and deploy steps run as Cloud Run jobs. Each team has its own set, created in its own GCP project.',
   ],
   [
+    'Artifact Registry',
+    'Builds pull their images and libraries through Artifact Registry, which keeps a cached copy of each, so a build does not fetch them from the public internet every time.',
+  ],
+  [
     'Service accounts',
     'Each team’s jobs run as service accounts that belong to that team’s project and can reach only that project.',
   ],
@@ -250,7 +254,7 @@ export default function CicdPlatform() {
           <Row term="Period">2025 to 2026</Row>
           <Row term="Scale">3 pilot teams, 12 at handover, around 30 since</Row>
           <Row term="Stack">
-            GCP Cloud Run, GKE, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
+            GCP Cloud Run, GKE, Artifact Registry, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
             Snyk
           </Row>
           <Row term="Reading time">5 minutes</Row>
