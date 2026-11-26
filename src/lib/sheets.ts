@@ -7,6 +7,9 @@ export const sheets: { path: string; title: string; short?: string }[] = [
   { path: '/case-studies', title: 'Work' },
   { path: '/case-studies/secrets-migration', title: 'Secrets migration', short: 'Secrets' },
   { path: '/case-studies/cicd-platform', title: 'CI/CD platform', short: 'CI/CD' },
+  { path: '/projects', title: 'Projects' },
+  { path: '/projects/spawnpointed', title: 'Spawnpointed', short: 'Spawn' },
+  { path: '/projects/badger-politics', title: 'Badger Politics', short: 'Badger' },
   { path: '/about', title: 'About' },
   { path: '/blog', title: 'Writing' },
 ]

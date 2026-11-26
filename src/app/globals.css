@@ -2052,6 +2052,23 @@ html.theme-wipe::view-transition-new(root) {
   flex: 0 0 auto;
 }
 
+/* Six links and the arrow have to fit across a small phone. */
+@media (max-width: 26rem) {
+  .pinned > * {
+    padding-inline: 0.3rem;
+  }
+}
+
+@media (max-width: 21rem) {
+  .pinned {
+    font-size: 0.8125rem;
+  }
+
+  .pinned > * {
+    padding-inline: 0.2rem;
+  }
+}
+
 .north-mark svg {
   width: 1.15rem;
   height: 1.15rem;
