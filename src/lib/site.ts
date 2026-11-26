@@ -210,7 +210,6 @@ export const skills: { group: string; items: string[] }[] = [
   {
     group: 'Platform engineering',
     items: [
-      'Cloud Build',
       'Jenkins',
       'GitHub Actions',
       'Bitbucket',
