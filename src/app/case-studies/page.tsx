@@ -3,21 +3,22 @@ import { Leader, SheetRef } from '@/components/drafting'
 import WorkLink from '@/components/work-link'
 import { profile, work } from '@/lib/site'
 
-const title = `Work - ${profile.name}`
+const title = `Engineering Case Studies | ${profile.name}`
 const description =
-  'Work by Henry Phillips: a 62,800+ secret migration from HashiCorp Vault to AWS Secrets Manager, a multi-tenant CI/CD platform on GCP, and two personal projects.'
+  'Engineering work by Henry Phillips: an event-driven Go platform that migrated 62,800+ secrets to AWS Secrets Manager, a secure multi-tenant CI/CD platform on GCP, and two independent software projects.'
 
 export const metadata: Metadata = {
-  title: 'Work and Case Studies',
+  title: 'Engineering Case Studies',
   description,
   alternates: { canonical: '/case-studies' },
   keywords: [
-    'Cloud Security Case Studies',
+    'Engineering Case Studies',
+    'Platform Engineering',
+    'Security Engineering',
+    'Software Supply Chain Security',
+    'CI/CD Platform',
     'HashiCorp Vault',
     'AWS Secrets Manager',
-    'CI/CD Platform',
-    'DevSecOps',
-    'Security Engineering',
   ],
   openGraph: {
     title,
@@ -46,7 +47,8 @@ export default function Work() {
       <header className="pb-14 pt-10 md:pb-24 md:pt-20">
         <h1 className="title">Work</h1>
         <p className="lead mt-8 max-w-[46ch] text-soft">
-          Client work from my time at ScaleSec and RKON, and two projects I build and run myself.
+          Systems I designed and built for enterprise clients at ScaleSec and RKON, and two
+          software projects I build and run myself.
         </p>
       </header>
 

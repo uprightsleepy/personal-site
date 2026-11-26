@@ -6,10 +6,10 @@ import StructuredData from '@/components/structured-data'
 import { breadcrumbs, caseStudy } from '@/lib/schema'
 
 const description =
-  'A case study of a multi-tenant CI/CD platform on GCP: Cloud Run jobs per team, managed in Terraform, with scanning, secret validation and signed deploys.'
+  'How I designed and implemented a secure, multi-tenant software delivery platform on GCP for a Fortune 250 enterprise, with keyless authentication, artifact signing and automated security gates.'
 
 export const metadata: Metadata = {
-  title: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
+  title: 'Building a Secure, Multi-Tenant CI/CD Platform',
   description,
   alternates: { canonical: '/case-studies/cicd-platform' },
   keywords: [
@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     'Platform Engineering',
   ],
   openGraph: {
-    title: 'CI/CD Platform Case Study: Onboarding in Five Minutes | Henry Phillips',
+    title: 'Building a Secure, Multi-Tenant CI/CD Platform | Henry Phillips',
     description:
       'How a company new to GCP went from weeks of provisioning tickets to a shared pipeline that a team could join in about five minutes.',
     url: 'https://henryp.me/case-studies/cicd-platform',
@@ -30,13 +30,13 @@ export const metadata: Metadata = {
         url: '/og/cicd-platform.png',
         width: 1200,
         height: 630,
-        alt: 'CI/CD Platform Case Study: Multi-Tenant Pipelines on GCP Cloud Run',
+        alt: 'Building a Secure, Multi-Tenant CI/CD Platform',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'CI/CD Platform Case Study: Onboarding in Five Minutes',
+    title: 'Building a Secure, Multi-Tenant CI/CD Platform',
     description:
       'A multi-tenant CI/CD platform on GCP Cloud Run with security checks built into every pipeline.',
     images: ['/og/cicd-platform.png'],
@@ -213,7 +213,7 @@ export default function CicdPlatform() {
         data={[
           caseStudy({
             path: '/case-studies/cicd-platform',
-            headline: 'Multi-tenant CI/CD platform',
+            headline: 'Building a secure, multi-tenant CI/CD platform',
             description,
             image: '/og/cicd-platform.png',
             published: '2026-11-21',
@@ -232,10 +232,16 @@ export default function CicdPlatform() {
           <Link href="/case-studies">Back to work</Link>
           <SheetRef path="/case-studies" />
         </p>
-        <h1 className="title max-w-[12em]">Multi-tenant CI/CD platform</h1>
+        <h1 className="title max-w-[12em]">Building a secure, multi-tenant CI/CD platform</h1>
         <p className="lead mt-8 max-w-[40ch] text-soft">
-          Shared build and deploy pipelines on GCP for a Fortune 250 company that was new to the
-          cloud
+          A software delivery platform I designed and implemented on GCP for a Fortune 250
+          enterprise that was new to the cloud
+        </p>
+        <p className="mt-6 max-w-[58ch]">
+          The platform standardized application and infrastructure deployments while incorporating
+          automated security controls, keyless authentication, artifact integrity verification, and
+          reusable deployment workflows. The project focused on improving developer experience
+          without sacrificing security, tenant isolation, or deployment integrity.
         </p>
         {/* A finished job: drawings of completed work are stamped "as built" */}
         <p className="stamp mt-10 lg:absolute lg:bottom-28 lg:right-[9%] lg:mt-0">As built</p>

@@ -4,10 +4,10 @@
 
 export const profile = {
   name: 'Henry Phillips',
-  role: 'Application and cloud security engineer',
-  // The role as it appears in page titles: the two titles to be found under.
-  shortRole: 'Cloud Security and DevSecOps Engineer',
-  focus: 'Cloud security engineering and DevSecOps',
+  role: 'Security and platform engineer',
+  // The role as it appears in page titles.
+  shortRole: 'Security & Platform Engineer',
+  focus: 'Security, platform and software engineering',
   location: 'Greater Milwaukee area or remote',
   // The résumé in /public. This is the copy made for the site: it carries the
   // email address and the site, LinkedIn and GitHub links, and leaves out the
@@ -15,8 +15,12 @@ export const profile = {
   // null to show a placeholder on the About page and drop the link from
   // /llms.txt.
   resume: '/henry-phillips-resume.pdf' as string | null,
+  // About the person: structured data and /llms.txt use this one.
   description:
-    'Henry Phillips is an application and cloud security engineer working on DevSecOps, CI/CD platform engineering, IAM and secrets management across AWS and GCP.',
+    'Henry Phillips is a software and security engineer working on cloud infrastructure, distributed systems, platform engineering and security automation.',
+  // About the site: the home page's description in search results and link previews.
+  siteDescription:
+    'Software and security engineer specializing in cloud infrastructure, distributed systems, platform engineering, and security automation. Explore enterprise engineering case studies and independent software projects.',
   url: 'https://henryp.me',
   linkedin: 'https://www.linkedin.com/in/henryjphillips/',
   github: 'https://github.com/uprightsleepy',
@@ -44,10 +48,10 @@ export const work: WorkItem[] = [
     period: '2024 to 2025',
     years: '2024–25',
     display: 'Secrets migration',
-    title: 'Secrets migration for a Fortune 100 firm',
+    title: 'Engineering a large-scale secrets migration platform',
     summary:
-      'Designed and built the core Go Lambda that migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager. 85% of the migration was done in four months.',
-    tags: ['Go', 'AWS Lambda', 'AWS Secrets Manager', 'HashiCorp Vault'],
+      'Developed an event-driven Go application on AWS Lambda, SQS and ECS that migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 enterprise. 85% of the migration was done in four months.',
+    tags: ['Go', 'AWS Lambda', 'SQS', 'ECS', 'AWS Secrets Manager', 'HashiCorp Vault'],
     link: {
       href: '/case-studies/secrets-migration',
       label: 'Read the case study',
@@ -60,9 +64,9 @@ export const work: WorkItem[] = [
     period: '2025 to 2026',
     years: '2025–26',
     display: 'CI/CD platform',
-    title: 'Multi-tenant CI/CD platform on GCP',
+    title: 'Building a secure, multi-tenant CI/CD platform',
     summary:
-      'Architected a CI/CD platform on Cloud Run for a company new to GCP, with SonarQube scanning, secret validation and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
+      'Designed and implemented a multi-tenant software delivery platform on GCP for a Fortune 250 enterprise, with scanning, secret validation, keyless authentication and signed production deploys built in. Twelve teams adopted it voluntarily, and onboarding a team went from weeks of tickets to about five minutes.',
     tags: ['GCP', 'Cloud Run', 'Cloud KMS', 'Terraform', 'Bitbucket', 'SonarQube'],
     link: {
       href: '/case-studies/cicd-platform',
@@ -124,12 +128,26 @@ export const experience: Role[] = [
     years: '2026 to now',
     location: 'Remote',
     summary:
-      'Technical account management for 16 enterprise customers on the Wiz cloud security platform.',
+      'Hands-on technical work on the Wiz cloud security platform: Terraform sandbox environments, security policies and detection rules, and reference architectures.',
     bullets: [
-      'Manage 16 enterprise customers across AWS, GCP and Azure.',
-      'Build Terraform sandboxes that replicate customer cloud architectures for repeatable, technically accurate Wiz demonstrations.',
-      'Customize security policies and rules, lead cloud integrations, and develop customer runbooks and reference architectures.',
-      'Advise engineers through CISOs on misconfiguration remediation, vulnerability prioritization and toxic combinations.',
+      'Develop Terraform-based sandbox environments that reproduce enterprise cloud architectures for technical validation, security demonstrations and investigation of cloud security scenarios.',
+      'Configure and customize cloud security policies, detection rules and platform integrations across AWS, GCP and Azure.',
+      'Develop reusable reference architectures, remediation workflows and technical runbooks addressing cloud misconfigurations, vulnerabilities, identity risks and attack paths.',
+      'Provide technical security guidance across 16 enterprise customers.',
+    ],
+  },
+  {
+    title: 'Senior Security Engineer',
+    company: 'RiscPoint',
+    period: 'February 2026 to May 2026',
+    years: '2026',
+    location: 'Remote',
+    summary:
+      'Image hardening, asset inventory and CI/CD automation for regulated cloud environments.',
+    bullets: [
+      'Developed automated AWS image-hardening workflows using FIPS-enabled machine images to support security and compliance requirements in FedRAMP environments.',
+      'Built cloud asset inventory automation using AWS CloudFormation, Lambda and S3 to collect and centralize infrastructure inventory across customer environments.',
+      'Implemented CI/CD automation, vulnerability remediation and operating system package updates to maintain secure cloud infrastructure.',
     ],
   },
   {
@@ -140,11 +158,12 @@ export const experience: Role[] = [
     years: '2025 to 2026',
     location: 'Remote',
     summary:
-      'Built a multi-tenant CI/CD platform on GCP that 12 teams adopted voluntarily.',
+      'Designed and implemented a multi-tenant CI/CD platform on GCP that 12 engineering teams adopted voluntarily.',
     bullets: [
-      'Architected a multi-tenant GCP CI/CD platform on Cloud Run with integrated self-hosted SonarQube static analysis. Twelve teams adopted it voluntarily, and pipeline onboarding dropped from hours to minutes.',
-      'Developed Python automation for GCP resource validation, pipeline health monitoring and compliance reporting.',
-      'Implemented auditable Terraform workflows with KMS encryption, checksum validation and least-privilege service accounts.',
+      'Designed and implemented a multi-tenant GCP CI/CD platform for a Fortune 250 enterprise using Cloud Build, Bitbucket, Artifact Registry, Terraform and Kubernetes. Twelve engineering teams adopted it voluntarily.',
+      'Implemented software supply chain security controls using SonarQube, Snyk, Cloud KMS-backed artifact signing, Binary Authorization and keyless authentication through Workload Identity Federation.',
+      'Engineered auditable Terraform deployment workflows with isolated plan and apply identities, encrypted plan storage, artifact integrity validation and automated security gates.',
+      'Developed reusable pipeline templates and deployment automation supporting container images, Maven, Gradle, NPM, Cloud Run and GKE workloads.',
     ],
   },
   {
@@ -154,10 +173,12 @@ export const experience: Role[] = [
     years: '2024 to 2025',
     location: 'Remote',
     summary:
-      'Migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 firm.',
+      'Built the event-driven Go application that migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 enterprise.',
     bullets: [
-      'Migrated 62,800+ secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 firm, with 85% completed in four months.',
-      'Designed and built the core Go Lambda for secret transfer, metadata retrieval, status tracking and job orchestration.',
+      'Developed an event-driven Go application using AWS Lambda, SQS and ECS to migrate more than 62,800 secrets from HashiCorp Vault to AWS Secrets Manager for a Fortune 100 enterprise.',
+      'Engineered fault-tolerant migration workflows with metadata enrichment, dead-letter queues, retry mechanisms and auditability, supporting adoption by more than 78 engineering teams.',
+      'Implemented automated blue-green secret rotation and rehydration workflows, reducing incident recovery time by approximately 32%.',
+      'Designed and implemented privileged access infrastructure using StrongDM, GCP and least-privilege access policies for secure infrastructure and database access.',
     ],
   },
   {
@@ -168,54 +189,61 @@ export const experience: Role[] = [
     years: '2022 to 2024',
     location: 'Franklin, WI (hybrid)',
     summary:
-      'Java and Spring Boot microservices for a secure eSignature platform.',
+      'Java and Spring Boot microservices for an electronic signature workflow, and the AWS infrastructure under them.',
     bullets: [
-      'Developed Java and Spring Boot microservices for a secure eSignature platform, reducing claims cycle time from 34 days to 2.5 days.',
-      'Implemented event-driven AWS services using SQS, DynamoDB and S3 to coordinate processing and persist workflow data.',
-      'Modernized legacy batch jobs with Spring Batch, Redis and multithreading, and contributed tooling and CI automation.',
+      'Developed Java and Spring Boot microservices supporting an electronic signature workflow that reduced death claims processing time from 34 days to 2.5 days.',
+      'Designed and maintained AWS infrastructure supporting production applications, including Amazon EKS and DynamoDB.',
+      'Implemented security remediation across 48 services, reducing critical vulnerabilities by 82%.',
+      'Refactored legacy application components into reusable Spring Batch workflows with Redis-backed caching to improve maintainability and modularity.',
     ],
   },
 ]
 
+// Grouped by engineering discipline, as on the résumé.
 export const skills: { group: string; items: string[] }[] = [
   {
-    group: 'Languages and frameworks',
-    items: ['Go', 'Java', 'Spring Boot', 'Spring Batch', 'Python', 'JavaScript', 'SQL', 'Bash'],
+    group: 'Programming',
+    items: ['Go', 'Python', 'Java', 'TypeScript', 'SQL', 'Bash'],
   },
   {
-    group: 'Cloud platforms',
+    group: 'Cloud and infrastructure',
+    items: ['AWS', 'Google Cloud', 'Azure', 'Terraform', 'CloudFormation', 'Kubernetes', 'Docker'],
+  },
+  {
+    group: 'Software engineering',
     items: [
-      'AWS Lambda',
-      'S3',
-      'DynamoDB',
-      'AWS Secrets Manager',
-      'GCP Cloud Run',
-      'Firestore',
-      'Cloud KMS',
-      'Workload Identity',
+      'Spring Boot',
+      'REST APIs',
+      'distributed systems',
+      'event-driven architecture',
+      'automated testing',
+      'relational and NoSQL databases',
     ],
   },
   {
-    group: 'CI/CD and DevOps',
+    group: 'Platform engineering',
     items: [
-      'GitHub Actions',
-      'GitLab CI',
-      'Bitbucket',
       'Cloud Build',
-      'Terraform',
-      'CloudFormation',
-      'Docker',
-      'Kubernetes',
+      'Jenkins',
+      'GitHub Actions',
+      'Bitbucket',
+      'Artifact Registry',
+      'Helm',
+      'CI/CD',
     ],
   },
   {
-    group: 'Application and cloud security',
+    group: 'Security engineering',
     items: [
-      'SonarQube (SAST)',
-      'Trivy (SCA, containers)',
-      'Gitleaks',
-      'Wiz (CSPM)',
-      'Secrets management',
+      'IAM',
+      'Workload Identity Federation',
+      'secrets management',
+      'software supply chain security',
+      'vulnerability management',
+      'policy enforcement',
+      'Snyk',
+      'SonarQube',
+      'Binary Authorization',
     ],
   },
 ]
@@ -224,6 +252,7 @@ export const certifications = [
   'AWS Certified Solutions Architect - Professional',
   'AWS Certified Security - Specialty',
   'CompTIA Security+',
+  'StrongDM Architect',
 ]
 
 export const education = [

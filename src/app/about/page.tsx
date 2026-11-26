@@ -5,9 +5,9 @@ import UsersLine from '@/components/users-line'
 import { breadcrumbs, profilePage } from '@/lib/schema'
 import { certifications, education, experience, profile, skills } from '@/lib/site'
 
-const title = `About ${profile.name} - ${profile.shortRole}`
+const title = `About ${profile.name} | Software & Security Engineer`
 const description =
-  'Henry Phillips is a cloud security and DevSecOps engineer in the Greater Milwaukee area. Experience at Google (Wiz), RKON, ScaleSec and Northwestern Mutual.'
+  'Henry Phillips is a software and security engineer in the Greater Milwaukee area. Experience at Google (Wiz), RiscPoint, RKON, ScaleSec and Northwestern Mutual.'
 
 export const metadata: Metadata = {
   // The whole title, so a search result names the role as well as the page.
@@ -16,13 +16,15 @@ export const metadata: Metadata = {
   alternates: { canonical: '/about' },
   keywords: [
     'Henry Phillips',
+    'Software Engineer',
+    'Security Engineer',
+    'Platform Engineer',
     'Cloud Security Engineer',
     'DevSecOps Engineer',
     'Greater Milwaukee',
-    'Application Security',
-    'DevSecOps',
-    'CI/CD Platform Engineering',
-    'Secrets Management',
+    'Platform Engineering',
+    'Distributed Systems',
+    'Security Automation',
   ],
   openGraph: {
     title,
@@ -54,8 +56,7 @@ export default function About() {
         <div className="md:col-span-7">
           <h1 className="title">About</h1>
           <p className="lead mt-8 max-w-[40ch]">
-            I&apos;m an application and cloud security engineer with a software engineering
-            background.
+            I&apos;m a software and security engineer based in the Milwaukee area.
           </p>
           {/* The facts a recruiter looks for first */}
           <dl className="mt-8 max-w-[58ch] border-b border-rule">
@@ -84,19 +85,28 @@ export default function About() {
           </dl>
           <div className="mt-8 max-w-[58ch] space-y-5">
             <p>
-              I work on DevSecOps, CI/CD platform engineering, IAM and secrets management across
-              AWS and GCP, and I write Go, Python, Java and Terraform.
+              I have experience building enterprise cloud infrastructure, distributed systems,
+              developer platforms, and security automation.
             </p>
             <p>
-              I&apos;m currently a Solutions Consultant at Wiz, now part of Google, where I manage
-              16 enterprise customers across AWS, GCP and Azure and advise teams from engineers to
-              CISOs.
+              My background spans traditional software engineering, cloud security, and platform
+              engineering. I&apos;ve developed production Java applications, built event-driven Go
+              services for large-scale secrets migrations, and designed secure CI/CD platforms
+              supporting enterprise engineering teams.
             </p>
             <p>
-              I came to security through graphic design and software engineering. Design keeps me
-              focused on the person using a system, and engineering showed me how systems fail in
-              practice. I try to build systems that are secure by design, usable, and don&apos;t
-              make other developers&apos; lives miserable.
+              My current role at Google (Wiz) has broadened my understanding of how organizations
+              design, operate, and secure complex cloud environments across AWS, Google Cloud, and
+              Azure.
+            </p>
+            <p>
+              Outside of work, I build and maintain independent software projects, including
+              Spawnpointed, an interactive video game geolocation platform, and Badger Politics, a
+              civic information platform focused on Wisconsin.
+            </p>
+            <p>
+              I&apos;m particularly interested in building secure, reliable systems, improving
+              developer experience, and solving complex problems through software and automation.
             </p>
             <UsersLine />
           </div>
