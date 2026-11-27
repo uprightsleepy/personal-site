@@ -78,6 +78,10 @@ export default function Home() {
                 <Link href="/case-studies">Explore my work</Link>
                 <SheetRef path="/case-studies" />
               </li>
+              <li>
+                <Link href="/projects">View engineering projects</Link>
+                <SheetRef path="/projects" />
+              </li>
               {profile.resume && (
                 <li>
                   <a href={profile.resume} download>

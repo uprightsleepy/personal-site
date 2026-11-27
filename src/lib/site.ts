@@ -40,6 +40,8 @@ export type WorkItem = {
   summary: string
   tags: string[]
   link?: { href: string; label: string; external: boolean }
+  // The project's own site, for work that has a case study here as well.
+  site?: { href: string; label: string }
 }
 
 export const work: WorkItem[] = [
@@ -86,10 +88,11 @@ export const work: WorkItem[] = [
       'A daily GeoGuessr-style game for video games. It is an edge-hosted React app with tiled map imagery, HMAC-signed play state, passkey and OAuth sign-in, and a Discord Activity integration. Delivery is secured with Gitleaks history scanning, zizmor workflow linting and a blocking npm audit gate.',
     tags: ['React', 'Cloudflare Workers', 'D1', 'R2', 'GitHub Actions'],
     link: {
-      href: 'https://spawnpointed.com',
-      label: 'spawnpointed.com',
-      external: true,
+      href: '/projects/spawnpointed',
+      label: 'Read the case study',
+      external: false,
     },
+    site: { href: 'https://spawnpointed.com', label: 'spawnpointed.com' },
   },
   {
     slug: 'badger-politics',
@@ -102,10 +105,11 @@ export const work: WorkItem[] = [
       'An open-source Wisconsin transparency site. A Python pipeline loads bills, votes, campaign finance and elections into SQLite and publishes a static Astro site with a keyless JSON API. Releases use Terraform-managed GCP Workload Identity Federation and least-privilege service accounts.',
     tags: ['Python', 'Astro', 'SQLite', 'Terraform', 'GCP'],
     link: {
-      href: 'https://badgerpolitics.org',
-      label: 'badgerpolitics.org',
-      external: true,
+      href: '/projects/badger-politics',
+      label: 'Read the case study',
+      external: false,
     },
+    site: { href: 'https://badgerpolitics.org', label: 'badgerpolitics.org' },
   },
 ]
 

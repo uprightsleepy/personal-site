@@ -68,8 +68,34 @@ const images: Record<string, OgImage> = {
     path: '/case-studies',
     lines: [
       { text: 'Work', width: '125', outline: true },
-      { text: 'Secrets migration, CI/CD platform,', width: '62' },
-      { text: 'Spawnpointed, Badger Politics', width: '100' },
+      { text: 'Secrets migration', width: '62' },
+      { text: 'CI/CD platform', width: '100' },
+    ],
+  },
+  'projects.png': {
+    path: '/projects',
+    lines: [
+      { text: 'Projects', width: '125', outline: true },
+      { text: 'Spawnpointed', width: '62' },
+      { text: 'Badger Politics', width: '100' },
+    ],
+  },
+  'spawnpointed.png': {
+    path: '/projects/spawnpointed',
+    lines: [
+      { text: 'Spawnpointed', width: '62' },
+      { text: 'A daily game', width: '125', outline: true },
+      { text: 'Guess the game,', width: '100' },
+      { text: 'then drop a pin', width: '84', outline: true },
+    ],
+  },
+  'badger-politics.png': {
+    path: '/projects/badger-politics',
+    lines: [
+      { text: 'Badger Politics', width: '62' },
+      { text: 'Open source', width: '125', outline: true },
+      { text: 'Wisconsin public', width: '100' },
+      { text: 'records as data', width: '84', outline: true },
     ],
   },
   'secrets-migration.png': {

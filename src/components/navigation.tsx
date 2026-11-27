@@ -7,9 +7,11 @@ import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import { flushSync } from 'react-dom'
 import { NorthMark } from '@/components/north'
 import { sheets } from '@/lib/sheets'
+import { profile } from '@/lib/site'
 
 const links = [
   { href: '/case-studies', label: 'Work' },
+  { href: '/projects', label: 'Projects' },
   { href: '/about', label: 'About' },
   { href: '/blog', label: 'Writing' },
 ]
@@ -102,6 +104,12 @@ export default function Navigation() {
               {link.label}
             </Link>
           ))}
+          {/* The résumé is a file, not a page, so it is offered as a download */}
+          {profile.resume && (
+            <a href={profile.resume} download className="nav-link">
+              Résumé
+            </a>
+          )}
           <button
             type="button"
             onClick={toggleTheme}
@@ -114,8 +122,9 @@ export default function Navigation() {
       </header>
 
       <nav aria-label="Main, pinned" className="pinned" data-shown={pinned || undefined} inert={!pinned}>
+        {/* "Home" here, not the name: the bar has to fit a phone's width */}
         <Link href="/" className="font-bold" aria-current={pathname === '/' ? 'page' : undefined}>
-          Henry Phillips
+          Home
         </Link>
         {links.map((link) => (
           <Link key={link.href} href={link.href} aria-current={pathname.startsWith(link.href) ? 'page' : undefined}>

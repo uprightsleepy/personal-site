@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Leader, SheetRef } from '@/components/drafting'
 import WorkLink from '@/components/work-link'
 import { profile, work } from '@/lib/site'
 
 const title = `Engineering Case Studies | ${profile.name}`
 const description =
-  'Engineering work by Henry Phillips: an event-driven Go platform that migrated 62,800+ secrets to AWS Secrets Manager, a secure multi-tenant CI/CD platform on GCP, and two independent software projects.'
+  'Engineering case studies by Henry Phillips: an event-driven Go platform that migrated 62,800+ secrets to AWS Secrets Manager, and a secure multi-tenant CI/CD platform on GCP.'
 
 export const metadata: Metadata = {
   title: 'Engineering Case Studies',
@@ -41,19 +42,21 @@ export const metadata: Metadata = {
   },
 }
 
+// Client work only. The personal projects have their own page, /projects.
+const caseStudies = work.filter((item) => item.kind === 'Case study')
+
 export default function Work() {
   return (
     <div className="gutter">
       <header className="pb-14 pt-10 md:pb-24 md:pt-20">
         <h1 className="title">Work</h1>
         <p className="lead mt-8 max-w-[46ch] text-soft">
-          Systems I designed and built for enterprise clients at ScaleSec and RKON, and two
-          software projects I build and run myself.
+          Systems I designed and built for enterprise clients at ScaleSec and RKON.
         </p>
       </header>
 
       <ul className="border-b border-rule">
-        {work.map((item) => (
+        {caseStudies.map((item) => (
           <li
             key={item.slug}
             className="grid gap-x-10 gap-y-5 border-t border-rule py-8 md:grid-cols-12 md:py-12"
@@ -77,6 +80,11 @@ export default function Work() {
           </li>
         ))}
       </ul>
+
+      <p className="mt-10 max-w-[58ch]">
+        The software I build and run myself is under <Link href="/projects">Projects</Link>
+        <SheetRef path="/projects" />
+      </p>
     </div>
   )
 }
