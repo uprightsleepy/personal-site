@@ -248,7 +248,7 @@ export default function SecretsMigration() {
           Architected and implemented the core Lambda migration system that successfully transferred{' '}
           <strong>62,800+ secrets</strong> from HashiCorp Vault to AWS Secrets Manager for a Fortune
           100 financial services institution. The project followed the Pareto Distribution: 85% of
-          secrets were migrated in 4 months using standard processes, while the remaining 15%
+          all the organization&apos;s secrets were migrated in 4 months using standard processes, while the remaining 15%
           required custom solutions for complex scenarios like Active Directory authentication. The
           solution included white glove user support for secret identification, code migration
           assistance, and just-in-time access controls with zero standing privileges.
@@ -298,15 +298,14 @@ export default function SecretsMigration() {
         <h3>Phased approach and the Pareto Distribution</h3>
         <h4>The 80/20 rule in action</h4>
         <p>
-          Our migration exemplified the Pareto Distribution: 80% of secrets followed standard
-          patterns and were migrated in 5 months, 15% required custom solutions for complex
-          scenarios like Active Directory authentication, and 5% needed white glove support for
-          tricky migrations.
+          Our migration exemplified the Pareto Distribution: 85% of all the organization&apos;s
+          secrets followed standard patterns and were migrated in 4 months. The remaining 15%
+          required custom solutions for complex scenarios like Active Directory authentication, or
+          white glove support for tricky migrations.
         </p>
         <dl className="border-b border-rule">
-          <Row term="80%">Standard (5 months)</Row>
-          <Row term="15%">Hard cases (3 months)</Row>
-          <Row term="5%">White glove support</Row>
+          <Row term="85%">Standard (4 months)</Row>
+          <Row term="15%">Hard cases and white glove support</Row>
         </dl>
         <ol>
           {phases.map(([phase, detail]) => (

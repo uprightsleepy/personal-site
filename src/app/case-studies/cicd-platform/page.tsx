@@ -350,8 +350,8 @@ export default function CicdPlatform() {
           An application is built once. After approval the pipeline signs the build and its
           provenance, and the same build, identified by its digest, is deployed to a lower
           environment and then promoted to production, on Cloud Run or GKE. Nothing is rebuilt
-          between the two. A deploy to production sits behind an approval gate. Deploys to GKE are
-          made with kubectl.
+          between the two. A deploy to production sits behind a second approval gate, separate from
+          the approval on the merge request. Deploys to GKE are made with kubectl.
         </p>
 
         <h3>The Terraform pipeline</h3>
@@ -428,8 +428,8 @@ export default function CicdPlatform() {
         </p>
         <h3>Cloud Run at scale</h3>
         <p>
-          Cloud Run has scaling limits past 150 that its documentation does not call out. For a
-          larger platform I would work on a rearchitected system.
+          Cloud Run has scaling limits past 150 jobs that its documentation does not call out. For
+          a larger platform I would work on a rearchitected system.
         </p>
         <h3>What I would change</h3>
         <p>
