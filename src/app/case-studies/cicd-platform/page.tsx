@@ -257,12 +257,12 @@ export default function CicdPlatform() {
             GCP Cloud Run, GKE, Artifact Registry, Cloud KMS, Binary Authorization, Terraform, Checkov, Bitbucket, SonarQube,
             Snyk
           </Row>
-          <Row term="Reading time">5 minutes</Row>
+          <Row term="Reading time">6 minutes</Row>
         </dl>
       </header>
 
       <div className="longform">
-        <h2 className="!mt-0">Executive summary</h2>
+        <h2 className="!mt-0">Overview</h2>
         <p>
           I architected and built a CI/CD platform on GCP for a Fortune 250 company that had no
           cloud environment before it. The platform is a set of <strong>Cloud Run jobs</strong>,
@@ -278,7 +278,7 @@ export default function CicdPlatform() {
           of the company&rsquo;s development teams.
         </p>
 
-        <h2>The challenge</h2>
+        <h2>Problem statement</h2>
         <h3>Business context</h3>
         <p>
           The company was moving into GCP for the first time. Its development teams had no shared
@@ -291,7 +291,7 @@ export default function CicdPlatform() {
           A new cloud environment was the chance to give every team the same path to production
           before each one invented its own.
         </p>
-        <h3>Constraints</h3>
+        <h2>Engineering requirements and constraints</h2>
         <dl className="border-b border-rule">
           {constraints.map(([term, detail]) => (
             <Row key={term} term={term}>
@@ -300,12 +300,16 @@ export default function CicdPlatform() {
           ))}
         </dl>
 
-        <h2>Technical solution</h2>
+        <h2>Architecture</h2>
         <h3>Architecture overview</h3>
         <p>
           The platform is distributed by design. There is no central build server that every team
           shares. Each team gets its own Cloud Run jobs and its own service accounts, in its own
           GCP project, and the platform team&rsquo;s Terraform is what creates them.
+        </p>
+        <p>
+          The aim was a distributed system that could scale as teams joined, with duties separated
+          and each team holding permissions that were its own and no one else&rsquo;s.
         </p>
         <h4>Core components</h4>
         <dl className="border-b border-rule">
@@ -340,14 +344,14 @@ export default function CicdPlatform() {
           . The project is the boundary, and it is one GCP already enforces.
         </p>
 
+        <h2>Implementation</h2>
         <h3>Releasing an application</h3>
         <p>
           An application is built once. After approval the pipeline signs the build and its
           provenance, and the same build, identified by its digest, is deployed to a lower
           environment and then promoted to production, on Cloud Run or GKE. Nothing is rebuilt
-          between the two. On Cloud Run, production traffic moves to the new revision a share at a
-          time, and if a health check fails the pipeline rolls back to the previous revision
-          without anyone stepping in.
+          between the two. A deploy to production sits behind a second approval gate, separate from
+          the approval on the merge request. Deploys to GKE are made with kubectl.
         </p>
 
         <h3>The Terraform pipeline</h3>
@@ -367,6 +371,27 @@ export default function CicdPlatform() {
           planned for.
         </p>
 
+        <h3>Onboarding a team</h3>
+        <p>
+          A team joined the platform in one of two ways. It raised a ticket with the platform team,
+          or, if it knew Terraform, it opened a pull request against the central Terraform
+          repository itself.
+        </p>
+
+        <h3>Rollout</h3>
+        <ol>
+          {rollout.map(([phase, detail]) => (
+            <li key={phase}>
+              <strong>{phase}.</strong> {detail}
+            </li>
+          ))}
+        </ol>
+        <p>
+          Throughout, I held regular syncs with Director and VP level stakeholders, so decisions
+          about standards and sequencing were made by the people who owned them.
+        </p>
+
+        <h2>Security considerations</h2>
         <h3>Checks built into the pipelines</h3>
         <dl className="border-b border-rule">
           {checks.map(([term, detail]) => (
@@ -384,39 +409,28 @@ export default function CicdPlatform() {
           their platform environment.
         </p>
 
-        <h2>Rollout</h2>
-        <ol>
-          {rollout.map(([phase, detail]) => (
-            <li key={phase}>
-              <strong>{phase}.</strong> {detail}
-            </li>
-          ))}
-        </ol>
+        <h2>Reliability and failure handling</h2>
         <p>
-          Throughout, I held regular syncs with Director and VP level stakeholders, so decisions
-          about standards and sequencing were made by the people who owned them.
+          On Cloud Run, production traffic moves to the new revision a share at a time, and if a
+          health check fails the pipeline rolls back to the previous revision without anyone
+          stepping in. On GKE, a failed deploy is rolled back with Kubernetes&rsquo; native
+          rollback.
+        </p>
+        <p>
+          In the Terraform pipeline, a plan&rsquo;s signature is checked along with drift before it
+          is applied, so what is applied is the plan that was approved.
         </p>
 
-        <h2>Results and impact</h2>
-        <dl className="border-b border-rule">
-          {results.map(([value, label]) => (
-            <div
-              key={label}
-              className="grid grid-cols-12 items-baseline gap-x-3 border-t border-rule py-3 md:gap-x-10"
-            >
-              <dt className="entry col-span-5 tabular-nums md:col-span-4">{value}</dt>
-              <dd className="col-span-7 md:col-span-8">{label}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <h2>Retrospective</h2>
-        <h3>What worked well</h3>
-        <ul>
-          {workedWell.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
+        <h2>Architectural trade-offs</h2>
+        <h3>kubectl for GKE</h3>
+        <p>
+          Deploys to GKE use kubectl, not gke-deploy, and rely on Kubernetes&rsquo; native rollback.
+        </p>
+        <h3>Cloud Run at scale</h3>
+        <p>
+          Cloud Run has scaling limits past 150 jobs that its documentation does not call out. For
+          a larger platform I would work on a rearchitected system.
+        </p>
         <h3>What I would change</h3>
         <p>
           The platform took pipeline onboarding from weeks to minutes, but it kept the
@@ -431,7 +445,26 @@ export default function CicdPlatform() {
           were built to make that safe.
         </p>
 
-        <h3>Technical skills demonstrated</h3>
+        <h2>Outcomes and measurable impact</h2>
+        <dl className="border-b border-rule">
+          {results.map(([value, label]) => (
+            <div
+              key={label}
+              className="grid grid-cols-12 items-baseline gap-x-3 border-t border-rule py-3 md:gap-x-10"
+            >
+              <dt className="entry col-span-5 tabular-nums md:col-span-4">{value}</dt>
+              <dd className="col-span-7 md:col-span-8">{label}</dd>
+            </div>
+          ))}
+        </dl>
+
+        <h3>What worked well</h3>
+        <ul>
+          {workedWell.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <h2>Technologies used</h2>
         <dl className="border-b border-rule">
           {skillsShown.map(([term, detail]) => (
             <Row key={term} term={term}>

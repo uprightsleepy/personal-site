@@ -96,9 +96,12 @@ const phases = [
   ],
 ]
 
-const challenges = [
+// `reliability` puts a challenge under "Reliability and failure handling"
+// in place of "Technical challenges overcome".
+const challenges: { title: string; issue: string; solution: string; reliability?: boolean }[] = [
   {
     title: 'Authentication reliability',
+    reliability: true,
     issue:
       'Vault authentication could occasionally fail due to network issues or temporary service unavailability.',
     solution:
@@ -118,6 +121,7 @@ const challenges = [
   },
   {
     title: 'Error recovery',
+    reliability: true,
     issue: 'Network failures and API errors required reliable retry mechanisms.',
     solution:
       'Implemented idempotent operations with detailed logging and automated retry logic for transient failures.',
@@ -234,30 +238,34 @@ export default function SecretsMigration() {
           <Row term="Duration">12 months total (4 months core migration)</Row>
           <Row term="Scale">62,800+ secrets</Row>
           <Row term="Stack">Go, AWS Lambda, SQS, ECS, AWS Secrets Manager, HashiCorp Vault, IAM</Row>
-          <Row term="Reading time">8 minutes</Row>
+          <Row term="Reading time">9 minutes</Row>
         </dl>
       </header>
 
       <div className="longform">
-        <h2 className="!mt-0">Executive summary</h2>
+        <h2 className="!mt-0">Overview</h2>
         <p>
           Architected and implemented the core Lambda migration system that successfully transferred{' '}
           <strong>62,800+ secrets</strong> from HashiCorp Vault to AWS Secrets Manager for a Fortune
           100 financial services institution. The project followed the Pareto Distribution: 85% of
-          secrets were migrated in 4 months using standard processes, while the remaining 15%
+          all the organization&apos;s secrets were migrated in 4 months using standard processes, while the remaining 15%
           required custom solutions for complex scenarios like Active Directory authentication. The
           solution included white glove user support for secret identification, code migration
           assistance, and just-in-time access controls with zero standing privileges.
         </p>
+        <p>
+          I owned the Go migration Lambda end to end, including the downstream processes: the
+          microservice updates and the blue-green rotation.
+        </p>
 
-        <h2>The challenge</h2>
+        <h2>Problem statement</h2>
         <h3>Business context</h3>
         <p>
           A Fortune 100 financial services institution needed to migrate away from HashiCorp Vault
           due to financial concerns with their operating model. The organization faced a strict
           12-month timeline to complete the migration to AWS Secrets Manager.
         </p>
-        <h3>Technical constraints</h3>
+        <h2>Engineering requirements and constraints</h2>
         <dl className="border-b border-rule">
           {constraints.map(([term, detail]) => (
             <Row key={term} term={term}>
@@ -266,7 +274,7 @@ export default function SecretsMigration() {
           ))}
         </dl>
 
-        <h2>Technical solution</h2>
+        <h2>Architecture</h2>
         <h3>Architecture overview</h3>
         <p>
           We designed a <strong>just-in-time access Lambda architecture</strong> that ensured zero
@@ -286,8 +294,40 @@ export default function SecretsMigration() {
       <SecretsDiagram />
 
       <div className="longform">
-        <h3>Security model</h3>
-        <h4>Zero standing privileges architecture</h4>
+        <h2>Implementation</h2>
+        <h3>Phased approach and the Pareto Distribution</h3>
+        <h4>The 80/20 rule in action</h4>
+        <p>
+          Our migration exemplified the Pareto Distribution: 85% of all the organization&apos;s
+          secrets followed standard patterns and were migrated in 4 months. The remaining 15%
+          required custom solutions for complex scenarios like Active Directory authentication, or
+          white glove support for tricky migrations.
+        </p>
+        <dl className="border-b border-rule">
+          <Row term="85%">Standard (4 months)</Row>
+          <Row term="15%">Hard cases and white glove support</Row>
+        </dl>
+        <ol>
+          {phases.map(([phase, detail]) => (
+            <li key={phase}>
+              <strong>{phase}.</strong> {detail}
+            </li>
+          ))}
+        </ol>
+
+        <h3>Technical challenges overcome</h3>
+        {challenges
+          .filter((challenge) => !challenge.reliability)
+          .map((challenge) => (
+            <div key={challenge.title}>
+              <h4>{challenge.title}</h4>
+              <p>{challenge.issue}</p>
+              <p>{challenge.solution}</p>
+            </div>
+          ))}
+
+        <h2>Security considerations</h2>
+        <h3>Zero standing privileges architecture</h3>
         <ol>
           {accessSteps.map(([step, detail]) => (
             <li key={step}>
@@ -304,44 +344,49 @@ export default function SecretsMigration() {
           , as permissions were permanently revoked after each migration.
         </p>
 
-        <h2>Implementation strategy</h2>
-        <h3>Phased approach and the Pareto Distribution</h3>
-        <h4>The 80/20 rule in action</h4>
+        <h2>Reliability and failure handling</h2>
         <p>
-          Our migration exemplified the Pareto Distribution: 80% of secrets followed standard
-          patterns and were migrated in 5 months, 15% required custom solutions for complex
-          scenarios like Active Directory authentication, and 5% needed white glove support for
-          tricky migrations.
+          Each invocation of the Lambda migrates one secret. Before it starts, it checks whether
+          that secret has already been migrated, so sending the same request again does not repeat
+          the work.
         </p>
-        <dl className="border-b border-rule">
-          <Row term="80%">Standard (5 months)</Row>
-          <Row term="15%">Hard cases (3 months)</Row>
-          <Row term="5%">White glove support</Row>
-        </dl>
-        <ol>
-          {phases.map(([phase, detail]) => (
-            <li key={phase}>
-              <strong>{phase}.</strong> {detail}
-            </li>
+        <p>
+          The Lambda waits for a successful response from every downstream process. If any of them
+          fails, the message goes to a dead-letter queue.
+        </p>
+        {challenges
+          .filter((challenge) => challenge.reliability)
+          .map((challenge) => (
+            <div key={challenge.title}>
+              <h3>{challenge.title}</h3>
+              <p>{challenge.issue}</p>
+              <p>{challenge.solution}</p>
+            </div>
           ))}
-        </ol>
+        <h3>Rotation and rehydration</h3>
+        <p>
+          For database credentials I implemented automated blue-green rotation and rehydration
+          workflows. They reduced incident recovery time by approximately 32%.
+        </p>
 
-        <h3>Technical challenges overcome</h3>
-        <h4>Single-threaded by design</h4>
+        <h2>Architectural trade-offs</h2>
+        <h3>Single-threaded by design</h3>
         <p>
           Multi-threading was intentionally avoided to maintain JIT access principles. We required
           that the Lambda execution role never have access to multiple vault paths simultaneously,
           ensuring perfect isolation and minimizing blast radius of any potential compromise.
         </p>
-        {challenges.map((challenge) => (
-          <div key={challenge.title}>
-            <h4>{challenge.title}</h4>
-            <p>{challenge.issue}</p>
-            <p>{challenge.solution}</p>
-          </div>
-        ))}
+        <p>
+          How many secrets were migrated at once was set by the Lambda&apos;s concurrency settings.
+        </p>
+        <h3>Future improvements</h3>
+        <ul>
+          {futureImprovements.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
 
-        <h2>Results and impact</h2>
+        <h2>Outcomes and measurable impact</h2>
         <dl className="border-b border-rule">
           {results.map(([value, label]) => (
             <div
@@ -362,21 +407,14 @@ export default function SecretsMigration() {
           ))}
         </dl>
 
-        <h2>Retrospective</h2>
         <h3>What worked well</h3>
         <ul>
           {workedWell.map((item) => (
             <li key={item}>{item}</li>
           ))}
         </ul>
-        <h3>Future improvements</h3>
-        <ul>
-          {futureImprovements.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
 
-        <h3>Technical skills demonstrated</h3>
+        <h2>Technologies used</h2>
         <dl className="border-b border-rule">
           {skillsShown.map(([term, detail]) => (
             <Row key={term} term={term}>

@@ -33,7 +33,9 @@ import {
 // dotted line joins a step to each resource it calls, and joins Binary
 // Authorization to the key it checks signatures against. A diamond
 // is the merge request's approval: "yes" carries on to the right, and "no"
-// loops back to the first step.
+// loops back to the first step. A smaller diamond before the last step of
+// the application lane is the second approval, the one a deploy to
+// production needs.
 //
 // Everything is laid out by hand on one grid, and the resources are placed
 // so that no two lines cross: each sits between the steps that call it, with
@@ -46,9 +48,17 @@ import {
 // A step's name, for tracing, is its lane's letter and its place in the
 // lane, from 0.
 
-type Lane = { id: string; top: number; title: string; titleAt: 'top' | 'bottom'; steps: Step[] }
+type Lane = {
+  id: string
+  top: number
+  title: string
+  titleAt: 'top' | 'bottom'
+  steps: Step[]
+  // A second approval, drawn as a small diamond on the way into the last step.
+  secondGate?: string[]
+}
 
-const WIDTH = 1340
+const WIDTH = 1450
 const HEIGHT = 696
 const STEP_W = 112
 const STEP_H = 96
@@ -57,10 +67,16 @@ const GATE_W = 144
 const GATE_H = 96
 const LANE_X = 200
 const LANE_H = 206
-const RIGHT = 1320
+const RIGHT = 1430
+// The second approval diamond, between the last two columns.
+const GATE2 = 1234
+const GATE2_W = 76
+const GATE2_H = 60
 
 // Four steps before the approval and three after, on the same columns in
-// both lanes. Step centres: 276, 406, 536, 666, then 984, 1114, 1244.
+// both lanes. Step centres: 276, 406, 536, 666, then 984, 1114, 1354. The
+// last column stands apart from the one before it, which leaves room in the
+// application lane for the approval a production deploy needs.
 const lanes: Lane[] = [
   {
     id: 'a',
@@ -75,8 +91,9 @@ const lanes: Lane[] = [
       { x: 610, symbol: 'scan', lines: ['SonarQube', 'scan'] },
       { x: 928, symbol: 'pen', lines: ['Sign build and', 'provenance'] },
       { x: 1058, symbol: 'deploy', lines: ['Deploy to', 'pre-production'] },
-      { x: 1188, symbol: 'rollout', lines: ['Roll out to', 'production'] },
+      { x: 1298, symbol: 'rollout', lines: ['Roll out to', 'production'] },
     ],
+    secondGate: ['Production', 'approval'],
   },
   {
     id: 't',
@@ -90,7 +107,7 @@ const lanes: Lane[] = [
       { x: 610, symbol: 'pen', lines: ['Sign and', 'store plan'] },
       { x: 928, symbol: 'read', lines: ['Read plan'] },
       { x: 1058, symbol: 'shield', lines: ['Check signature', 'and drift'] },
-      { x: 1188, symbol: 'layers', lines: ['Apply'] },
+      { x: 1298, symbol: 'layers', lines: ['Apply'] },
     ],
   },
 ]
@@ -111,19 +128,19 @@ const resources: Resource[] = [
   { id: 'wif', x: 1, y: 327, w: 159, h: 66, symbol: 'link', lines: ['Workload Identity', 'Federation'] },
   { id: 'snyk', x: 200, y: 310, w: 150, h: 44, symbol: 'server', lines: ['Self-hosted', 'Snyk'] },
   { id: 'kms', x: 974, y: 310, w: 150, h: 44, symbol: 'key', lines: ['Cloud KMS key'] },
-  { id: 'binauth', x: 1172, y: 310, w: 148, h: 44, symbol: 'shield', lines: ['Binary', 'Authorization'] },
+  { id: 'binauth', x: 1282, y: 310, w: 148, h: 44, symbol: 'shield', lines: ['Binary', 'Authorization'] },
   { id: 'plan-sa', x: 200, y: 366, w: 150, h: 44, symbol: 'badge', lines: ['Plan service', 'account'] },
   { id: 'bucket', x: 750, y: 366, w: 150, h: 44, symbol: 'bucket', lines: ['Storage bucket'] },
-  { id: 'apply-sa', x: 1172, y: 366, w: 148, h: 44, symbol: 'badge', lines: ['Apply service', 'account'] },
+  { id: 'apply-sa', x: 1282, y: 366, w: 148, h: 44, symbol: 'badge', lines: ['Apply service', 'account'] },
 ]
 
 // Where builds are deployed. The two targets share one frame above the
 // deploy steps, and a step's call ends at the frame, not at one of them. Two
 // steps each calling two boxes could not be drawn without lines crossing.
-const TARGETS = { id: 'targets', x: 1040, y: 1, w: 280, h: 62 }
+const TARGETS = { id: 'targets', x: 1040, y: 1, w: 390, h: 62 }
 const targets: Resource[] = [
-  { id: 'run', x: 1049, y: 10, w: 127, h: 44, symbol: 'deploy', lines: ['Cloud Run'] },
-  { id: 'gke', x: 1184, y: 10, w: 127, h: 44, symbol: 'layers', lines: ['GKE'] },
+  { id: 'run', x: 1049, y: 10, w: 182, h: 44, symbol: 'deploy', lines: ['Cloud Run'] },
+  { id: 'gke', x: 1239, y: 10, w: 182, h: 44, symbol: 'layers', lines: ['GKE'] },
 ]
 
 // A dotted line for each call, drawn from the caller to the resource so the
@@ -140,11 +157,11 @@ const calls: Call[] = [
   { d: 'M984 222V310', from: 'a4', to: 'kms' },
   // Both deploy steps deploy to Cloud Run or GKE
   { d: 'M1114 126V63', from: 'a5', to: 'targets' },
-  { d: 'M1244 126V63', from: 'a6', to: 'targets' },
+  { d: 'M1354 126V63', from: 'a6', to: 'targets' },
   // The target asks Binary Authorization before it runs a new build in
   // production, and Binary Authorization checks against the key
-  { d: 'M1244 222V310', from: 'a6', to: 'binauth' },
-  { d: 'M1172 332H1124', from: 'binauth', to: 'kms' },
+  { d: 'M1354 222V310', from: 'a6', to: 'binauth' },
+  { d: 'M1282 332H1124', from: 'binauth', to: 'kms' },
   // The IaC scan asks the Snyk server too
   { d: 'M536 480V342H350', from: 't2', to: 'snyk' },
   // The key again: sign the plan, and check its signature
@@ -155,7 +172,7 @@ const calls: Call[] = [
   { d: 'M984 480V388H900', from: 't4', to: 'bucket' },
   // Plan and apply each run as their own service account
   { d: 'M276 480V410', from: 't0', to: 'plan-sa' },
-  { d: 'M1244 480V410', from: 't6', to: 'apply-sa' },
+  { d: 'M1354 480V410', from: 't6', to: 'apply-sa' },
 ]
 
 // When each piece starts being drawn, in milliseconds from the first.
@@ -209,6 +226,15 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
       })}
       {after.map((step, index) => {
         const from = index === 0 ? gateRight : after[index - 1].x + STEP_W
+        // Into the last step by way of the second approval, where there is one
+        if (lane.secondGate && index === after.length - 1) {
+          return (
+            <g key={step.x}>
+              <Wire d={`M${from} ${mid}H${GATE2 - GATE2_W / 2 - 2}`} t={stepAt(index + 4) - 80} />
+              <Wire d={`M${GATE2 + GATE2_W / 2} ${mid}H${step.x - 2}`} t={stepAt(index + 4) - 30} />
+            </g>
+          )
+        }
         return (
           <Wire key={step.x} d={`M${from} ${mid}H${step.x - 2}`} t={stepAt(index + 4) - 40}>
             {index === 0 && (
@@ -246,6 +272,17 @@ function LaneDrawing({ lane, trace }: { lane: Lane; trace: Trace }) {
         />
       ))}
 
+      {lane.secondGate && (
+        <g style={at(stepAt(lane.steps.length - 1) - 60)} {...trace(`${lane.id}-gate2`)}>
+          <path
+            className="pd-step pd-draw"
+            pathLength={1}
+            d={`M${GATE2 - GATE2_W / 2} ${mid}L${GATE2} ${mid - GATE2_H / 2}L${GATE2 + GATE2_W / 2} ${mid}L${GATE2} ${mid + GATE2_H / 2}Z`}
+          />
+          <Label x={GATE2} y={mid - GATE2_H / 2 - 22} lines={lane.secondGate} className="pd-small pd-strong" />
+        </g>
+      )}
+
       <g style={at(gateAt)} {...trace(`${lane.id}-gate`)}>
         <path
           className="pd-step pd-draw"
@@ -265,7 +302,7 @@ export default function PipelineDiagram() {
       width={WIDTH}
       height={HEIGHT}
       name="Pipeline diagram"
-      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline, for React, Java, Python and Go, runs secret validation against the self-hosted Snyk server, a build that pulls its images and libraries through Artifact Registry, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and it is rolled out to production. Both deploys go to Cloud Run or GKE, and in production Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
+      label="Diagram of the two pipelines and the resources they call. A merge request in Bitbucket starts either pipeline through Workload Identity Federation. The application pipeline, for React, Java, Python and Go, runs secret validation against the self-hosted Snyk server, a build that pulls its images and libraries through Artifact Registry, tests and a scan by the self-hosted SonarQube server. If the merge request is approved, the build and its provenance are signed with the Cloud KMS key, the build is deployed to pre-production, and after a second approval it is rolled out to production. Both deploys go to Cloud Run or GKE, and in production Binary Authorization checks the signature against the Cloud KMS key. The Terraform pipeline makes a plan as the plan service account, checks it with Checkov, scans the infrastructure code with the self-hosted Snyk server, signs the plan with the Cloud KMS key and stores it in a Cloud Storage bucket. If the merge request is approved, the plan is read back from the bucket, its signature is checked with the Cloud KMS key along with drift, and it is applied as the apply service account. In both, a merge request that is not approved goes back to the developer."
       tracing={tracing}
       caption={
         <>
